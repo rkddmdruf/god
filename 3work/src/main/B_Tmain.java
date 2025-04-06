@@ -61,15 +61,22 @@ public class B_Tmain extends JFrame{
 		noQlistl.setFont(new Font("", Font.BOLD, 18));
 		noQlistl.setBounds(240, 20, 200, 70);
 		myQnA.setFont(new Font("", Font.BOLD, 18));
-		myQnA.setBounds(40, 410, 100, 50);
+		myQnA.setBounds(40, 410, 150, 50);
 		//.setBounds(140, 410, 200, 50);
 		try {
-			Z_SqlConnection al = new Z_SqlConnection();
-			ResultSet re = al.selectQ("catalog", "where tno = " + number + " and explan is null");
+			double ALLQ = 0;
+			double NullQ = 0;
+			Connection c = DriverManager.getConnection(Z_UUP.url(), Z_UUP.username(), Z_UUP.password());
+			Statement al = c.createStatement();
+			ResultSet res = al.executeQuery("select * from catalog where tno = "+number);
+			while(res.next()) {
+				ALLQ++;
+			}
+			ResultSet re = al.executeQuery("select * from catalog where tno = " + number + " and explan is null");
 			int i = 0, j = 10;
 			int r = 0, g = 0, b = 0;
 			while(re.next()) {
-				
+				NullQ++;
 				list.add(i, new JPanel(new BorderLayout()));
 				JLabel test = new JLabel(re.getString("title"));
 				list.get(i).add(test);
@@ -78,11 +85,15 @@ public class B_Tmain extends JFrame{
 				noQlist.add(list.get(i));
 				i += 1;j += 160;
 			}
+			double sum = ALLQ - NullQ;
+			int ui = (int)((sum/ALLQ) * 100);
+			myQnA.setText("내 답변률 : " + (""+ui) + "%");
 			re.close();
-			
+			al.close();
+			c.close();
 			
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 		JScrollPane scll = new JScrollPane(noQlist);
 		scll.setBounds(240, 100, 410, 300);

@@ -37,17 +37,18 @@ public class TList extends JComponent{
 	Font fonts = new Font("맑은 고딕", Font.BOLD, 20);
 	
 	int number;
+	int imgnumber;
+	int pomcheck;
 	String stitle;
 	String s질문내용;
+	
 	int MC =0;
 	int Qcheck = 0;
 	double sum = 0;
 	int X;
 	int x;
 	String order;
-	int imgnumber;
 	int cblist = 0;
-	int pomcheck;
 	int[][] Tarry = new int[3][8];
 	ResultSet re;
 	ResultSet nullre;
@@ -60,7 +61,7 @@ public class TList extends JComponent{
 			listP[i].setLayout(null);
 			listP[i].setBackground(Color.white);
 		}
-		cardP.setBounds(0,100,3350, 250);
+		cardP.setBounds(0,100,3500, 250);
 		this.number = number;
 		this.stitle = stitle;
 		this.s질문내용 = s질문내용;
@@ -147,6 +148,7 @@ public class TList extends JComponent{
 					+ "join teacher on teacher.tno = catalog.tno GROUP BY catalog.tno "
 					+ "ORDER BY answer_rate DESC;");
 				}
+				int imgSize = 0;
 				while(re.next()) {
 					int i = re.getInt("tno");
 					System.out.println(i);
@@ -175,7 +177,7 @@ public class TList extends JComponent{
 					Image imgs = new ImageIcon(str).getImage().getScaledInstance(110, 125, Image.SCALE_SMOOTH);
 					Image penImg= new ImageIcon("imgs/icon/pencil.png").getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
 					
-					list[j].add(imgSize, new JPanel(null));
+					list[j].add(imgSize , new JPanel(null));
 					list[j].get(imgSize).setBackground(Color.white);
 					list[j].get(imgSize).setBorder(BorderFactory.createLineBorder(Color.black));
 					list[j].get(imgSize).setBounds(10 +(imgSize * 420),0, 400, 250);
