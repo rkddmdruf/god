@@ -13,12 +13,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-public class B_Tmain extends JFrame{
-	
-	Container f = getContentPane();
+public class B_Tmain extends JComponent{
+	JFrame f = new JFrame();
 	
 	JPanel noQlist = new JPanel(new GridBagLayout());
-	
+	JPanel publicP = new JPanel();
 	Color white = Color.white;
 	Color black = Color.black;
 	
@@ -34,8 +33,7 @@ public class B_Tmain extends JFrame{
 	List<JPanel> list = new ArrayList<>();
 	
 	B_Tmain(int number, String tname){
-		setTitle("선생님 메인");
-		setLayout(null);
+		f.setTitle("선생님 메인");
 		
 		noQlist.setLayout(null);
 		noQlist.setBackground(Color.cyan);
@@ -98,19 +96,27 @@ public class B_Tmain extends JFrame{
 		JScrollPane scll = new JScrollPane(noQlist);
 		scll.setBounds(240, 100, 410, 300);
 		scll.setViewportView(noQlist);
-		add(scll);
+		publicP.setBackground(Color.white);
+		publicP.add(scll);
 		//add(noQlist);
-		add(logo);
-		add(Question);
-		add(stats);
-		add(noQlistl);
-		add(myQnA);
-		
+		publicP.add(logo);
+		publicP.add(Question);
+		publicP.add(stats);
+		publicP.add(noQlistl);
+		publicP.add(myQnA);
+		publicP.setLayout(null);
+		f.add(publicP);
 		f.setBackground(white);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(610, 340, 700, 500);
+		f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
-		setVisible(true);
+		f.setBounds(610, 340, 700, 500);
+		f.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				f.setVisible(false);
+				new A_Login();
+			}
+		});
+		f.setVisible(true);
 		
 	}
 	
