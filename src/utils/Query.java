@@ -51,7 +51,7 @@ public class Query {
 			ps.close();
 			c.close();
 		}catch (Exception e) {
-			
+			System.out.println(e.getMessage());
 		}
 	}
 }

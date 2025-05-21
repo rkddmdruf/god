@@ -60,8 +60,8 @@ public class UserS_change extends BaseFrame{
 			public void actionPerformed(ActionEvent e) {
 				int Y_N = -1;
 				try {
-					Query.upDate("update customer set birth = ?, tel = ?, address = ?, company = ? where name= ?",
-							UBD.getText(), USN.getText(), UHC.getText(), UW.getText(), str);
+					Query.upDate("update customer set code = ?, birth = ?, tel = ?, address = ?, company = ? where name= ?",
+							UC.getText(), UBD.getText(), USN.getText(), UHC.getText(), UW.getText(), str);
 				} catch (Exception e1) {
 					Y_N = Y_N * -1;
 				}

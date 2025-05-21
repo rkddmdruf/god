@@ -43,6 +43,10 @@ public class Admin extends BaseFrame{
 						new UserM();
 					}else if(e.getSource() == butn[1]) {
 						new UserS();
+					}else if(e.getSource() == butn[2]) {
+						new ContractM();
+					}else if(e.getSource() == butn[3]) {
+						dispose();
 					}
 				}
 			});

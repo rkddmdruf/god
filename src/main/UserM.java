@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 import utils.BaseFrame;
 import utils.ButtonMake;
+import utils.Query;
 
 public class UserM extends BaseFrame{
 	JPanel main = new JPanel() {{
@@ -59,6 +60,7 @@ public class UserM extends BaseFrame{
 				if(UN.getText().equals("") || UBD.getText().equals("") || USN.getText().equals("")) {
 					JOptionPane.showMessageDialog(getContentPane(), "필수항목(*)을 모두 입력하세요", "고객등록 에러", JOptionPane.ERROR_MESSAGE);
 				}else {
+					Query.upDate("insert into customer values(?, ?, ?, ? ,? , ?)", UC.getText(), UN.getText(), UBD.getText(), UHC.getText(), UW.getText());
 					JOptionPane.showMessageDialog(getContentPane(), "고객추가가완료되었습니다.", "메시지", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}

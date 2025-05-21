@@ -11,4 +11,11 @@ public class ButtonMake extends JButton{
 		this.setPreferredSize(new Dimension(w, h));
 		this.setFont(font);
 	}
+	public ButtonMake(String str, Font font){
+		this.setText(str);
+		this.setFont(font);
+	}
+	public ButtonMake(String str){
+		this.setText(str);
+	}
 }

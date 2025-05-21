@@ -1,7 +1,9 @@
 package main;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -125,11 +127,16 @@ public class UserS extends BaseFrame{
 					int result = JOptionPane.showOptionDialog(getContentPane(), str+"님을 정말 삭제하시겠습니까?", "고객정보 삭제", 
 							JOptionPane.YES_NO_OPTION , JOptionPane.QUESTION_MESSAGE, null, new String[]{"확인", "취소"}, null);
 					if(result == JOptionPane.YES_OPTION) {
+						Query.upDate("delete from customer where name = ?", str);
 						tmodel.removeRow(T.getSelectedRow());
 					}
 				}
 			}
 		});
 		end.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {dispose();}});
+	}
+	
+	public static void main(String[] args) {
+		new UserS();
 	}
 }
