@@ -41,10 +41,13 @@ public class Admin extends BaseFrame{
 				public void actionPerformed(ActionEvent e) {
 					if(e.getSource() == butn[0]) {
 						new UserM();
+						dispose();
 					}else if(e.getSource() == butn[1]) {
 						new UserS();
+						dispose();
 					}else if(e.getSource() == butn[2]) {
 						new ContractM();
+						dispose();
 					}else if(e.getSource() == butn[3]) {
 						dispose();
 					}

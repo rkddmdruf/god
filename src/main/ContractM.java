@@ -45,13 +45,13 @@ public class ContractM extends BaseFrame{
 	JTextField phone = new JTextField();JTextField price = new JTextField();
 	JTextField monthPrice = new JTextField();
 	JButton 가입 = new JButton("가입");JButton 삭제 = new JButton("삭제");
-	JButton fileSave = new JButton("파일로저장");
+	JButton fileSave = new JButton("텍스트 파일로 저장하기");
 	Font myFont = new Font("맑은 고딕", Font.BOLD, 13);
 	
 	DefaultTableModel tmodel;
 	JTable table;
 	ContractM() {
-		setFrame("보험 계약", 700, 700, ()->{});
+		setFrame("보험 계약", 700, 700, ()->{new Admin();});
 	}
 	@Override
 	public void design() {
@@ -91,7 +91,7 @@ public class ContractM extends BaseFrame{
 		admin.add(adminName);admin.add(가입);
 		admin.add(삭제);admin.add(fileSave);
 		admin.add(new JButton("닫기") {{this.addActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {dispose();}
+			@Override public void actionPerformed(ActionEvent e) {new Admin(); dispose();}
 			});
 		}});
 		label.add(new JLabel("< 고객 보험 계약현황 >"));

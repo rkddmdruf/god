@@ -30,7 +30,7 @@ public class UserM extends BaseFrame{
 	ButtonMake end = new ButtonMake("닫기", 60, 30, font);
 	
 	UserM(){
-		setFrame("고객 등록", 500, 300, ()->{});
+		setFrame("고객 등록", 500, 300, ()->{new Admin();});
 	}
 	@Override
 	public void design() {
@@ -60,7 +60,14 @@ public class UserM extends BaseFrame{
 				if(UN.getText().equals("") || UBD.getText().equals("") || USN.getText().equals("")) {
 					JOptionPane.showMessageDialog(getContentPane(), "필수항목(*)을 모두 입력하세요", "고객등록 에러", JOptionPane.ERROR_MESSAGE);
 				}else {
-					Query.upDate("insert into customer values(?, ?, ?, ? ,? , ?)", UC.getText(), UN.getText(), UBD.getText(), UHC.getText(), UW.getText());
+					if(UHC.getText().equals("") && UW.getText().equals("")) {
+						Query.upDate("insert into customer values(?, ?, ?, ? , null,  null)", UC.getText(), UN.getText(), UBD.getText(), UBD.getText());
+					}else if(UHC.getText().equals("") && !UW.getText().equals("")) {
+						Query.upDate("insert into customer values(?, ?, ?, ? , null, ?)", UC.getText(), UN.getText(), UBD.getText(), UBD.getText(), UW.getText());
+					}else if(!UHC.getText().equals("") &&UW.getText().equals("")) {
+						Query.upDate("insert into customer values(?, ?, ?, ? ,?,  null)", UC.getText(), UN.getText(), UBD.getText(), UBD.getText(),UHC.getText());
+					}
+					Query.upDate("insert into customer values(?, ?, ?, ? ,?, ?)", UC.getText(), UN.getText(), UBD.getText(), UBD.getText(),UHC.getText(), UW.getText());
 					JOptionPane.showMessageDialog(getContentPane(), "고객추가가완료되었습니다.", "메시지", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}

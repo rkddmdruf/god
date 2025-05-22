@@ -35,7 +35,7 @@ public class UserS extends BaseFrame{
 	DefaultTableModel tmodel;
 	List<Row> list;
 	UserS(){
-		setFrame("고객 조회", 600, 600, ()->{});
+		setFrame("고객 조회", 600, 600, ()->{new Admin();});
 	}
 	
 	@Override
@@ -133,7 +133,7 @@ public class UserS extends BaseFrame{
 				}
 			}
 		});
-		end.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {dispose();}});
+		end.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {new Admin();dispose();}});
 	}
 	
 	public static void main(String[] args) {
