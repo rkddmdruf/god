@@ -33,6 +33,10 @@ public class B_Admin extends BaseFrame{
 					new D_ShowUser();
 					dispose();
 				}
+				if(e.getSource() == buts[2]) {
+					new E_tried();
+					dispose();
+				}
 				if(e.getSource() == buts[3]) {
 					dispose();
 				}

@@ -22,9 +22,9 @@ public enum Query {
 	adminColumn("SELECT * FROM company_선수번호.admin"),
 	contractColumn("SELECT * FROM company_선수번호.contract"),
 	customerColumn("SELECT * FROM company_선수번호.customer"),
-	tableQuery("SELECT * FROM company_선수번호.contract where customerCode = ? order by regDate asc"),
+	tableQuery("SELECT * FROM company_선수번호.contract where customerCode = ? order by regDate desc"),
 	tableUpdate("insert into contract values(?,?,?,?,?,?)"),
-	tabledelete("delete from contract where customerCode = ?, contractName = ?, regPrice = ?, regDate = ?, monthPrice = ?, adminName = ?");
+	tabledelete("delete from contract where customerCode = ? and contractName = ? and regPrice = ? and regDate = ? and monthPrice = ? and adminName = ?");
 	final String string;
 	
 	Query(String string){

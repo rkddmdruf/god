@@ -22,7 +22,7 @@ public class D_ShowUser extends BaseFrame{
 	};
 	JTable table = new JTable(tmodel);
 	public D_ShowUser() {
-		setFrame("고객 조회", 700, 750, ()->{});
+		setFrame("고객 조회", 700, 750, ()->{new B_Admin();});
 	}
 	@Override
 	public void desgin() {

@@ -17,10 +17,7 @@ public class A_Login extends BaseFrame{
 	JPasswordField pw = new JPasswordField() {{setPreferredSize(new Dimension(125,25));}};
 	JButton check = new ButtonMaker("확인", 60, 30) {{setFont(setBoldFont(13));}};
 	JButton end = new ButtonMaker("종료", 60, 30) {{setFont(setBoldFont(13));}};
-	JPanel downP = new JPanel() {{
-		add(check);
-		add(end);
-	}};
+	JPanel downP = new JPanel() {{this.setBackground(Color.white);add(check);add(end);}};
 	public A_Login() {
 		setFrame("로그인", 300, 200, ()->{});
 	}
@@ -31,17 +28,21 @@ public class A_Login extends BaseFrame{
 			this.setFont(setBoldFont(22));
 		}}, BorderLayout.NORTH);
 		add(new JPanel(new BorderLayout()) {{
+			this.setBackground(Color.white);
 			add(new JPanel(new BorderLayout()) {{
+				this.setBackground(Color.white);
 				add(new JLabel("이름") {{setFont(setBoldFont(14));}}, BorderLayout.WEST);
 				add(name, BorderLayout.EAST);
 				setBorder(BorderFactory.createEmptyBorder(20, 50, 0, 50));
 			}}, BorderLayout.NORTH);
 			add(new JPanel(new BorderLayout()) {{
+				this.setBackground(Color.white);
 				add(new JLabel("비밀번호") {{setFont(setBoldFont(14));}}, BorderLayout.WEST);
 				add(pw, BorderLayout.EAST);
 				setBorder(BorderFactory.createEmptyBorder(0, 50, 10, 50));
 			}}, BorderLayout.SOUTH);
 		}}, BorderLayout.CENTER);
+		getContentPane().setBackground(Color.white);
 		add(downP, BorderLayout.SOUTH);
 	}
 

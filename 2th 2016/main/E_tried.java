@@ -1,17 +1,15 @@
 package main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.ScrollPane;
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
 import utils.BaseFrame;
 import utils.Query;
@@ -41,12 +39,14 @@ public class E_tried extends BaseFrame{
 	
 	DefaultTableModel tmodel = new DefaultTableModel(tName, 0);
 	JTable table = new JTable(tmodel);
+	DefaultTableCellRenderer dtc = new DefaultTableCellRenderer();
 	
 	public E_tried() {
 		setFrame("보험계약", 700, 700, ()->{new B_Admin();});
 	}
 	@Override
 	public void desgin() {
+
 		for(int i = 0; i < 4; i++) {
 			topL.add(new JLabel(str[i]+":") {{this.setFont(font);}});
 			if(i != 1) {topL.add(tf[tfnumber] = new JTextField());tfnumber++;}
@@ -70,26 +70,60 @@ public class E_tried extends BaseFrame{
 			}
 		}}, BorderLayout.CENTER);
 		add(new JScrollPane(table), BorderLayout.SOUTH);
-		setTF();
+		setTF();setTable();
 	}
 	
 	@Override
 	public void action() {
 		cbName.addActionListener(e->{
-			setTF();
+			setTF();setTable();
 		});
 		but[0].addActionListener(e->{
 			if(!tf[3].getText().equals("") && !tf[4].getText().equals("")) {
 				Query.tableUpdate.updata(tf[0].getText(), cbcName.getSelectedItem().toString(), tf[3].getText(), 
 						LocalDate.now().toString(), tf[4].getText(), cbAdminName.getSelectedItem().toString());
-				setTF();}});
+				setTF();setTable();}});
 		but[1].addActionListener(e->{
 			int result = JOptionPane.showConfirmDialog(getContentPane(), tf[0].getText()+"("+table.getValueAt(table.getSelectedRow(), 1)+")을 삭제하시겠습니까?",
 					"계약정보 삭제", JOptionPane.YES_NO_OPTION);
 			if(result == JOptionPane.YES_OPTION) {
-				
-				setTF();
+				String[] str = new String[6];
+				for(int i = 0; i < 6; i++) {
+					str[i] = tmodel.getValueAt(table.getSelectedRow(), i).toString();
+				}
+				Query.tabledelete.updata(str);
+				setTF();setTable();
 			}
+		});
+		but[2].addActionListener(e->{
+			FileDialog fdOpen = new FileDialog(this, "텍스트 파일로 저장하기",FileDialog.SAVE);
+			fdOpen.setVisible(true);
+			String name = fdOpen.getFile();
+			String path = fdOpen.getDirectory();
+			if(path == null) {
+				return;
+			}
+			File file = new File(path);
+			BufferedWriter br = null;
+			try {
+				br = new BufferedWriter(new FileWriter(file + "\\" + name)); // 스트림연결
+				String str = tmodel.getValueAt(0, 0)+"";
+				br.write(new String("고객명 : " + this.cbName.getSelectedItem().toString() + "("+ str +")\n\n"));
+				br.write("담당자명 : " + cbAdminName.getSelectedItem().toString() + "\n\n");
+				br.write("보험상품\t\t가입금액\t\t가입일\t월보험료\n");
+				int rows = table.getRowCount();
+				for(int i = 0; i < table.getRowCount(); i++) {
+					br.write(table.getValueAt(i,1) +"\s\s\t"+ table.getValueAt(i,2) +"\s\s\t" +table.getValueAt(i,3) +"\s\s\t"+ table.getValueAt(i,4) +"\n");
+				}
+				br.flush(); // 목적지로 분출
+				br.close(); // 다 쓴 스트림 끊기
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+		but[3].addActionListener(e->{
+			new B_Admin();
+			dispose();
 		});
 	}
 	public void setTF() {
@@ -97,8 +131,15 @@ public class E_tried extends BaseFrame{
 		for(int i = 0; i < 3; i++) {
 			tf[i].setText(list.get(0).getString(i));
 		}
+	}
+	public void setTable() {
 		List<Row> tablelist = Query.tableQuery.select(tf[0].getText());
 		Query.setTable(tmodel, tablelist);
+		dtc.setHorizontalAlignment(JLabel.CENTER);
+		TableColumnModel tcm = table.getColumnModel();
+		for(int i = 0; i < table.getColumnCount(); i++) {
+			tcm.getColumn(i).setCellRenderer(dtc);
+		}
 	}
 	public static void main(String[] args) {
 		new E_tried();
