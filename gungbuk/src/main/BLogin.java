@@ -76,8 +76,9 @@ public class BLogin extends BaseFrame{
 						}else if(result == JOptionPane.NO_OPTION) {
 							new AMain(list.get(0).getInt(0), -1);
 						}
-						dispose();
+						
 					}
+					dispose();
 				}
 				
 			}

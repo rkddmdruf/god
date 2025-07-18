@@ -23,6 +23,7 @@ import utils.Query;
 import utils.Row;
 
 public class HOME extends JPanel{
+	List<JButton> but = new ArrayList<JButton>();
 	JComboBox<String> cb = new JComboBox<>() {{
 		List<Row> list = Query.category.select();addItem("전체");
 		for(int i = 0 ; i < list.size(); i++) {
@@ -43,8 +44,8 @@ public class HOME extends JPanel{
 			this.add(list.get(i));
 		}
 	}};
-	HOME(JPanel p){
-		System.out.println(allList);
+	HOME(){};
+	HOME(JPanel p, int user){
 		this.setLayout(new BorderLayout());
 		add(new JPanel(new BorderLayout()) {{
 				add(cb, BorderLayout.WEST);setBackground(Color.white);
@@ -64,11 +65,12 @@ public class HOME extends JPanel{
 						add(new JPanel(new BorderLayout()) {{
 							setBackground(Color.white);
 							setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
+							but.add(new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/" + allList.get(global).get(0) + ".jpg"))
+									.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH))));
+							but.get(global).setFocusable(false);but.get(global).setContentAreaFilled(false);
 							
-							add(new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/" + allList.get(global).get(0) + ".jpg"))
-									.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH))) {{setFocusable(false);
-									setContentAreaFilled(false);
-							}}, BorderLayout.CENTER);
+							add(but.get(global), BorderLayout.CENTER);
+							
 							
 							add(new JPanel(new GridLayout(4, 1, 10, 10)) {{
 								setBackground(Color.white);

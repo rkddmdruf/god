@@ -1,6 +1,9 @@
 package main;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.*;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -22,12 +25,17 @@ import utils.Row;
 public class AMain extends BaseFrame{
 	JButton[] but = new JButton[5];
 	JButton Login = new JButton();
+	JButton TB = new JButton("삭제");
 	JLabel name = new JLabel(" ");
 	String[] logoName = {"메인","검색","장바구니","구매목록","배송정보"};
 	ImageIcon[] img = new ImageIcon[5];
 	ImageIcon[] imgB = new ImageIcon[5];
+	
 	CardLayout card = new CardLayout();
 	JPanel cardP = new JPanel(card);
+	
+	HOME home = new HOME();
+	Serch serch = new Serch();
 	int user = 0;
 	int Serchs = -1;
 	int global = 0;
@@ -93,20 +101,19 @@ public class AMain extends BaseFrame{
 		cardP.setBackground(Color.white);
 		
 		
-		if(Serchs == -1) {
-			new HOME(cardP);
-			new Serch(cardP, card, 0);
-			add(cardP, BorderLayout.CENTER);
-			
+		
+		/*home = new HOME(cardP, user);
+		if(Serchs == -1) { 
+			serch = new Serch(cardP, card, 0); 
 		}else {
-			new HOME(cardP);
-			new Serch(cardP, card, Serchs);
-			add(cardP, BorderLayout.CENTER);
-			card.show(cardP, "P2");
-		}
-		
-		
-		
+			serch = new Serch(cardP, card, Serchs); 
+			card.show(cardP,"P2"); 
+		} 
+		 
+		new D_Cart2(cardP, user);
+		new E_GumeList(cardP, user);*/
+		new F_Roupang(cardP, user);
+		add(cardP, BorderLayout.CENTER);
 		
 		
 		
@@ -153,13 +160,45 @@ public class AMain extends BaseFrame{
 				name.setText(" "); user = 0 ;but[0].setIcon(imgB[0]); for(int i = 1; i < 5; i++) {but[i].setIcon(img[i]);}
 			}
 		});
+		
+		
+		/*for(int i = 0; i < home.allList.size(); i++) {
+			home.but.get(i).addActionListener(e->{
+				for(int j = 0 ; j < home.but.size(); j++) {
+					if(e.getSource() == home.but.get(j) && user != 0) {
+						new C_Detail(user, home.allList.get(j).get(0));
+						dispose();
+					}
+				}
+			});
+		}
+		
+		for(global = 0; global < serch.list.size(); global++) {
+			serch.butA.get(global).addActionListener(e->{
+				for(int i = 0; i < serch.list.size(); i++) {
+					if(e.getSource() == serch.butA.get(i)) {
+						new C_Detail(user, serch.list.get(i).getInt(0));
+						dispose();
+					}
+				}
+			});
+		}
+		
+		
+		*/
 		for(int i = 0; i < 5; i++) {
 			but[i].addActionListener(e->{
 				if(e.getSource() == but[0]) {
 					card.show(cardP, "P1");
-					Serch.ALLShow("P0");
+					Serch.ALLShow("P0");// 어디보게 할지 정하는거
 				}if(e.getSource() == but[1]) {
 					card.show(cardP, "P2");
+				}
+				if(e.getSource() == but[2] && user != 0) {
+					card.show(cardP, "P3");
+				}
+				if(e.getSource() == but[3] && user != 0) {
+					card.show(cardP, "P4");
 				}
 				if(user == 0 && (e.getSource() == but[2] || e.getSource() == but[3] || e.getSource() == but[4])) {
 						JOptionPane.showMessageDialog(this, "로그인 후 사용 가능합니다.", "경고", JOptionPane.ERROR_MESSAGE);

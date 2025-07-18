@@ -11,6 +11,7 @@ public abstract class BaseFrame extends JFrame implements Base{
 		setTitle(title);
 		setSize(W, H);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				run.run();

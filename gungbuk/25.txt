@@ -1,0 +1,77 @@
+ add(new JPanel(new BorderLayout()) {{ add(new JPanel(new FlowLayout(0,30,0))
+		  {{ add(cb);setBackground(Color.white); }}, BorderLayout.NORTH); add(new
+		  JPanel(new GridLayout(2, 5,15,10)) {{
+		  setBorder(BorderFactory.createEmptyBorder(10,20, 0, 20));
+		  setBackground(Color.white); for(global = 0; global < 10; global++) {
+		  List<Row> list =
+		  Query.productAll.select(allList.get(global).get(0).toString()); List<Row>
+		  review = Query.reviewAvg.select(allList.get(global).get(0).toString());
+		  add(new JPanel(new BorderLayout()) {{
+		  setBorder(BorderFactory.createLineBorder(Color.black));setBackground(Color.
+		  white); add(new JPanel(new BorderLayout()) {{
+		  setBorder(BorderFactory.createEmptyBorder(10,10,0,10)); add(new JButton(new
+		  ImageIcon(new ImageIcon(getClass().getResource("/img/" +
+		  allList.get(global).get(0) + ".jpg")) .getImage().getScaledInstance(160, 125,
+		  Image.SCALE_SMOOTH))) {{setFocusable(false); setContentAreaFilled(false);}},
+		  BorderLayout.CENTER); add(new JPanel(new GridLayout(4, 1, 10, 10)) {{ add(new
+		  JLabel("상품명 : " + list.get(0).get(1)));add(new JLabel("가격 : " + new
+		  DecimalFormat("###,###").format(list.get(0).get(3))+ "원")); add(new
+		  JLabel("판매량 : ")); if(review.get(0).get(0) != null) {add(new JLabel("평점 : " +
+		  review.get(0).get(0).toString().substring(0,3))); }else {add(new
+		  JLabel("평점 : 0.0"));}
+		  
+		  }}, BorderLayout.SOUTH); }},BorderLayout.CENTER); }}); }
+		  }},BorderLayout.CENTER); }}, BorderLayout.CENTER);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		메인 전체
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+login.addActionListener(e->{
+			if(id.getText().equals("") || pw.getText().toString().equals("")) {
+				JOptionPane.showMessageDialog(this, "빈칸이 있습니다.", "경고", JOptionPane.ERROR_MESSAGE);
+			}else {
+				List<Row> list = Query.Login.select(id.getText(), pw.getText().toString());
+				if(id.getText().equals("admin") && pw.getText().toString().equals("1234")) {
+					JOptionPane.showMessageDialog(this, "관리자님 환영합니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+					new AMain(1119, -1);
+					dispose();
+				}else {
+					if(list.isEmpty()) {
+						JOptionPane.showMessageDialog(this, "없는 회원입니다.", "경고", JOptionPane.ERROR_MESSAGE);
+						pw.setText("");id.setText("");
+						id.requestFocusInWindow();
+						
+					}else {
+						List<List<Integer>> category = new ArrayList<>();
+						for(int i = 1; i <= 10; i++) {
+							int count = Query.LoginJOp.select(list.get(0).getString(0), i+"").get(0).getInt(0);
+							int cno = -1;
+							if(Query.LoginJOp.select(list.get(0).getString(0), i+"").get(0).get(1) != null) {
+								cno = Query.LoginJOp.select(list.get(0).getString(0), i+"").get(0).getInt(1);
+							}
+							category.add(new ArrayList<Integer>());
+							category.get(i-1).add(count);category.get(i-1).add(cno);
+						}
+						for(int i = 0; i < 10; i++) {
+							if(category.get(i).get(1) == null || category.get(i).get(1) == -1) {
+								category.get(i).clear();
+							}
+						}
+						Collections.sort(category, Comparator.comparingInt((List<Integer> o) -> o.get(0)).reversed());
+						System.out.println(category);
+						int isEmptyCheck = 0;
+						for(int i = 0; i < 10; i++) {
+							if(category.get(0).get(1) == null) {
+								isEmptyCheck++;
+							}
+						}
+					}
+					
+				}
+			}
+		});
+///////////////////////////////////////////////////////////////////
+로그인 액션 고쳐야됌 이상해;;
