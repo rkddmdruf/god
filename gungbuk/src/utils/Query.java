@@ -44,13 +44,16 @@ public enum Query {
 	//Serch
 	
 	insert("insert into cart set uno = ?, pno = ?, quantity = ?;"),
-	
+	개수update("update product set product.quantity = ? where pno = ?;"),
+	orderinsert("insert into `order` values(0, ?, ?, ?, ?, 1,0);"),
 	//Detaill
+	
 	cart("SELECT cart.*, product.pname, product.price "
 			+ "FROM roupang.cart "
 			+ "LEFT JOIN product ON cart.pno = product.pno "
 			+ "where uno = ?;"),
 	cartdelete("delete from cart where ctno = ?;"),
+	cart개수("select product.quantity from product where pno = ?"),
 	//Cart
 	
 	GumeList(" SELECT `order`.*, product.price, product.pname FROM roupang.`order` "
@@ -60,6 +63,11 @@ public enum Query {
 	GumeDelet("delete from `order` where ono = ?"),
 	reviewDelet("delete from review where ono = ?"),
 	// GumeList
+	Roupanglsit(" SELECT `order`.*, product.price, product.pname FROM roupang.`order` "
+			+ " LEFT JOIN product "
+			+ " ON `order`.pno = product.pno where `order`.uno = ? "
+			+ " group by `order`.ono;"),
+	//Roupang
 	Login("SELECT * FROM roupang.user where uid = ? and upw = ?"),
 	LoginOrder("SELECT * FROM roupang.`order` where uno = ?"),
 	LoginJOp("SELECT count(ono) AS co, category.* "

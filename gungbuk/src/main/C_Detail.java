@@ -2,10 +2,12 @@ package main;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import utils.BaseFrame;
@@ -16,6 +18,7 @@ public class C_Detail extends BaseFrame{
 
 	int user = 0;
 	int product = 0;
+	List<Row> list = new ArrayList<Row>();
 	JTextField number = new JTextField();
 	JButton[] but = {new JButton("장바구니"), new JButton("구매")};
 	C_Detail(int user, int product){
@@ -38,7 +41,8 @@ public class C_Detail extends BaseFrame{
 			add(new JPanel(new GridLayout(6,1)) {{
 				setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 				setBackground(Color.white);
-				List<Row> list = Query.productANDreviewWPNO.select(""+product);
+				list = Query.productANDreviewWPNO.select(""+product);
+				System.out.println(list);
 				add(new JLabel("상품명 : " + list.get(0).getString(1)));
 				String str = list.get(0).getString(2), c = "";// str은 문자열 c는 자른 문자열 저장
 				for(int i = 0; i <= str.toCharArray().length / 18; i++) {
@@ -77,8 +81,21 @@ public class C_Detail extends BaseFrame{
 					} catch (Exception e2) {
 						JOptionPane.showMessageDialog(this, "수량을 확인하세요.","경고",JOptionPane.ERROR_MESSAGE);
 					}
-					
-					
+				}
+				if(e.getSource() == but[1]) {
+					try {
+						Integer j = Integer.parseInt(number.getText());
+						int i = list.get(0).getInt(4)-j;
+						if(i < 0) {
+							JOptionPane.showMessageDialog(this, "재고가 부족합니다.", "경고", JOptionPane.INFORMATION_MESSAGE);
+						}else {
+							JOptionPane.showMessageDialog(this, "구매가 완료되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+							Query.개수update.update(i+"", list.get(0).getString(0));
+							Query.orderinsert.update(user+"", list.get(0).getString(0), j+"", LocalDate.now()+"");
+						}
+					} catch (Exception e2) {
+						JOptionPane.showMessageDialog(this, "수량을 확인하세요.","경고",JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			});
 		}

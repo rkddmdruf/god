@@ -2,6 +2,7 @@ package main;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,6 +144,43 @@ public class D_Cart2 extends JPanel{
 			if(MainP.getComponentCount() == 0) {
 				MainP.setLayout(new BorderLayout());
 				MainP.add(new JLabel("장바구니가 비어있습니다.") {{setFont(setBoldFont(30));setHorizontalAlignment(JLabel.CENTER);}});
+			}
+		});/*List<Row> quantity = new ArrayList<>();
+		for(int i = 0; i < list.size(); i++) {
+			Query.cart개수.select(user+"");
+		}*/
+		but[1].addActionListener(e->{
+			int number = 0;
+			List<Integer> data = new ArrayList<>();
+			for(int i = 0; i < CKB.size(); i++) {
+				if(CKB.get(i).isSelected()) {data.add(i);}//선택돼 있으면 data에 몇번째 인지 추가
+				else {number++;}
+			}
+			if(number == CKB.size()) {
+				JOptionPane.showMessageDialog(this, "구매할 상품을 선택하세요.", "경고", JOptionPane.ERROR_MESSAGE);
+			}else if(number != CKB.size()) {
+				for(int i = data.size()-1; i >= 0; i--) {//// 선택상품 사이즈 -1(두개면 2-1 = 1 -> for돌때 1, 0두번 돔)
+					int CKBS = CKB.size()-1;////이거도 맞찬가지
+					for(int j = CKBS; j >= 0; j--) {//뒤에서 부터 삭제
+						if(data.get(i) == j) {
+							if(Query.cart개수.select(list.get(j).getString(2)).get(0).getInt(0)-list.get(j).getInt(3) >= 0){
+								System.out.println(list.get(data.get(i)).toString());
+								Query.cartdelete.update(list.get(data.get(i)).getString(0));
+								MainP.remove(P.get(data.get(i)));
+								CKB.get(data.get(i)).setSelected(false);
+								P.remove(Integer.parseInt(data.get(i).toString()));
+								CKB.remove(Integer.parseInt(data.get(i).toString()));
+								revalidate();repaint();
+								priceJL.setText("총금액 : " + new DecimalFormat("###,###").format(price) + "원");
+								JOptionPane.showMessageDialog(this, "구매가 완료되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+								Query.orderinsert.update(user+"", list.get(j).getString(2), list.get(j).getString(3), LocalDate.now()+"");
+								Query.cartdelete.update(""+ list.get(j).getString(0));
+							}else{
+								JOptionPane.showMessageDialog(this, "재고가 부족합니다.", "경고", JOptionPane.ERROR_MESSAGE);
+							}
+						}
+					}
+				}
 			}
 		});
 	}

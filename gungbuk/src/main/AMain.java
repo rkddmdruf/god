@@ -36,13 +36,14 @@ public class AMain extends BaseFrame{
 	
 	HOME home = new HOME();
 	Serch serch = new Serch();
+	F_Roupang f = new F_Roupang();
 	int user = 0;
 	int Serchs = -1;
 	int global = 0;
 	public AMain(int user, int Serchs) {
 		this.Serchs = Serchs;
 		this.user = user;
-		setFrame("메인", 1000, 700, ()->{});
+		setFrame("메인", 1000, 700, ()->{f.timer.stop();});
 	}
 	@Override
 	public void desgin() {
@@ -102,7 +103,7 @@ public class AMain extends BaseFrame{
 		
 		
 		
-		/*home = new HOME(cardP, user);
+		home = new HOME(cardP, user);
 		if(Serchs == -1) { 
 			serch = new Serch(cardP, card, 0); 
 		}else {
@@ -111,8 +112,8 @@ public class AMain extends BaseFrame{
 		} 
 		 
 		new D_Cart2(cardP, user);
-		new E_GumeList(cardP, user);*/
-		new F_Roupang(cardP, user);
+		new E_GumeList(cardP, user);
+		f = new F_Roupang(cardP, user);
 		add(cardP, BorderLayout.CENTER);
 		
 		
@@ -162,7 +163,7 @@ public class AMain extends BaseFrame{
 		});
 		
 		
-		/*for(int i = 0; i < home.allList.size(); i++) {
+		for(int i = 0; i < home.allList.size(); i++) {
 			home.but.get(i).addActionListener(e->{
 				for(int j = 0 ; j < home.but.size(); j++) {
 					if(e.getSource() == home.but.get(j) && user != 0) {
@@ -185,7 +186,6 @@ public class AMain extends BaseFrame{
 		}
 		
 		
-		*/
 		for(int i = 0; i < 5; i++) {
 			but[i].addActionListener(e->{
 				if(e.getSource() == but[0]) {
@@ -194,11 +194,14 @@ public class AMain extends BaseFrame{
 				}if(e.getSource() == but[1]) {
 					card.show(cardP, "P2");
 				}
-				if(e.getSource() == but[2] && user != 0) {
+				if(e.getSource() == but[2] && user != 0 && user != 1119) {
 					card.show(cardP, "P3");
 				}
-				if(e.getSource() == but[3] && user != 0) {
+				if(e.getSource() == but[3] && user != 0 && user != 1119) {
 					card.show(cardP, "P4");
+				}
+				if(e.getSource() == but[4] && user != 0 && user != 1119) {
+					card.show(cardP, "P5");
 				}
 				if(user == 0 && (e.getSource() == but[2] || e.getSource() == but[3] || e.getSource() == but[4])) {
 						JOptionPane.showMessageDialog(this, "로그인 후 사용 가능합니다.", "경고", JOptionPane.ERROR_MESSAGE);

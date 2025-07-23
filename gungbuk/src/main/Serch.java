@@ -104,7 +104,6 @@ public class Serch extends JPanel{
 			category[i].setBackground(Color.LIGHT_GRAY);category[i].setForeground(Color.black);
 			if(i == pomNumber) {category[i].setBackground(Color.white);category[i].setForeground(Color.blue);}
 		}
-		category[0].setBackground(Color.white);category[0].setForeground(Color.blue);
 	}
 	
 	
