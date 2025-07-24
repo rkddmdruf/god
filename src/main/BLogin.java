@@ -12,15 +12,18 @@ import java.util.List;
 import utils.BaseFrame;
 import utils.Query;
 import utils.Row;
+import utils.sp;
 
 public class BLogin extends BaseFrame{
 
 	JTextField id = new JTextField();
 	JPasswordField pw = new JPasswordField();
 	JButton login = new JButton("로그인");
+	
 	public BLogin() {
 		setFrame("로그인", 300, 250, ()->{});
 	}
+	
 	@Override
 	public void desgin() {
 		UIManager.put("OptionPane.background", new ColorUIResource(Color.white));
@@ -29,15 +32,15 @@ public class BLogin extends BaseFrame{
 		add(new JPanel() {{
 			setBackground(Color.white);
 			add(new JLabel("Roupang") {{
-				setFont(setBoldFont(30));
+				setFont(sp.fontM(1,30));
 				setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
 			}});
 		}}, BorderLayout.NORTH);
 		add(new JPanel(new BorderLayout()) {{
 			add(new JPanel(new GridLayout(2,2,-100,10)) {{
 				setBorder(BorderFactory.createEmptyBorder(0,30,0,30));setBackground(Color.white);
-				add(new JLabel("ID  ") {{setFont(setBoldFont(20));}},BorderLayout.WEST);add(id);
-				add(new JLabel("PW") {{setFont(setBoldFont(20));}},BorderLayout.WEST);add(pw);
+				add(new JLabel("ID  ") {{setFont(sp.fontM(1,20));}},BorderLayout.WEST);add(id);
+				add(new JLabel("PW") {{setFont(sp.fontM(1,20));}},BorderLayout.WEST);add(pw);
 			}}, BorderLayout.CENTER);
 			add(new JPanel(new BorderLayout()) {{
 				setBackground(Color.white);
@@ -76,8 +79,9 @@ public class BLogin extends BaseFrame{
 						}else if(result == JOptionPane.NO_OPTION) {
 							new AMain(list.get(0).getInt(0), -1);
 						}
-						dispose();
+						
 					}
+					dispose();
 				}
 				
 			}

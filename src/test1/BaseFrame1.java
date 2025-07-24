@@ -1,12 +1,11 @@
-package utils;
+package test1;
 
-import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-public abstract class BaseFrame extends JFrame implements Base{
+public abstract class BaseFrame1 extends JFrame{
 	public void setFrame(String title, int W, int H, Runnable run) {
 		setTitle(title);
 		setSize(W, H);
@@ -19,10 +18,12 @@ public abstract class BaseFrame extends JFrame implements Base{
 				dispose();
 			}
 		});
-		desgin();
-		action();
+		des();
+		act();
 		setVisible(true);
 	}
 
-
+	protected abstract void des();
+	protected abstract void act();
+	
 }
