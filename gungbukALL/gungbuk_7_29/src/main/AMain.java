@@ -101,18 +101,24 @@ public class AMain extends BaseFrame{// 검색 위에 기능 만들기
 		cardP.setBackground(Color.white);
 		
 		
-		new Last(cardP);
-		//new A_Admin_deliveryM(cardP);
-		//home = new HOME(cardP, user);
-		/*if(Serchs == -1) { 
+		
+		home = new HOME(cardP, user);
+		if(Serchs == -1) { 
 			serch = new Serch(cardP, card, 0); 
 		}else {
 			serch = new Serch(cardP, card, Serchs); 
 			card.show(cardP,"P2"); 
 		}
-		new D_Cart2(cardP, user);
-		new E_GumeList(cardP, user);
-		f = new F_Roupang(cardP, user);*/
+		
+		if(user != 0 && user != 1119) {
+			new D_Cart2(cardP, user);
+			new E_GumeList(cardP, user);
+			f = new F_Roupang(cardP, user);
+		}
+		if(user == 1119) {
+			new Last(cardP);
+			new A_Admin_deliveryM(cardP);
+		}
 		add(cardP, BorderLayout.CENTER);
 		
 		
@@ -176,7 +182,7 @@ public class AMain extends BaseFrame{// 검색 위에 기능 만들기
 		});
 		
 		
-		/*for(int i = 0; i < home.allList.size(); i++) {
+		for(int i = 0; i < home.allList.size(); i++) {
 			home.butA.get(i).addActionListener(e->{
 				for(int j = 0 ; j < home.butA.size(); j++) {
 					if(e.getSource() == home.butA.get(j) && user != 0 && user != 1119) {
@@ -251,7 +257,6 @@ public class AMain extends BaseFrame{// 검색 위에 기능 만들기
 			}
 		});
 		
-		*/
 		for(int i = 0; i < 5; i++) {final int index = i;
 			but[i].addActionListener(e->{
 				if(user <= 0) {
@@ -266,7 +271,9 @@ public class AMain extends BaseFrame{// 검색 위에 기능 만들기
 					else if(index >= 2) {
 						if(index == 2) {
 							new A_Admin_productChang(0);dispose();
-						}else if(index == 3) {
+						}else {
+							card.show(cardP, "P" + (index + 1));
+							for(int s = 0; s < 5; s++) {but[s].setIcon(imgA[s]);}but[index].setIcon(imgAB[index]);
 							
 						}
 					}
@@ -278,6 +285,6 @@ public class AMain extends BaseFrame{// 검색 위에 기능 만들기
 		}
 	}
 	public static void main(String[] args) {
-		new AMain(1119, -1);
+		new AMain(1, -1);
 	}
 }

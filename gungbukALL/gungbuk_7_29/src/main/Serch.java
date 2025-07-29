@@ -182,12 +182,10 @@ public class Serch extends JPanel{
 				add(new JPanel(new GridLayout(4,1, 0, 10)) {{
 					add(new JLabel("상품명 : " + actionList.get(global-1).getString(1)));
 					add(new JLabel("가격 : " + DF.format(actionList.get(global-1).getInt(3)) + "원"));
-					add(new JLabel("판매량 : "));
-					if(actionList.get(global-1).get(7) == null) {
-						add(new JLabel("평점 : 0.0"));
-					}else {
-						add(new JLabel("평점 : " + actionList.get(global-1).get(7).toString().substring(0,3)));
-					}
+					if(actionList.get(global-1).get(7) == null) {add(new JLabel("판매량 : 0"));
+					}else {add(new JLabel("판매량 : " + actionList.get(global-1).get(8)));}
+					if(actionList.get(global-1).get(7) == null) {add(new JLabel("평점 : 0.0"));
+					}else {add(new JLabel("평점 : " + actionList.get(global-1).get(7).toString().substring(0,3)));}
 				}}, BorderLayout.CENTER);
 			}});
 		}});

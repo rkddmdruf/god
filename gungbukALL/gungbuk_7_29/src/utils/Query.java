@@ -35,7 +35,7 @@ public enum Query {
 			+ "			LEFT JOIN review ON `order`.ono = review.ono"
 			+ "         LEFT JOIN category ON product.cno = category.cno"
 			+ "         GROUP BY product.pno;"),
-	productANDreviewWCNO("SELECT product.*, AVG(review.rating) AS average_rating "
+	productANDreviewWCNO("SELECT product.*, AVG(review.rating) AS average_rating, sum(`order`.quantity) AS sums"
 			+ "		FROM product LEFT JOIN `order` ON product.pno = `order`.pno "
 			+ "		LEFT JOIN review ON `order`.ono = review.ono where cno = ? GROUP BY product.pno order by pno asc;"),
 	

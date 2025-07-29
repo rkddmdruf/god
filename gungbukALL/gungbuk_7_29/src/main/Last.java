@@ -105,7 +105,6 @@ class PP extends JPanel{
 		g.setColor(Color.black);
 		g.fillRect(40, 332,55, -H * i);
 		g.drawString(H+"", 45+15, 328-(H*i)+3);
-		
 		g.setColor(c);
 		g.fillRect(40+2, 330, 51, -(H * i)+3);
 		

@@ -29,8 +29,15 @@ public class C_Detail extends BaseFrame{
 	}
 	@Override
 	public void desgin() {
-		UIManager.put("OptionPane.background", new ColorUIResource(Color.white));
-		UIManager.put("Panel.background", new ColorUIResource(Color.white));
+		list = Query.productANDreviewWPNO.select(""+product);
+		List<Row> check = Query.chat.select(list.get(0).get(5));
+		for(int i = 0 ; i < check.size(); i++) {
+			if(check.get(i).get(7) == null) {
+				check.get(i).clear();
+			}else if(check.get(0).getInt(7) != check.get(i).getInt(7)) {
+				check.get(i).clear();
+			}
+		}
 		add(new JPanel(new BorderLayout()) {{
 			setBackground(Color.white);
 			setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -38,12 +45,10 @@ public class C_Detail extends BaseFrame{
 				setBorder(BorderFactory.createEmptyBorder(0,0,0,0));setBorder(BorderFactory.createLineBorder(Color.black));
 				setIcon(new ImageIcon(Query.getImge.getImge(product).getScaledInstance(265, 180, Image.SCALE_SMOOTH)));
 			}}, BorderLayout.NORTH);
-			
+			add(new TrianglePanel() {{setPreferredSize(new Dimension(265, 180));}}, sp.n);
 			add(new JPanel(new GridLayout(6,1)) {{
 				setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 				setBackground(Color.white);
-				list = Query.productANDreviewWPNO.select(""+product);
-				System.out.println(list);
 				add(new JLabel("상품명 : " + list.get(0).getString(1)));
 				String str = list.get(0).getString(2), c = "";// str은 문자열 c는 자른 문자열 저장
 				for(int i = 0; i <= str.toCharArray().length / 18; i++) {
@@ -69,7 +74,7 @@ public class C_Detail extends BaseFrame{
 			}},BorderLayout.SOUTH);
 		}}, BorderLayout.CENTER);
 	}
-
+	
 	@Override
 	public void action() {
 		for(JButton b : but) {
@@ -106,4 +111,27 @@ public class C_Detail extends BaseFrame{
 	public static void main(String[] args) {
 		new C_Detail(1, 1);
 	}
+}
+class TrianglePanel extends JPanel {
+    @Override
+	public void paint(Graphics g) {
+        int[] xPoints = {5, 15, 25, 15};
+        int[] yPoints = {30, 25, 30, 5};
+        int nPoints = 4;
+
+        int[] xPoints2 = {29, 1, 15};
+        int[] yPoints2 = {15, 15, 25};
+        int nPoints2 = 3; 
+        for(int i = 0 ; i < 4; i++) {
+        	xPoints[i] += 225;
+        }
+        for(int i = 0 ; i < 3; i++) {
+        	xPoints2[i] += 225;
+        }
+        g.setColor(Color.RED);
+       
+        g.drawImage(new ImageIcon("src/img/1.jpg").getImage(), 0,0, 265,180,null);
+        g.fillPolygon(xPoints, yPoints, nPoints);
+        g.fillPolygon(xPoints2, yPoints2, nPoints2);
+    }
 }
