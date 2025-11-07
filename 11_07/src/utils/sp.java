@@ -1,23 +1,10 @@
 package utils;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.LayoutManager;
+import java.awt.*;
 import java.text.DecimalFormat;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
+import javax.swing.*;
+import javax.swing.border.*;
 
 public class sp {
 	public static Row user = new Row() {{
@@ -29,13 +16,26 @@ public class sp {
 	public static String e = BorderLayout.EAST;
 	public static String c = BorderLayout.CENTER;
 	
+	public static Border line = BorderFactory.createLineBorder(Color.black);
 	public static Color color = new Color(250, 125, 0);
 	public static Color gray = new Color(238,238,238);
 	public static DecimalFormat df = new DecimalFormat("###,###");
+	
 	public static Border em(int top, int left, int bottom, int right) {
 		return BorderFactory.createEmptyBorder(top, left, bottom, right);
 	}
-	public static Border line = BorderFactory.createLineBorder(Color.black);
+	public static Border line(Color color) {
+		return BorderFactory.createLineBorder(color);
+	}
+	/**
+	 * 
+	 * @param b1 = outBorder
+	 * @param b2 = inBorder
+	 * @return b1 + b2
+	 */
+	public static Border com(Border outBorder, Border inBorder) {
+		return BorderFactory.createCompoundBorder(outBorder, inBorder);
+	}
 	public static Font font(int font, int size) {
 		return new Font("맑은 고딕", font, size);
 	}
@@ -48,11 +48,8 @@ public class sp {
 	public static ImageIcon getImg(String string, int w, int h) {
 		return new ImageIcon(new ImageIcon(string).getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH));
 	}
-	public static Border line(Color color) {
-		return BorderFactory.createLineBorder(color);
-	}
 	
-	/////////////////////////////
+	
 	
 	
 	public static class cp extends JPanel{
@@ -62,6 +59,7 @@ public class sp {
 			setBorder(b);
 			setBackground(c == null ? Color.white : c);
 		}
+		
 		public cp size(int w, int h) {
 			this.setPreferredSize(new Dimension(w, h));
 			return this;
@@ -78,10 +76,12 @@ public class sp {
 			super(str);
 		}
 		public cl font(Font font) {
-			return (cl) fonts(this, font);
+			this.setFont(font);
+			return this;
 		}
 		public cl fontColor(Color color) {
-			return (cl) fontColors(this, color);
+			this.setForeground(color);
+			return this;
 		}
 		public cl setBorders(Border border) {
 			this.setBorder(border);
@@ -107,10 +107,12 @@ public class sp {
 		}
 		
 		public cb font(Font font) {
-			return (cb) fonts(this, font);
+			this.setFont(font);
+			return this;
 		}
 		public cb fontColor(Color color) {
-			return (cb) fontColors(this, color);
+			this.setForeground(color);
+			return this;
 		}
 		public cb BackColor(Color color) {
 			this.setBackground(color);
@@ -121,7 +123,11 @@ public class sp {
 			return this;
 		}
 		public cb size(int w, int h) {
-			this.setPreferredSize(new Dimension(w, h));
+			setPreferredSize(new Dimension(w, h));
+			return this;
+		}
+		public cb setHo(int a) {
+			this.setHorizontalAlignment(a);
 			return this;
 		}
 		public cb setting() {
@@ -131,50 +137,5 @@ public class sp {
 			return this;
 		}
 	}
-	
-	private static Component fonts(Component com,Font font) {
-		com.setFont(font);
-		return com;
-	}
-	private static Component fontColors(Component com, Color color) {
-		com.setForeground(color);
-		return com;
-	}
-	/*	
-	 *  public static class cc <T extends JComponent>{
-		private T jcom;
-		public cc(T jcom) {
-			this.jcom = jcom;
-		}
-		public T font(Font font) {
-			jcom.setFont(font);
-			return jcom;
-		}
-		public T fontColor(Color color) {
-			jcom.setForeground(color);
-			return jcom;
-		}
-		public T BackColor(Color color) {
-			jcom.setBackground(color);
-			return jcom;
-		}
-		public T setBorders(Border border) {
-			jcom.setBorder(border);
-			return jcom;
-		}
-		
-		public T setHo(int h) {
-			if(jcom instanceof JButton || jcom instanceof JLabel) {
-				((AbstractButton) jcom).setHorizontalAlignment(h);
-			}
-			return jcom;
-		}
-		public T size(int w, int h) {
-			jcom.setPreferredSize(new Dimension(w, h));
-			return jcom;
-		}
-		public T get() {
-			return jcom;
-		}나중에 공부하고 해봄 ^_^
-	}*/
+
 }

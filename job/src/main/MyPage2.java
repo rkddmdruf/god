@@ -113,7 +113,6 @@ public class MyPage2 extends BaseFrame{
 		}
 		table.setModel(tmodel[n]);
 		Query.setTable(tmodel[n], list);
-		System.out.println(list);
 		DefaultTableCellRenderer centerRender = new DefaultTableCellRenderer();
 		centerRender.setHorizontalAlignment(SwingConstants.CENTER);
 		for(int j = 0; j < tmodel[n].getColumnCount(); j++) {
@@ -144,7 +143,7 @@ public class MyPage2 extends BaseFrame{
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 					int row, int column) {
-				return new JLabel(sp.getImg("src/brand/" + value + ".png", 120, 100));
+				return new JLabel(sp.getImg("brand/" + value + ".png", 120, 100));
 			}
 		});
 		table.removeMouseListener(ma);
@@ -157,7 +156,6 @@ public class MyPage2 extends BaseFrame{
 				int low = s.length() == 2 ? 0 : Integer.parseInt(s.substring(0, 1).toString());
 				
 				if(min < e.getX() && max > e.getX()) {
-					sp.MyPage_BrandInf = true;
 					new BrandInf(list.get( (s.length() == 2 ? 0 : Integer.parseInt(s.substring(0, 1).toString()) ) ).getInt(2));
 					System.out.println("sdfsdfdsf");
 					dispose();
@@ -167,13 +165,8 @@ public class MyPage2 extends BaseFrame{
 				min = max + (tf ? 0 : table.getColumnModel().getColumn(3).getWidth());
 				max = min + (tf ? table.getColumnModel().getColumn(3).getWidth() : table.getColumnModel().getColumn(4).getWidth());
 				if(min < e.getX() && max > e.getX()) {
-					Row row = Query.select("SELECT bname FROM parttimecat.brand where bno = ?;", list.get(low).get(2)).get(0);
-					Row row1 = Query.select("SELECT * FROM parttimecat.job where jname like ?", ("%" + list.get(low).get(3) + "%")).get(0);
-					row1.forEach(rows -> {
-						row.add(rows);
-					});
-					new JobInfor(row);
-					sp.MyPage_JobInf = true;
+					Row row = Query.select("SELECT * FROM parttimecat.job where jname like ?", ("%" + list.get(low).get(3) + "%")).get(0);
+					new JobInfor(row.getInt(0));
 					dispose();
 				}
 			}

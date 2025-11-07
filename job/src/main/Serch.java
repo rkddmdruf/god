@@ -1,30 +1,13 @@
 package main;
 
-import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import utils.*;
-import utils.sp.cc;
-import utils.sp.cl;
-import utils.sp.cp;
 
 public class Serch extends BaseFrame{
 	JPanel mainPanel = new sp.cp(null, null, null);
@@ -35,7 +18,6 @@ public class Serch extends BaseFrame{
 	//-------------------------------------- 아래는 포인트(점 관련)
 	private static List<Row> list = Query.select("SELECT * FROM parttimecat.brand where cno >= 0 and cno <= 10;");
 	private static List<Row> listXY = Query.select("SELECT * FROM parttimecat.brand where cno >= 0 and cno <= 10;");
-	private static List<Row> XY = new ArrayList<>();
 	int timerCount = 0;
 	Timer t;
 	private boolean mouse = false;
@@ -86,41 +68,14 @@ public class Serch extends BaseFrame{
 		mainPanel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
 				if(doubleClick == 2) {
 					new BrandInf(brand);
 					dispose();
 				}else {
 					doubleClick++;
 				}
-				int x = e.getX();
-				int y = e.getY();
-				BufferedImage imgs = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
-				Graphics g2 = imgs.createGraphics();
-				mainPanel.paint(g2);
-				for(Row row : XY) {
-			    	int w = (int) (row.getInt(0) * (500.0 / 600.0));
-					if(w < x && w+10 > x) {
-						if(row.getInt(1) < y && row.getInt(1)+10 > y) {
-							t = new Timer(20, e1->{
-								timerCount += 1;
-								try {
-									int a = 0 + timerCount, b = 0 + timerCount, c = 500 - (timerCount * 2), d = 500 - (timerCount * 2);
-									System.out.println(a + " + " + b + " + " + c + " + " + d);
-									BufferedImage resizedImage = imgs.getSubimage(a,b,c,d);
-									mainPanel.removeAll();
-									mainPanel.add(new JLabel(new ImageIcon(resizedImage.getScaledInstance(500, 500, Image.SCALE_SMOOTH))) {{
-										setBounds(0,0, 500, 500);
-									}});
-									RePaint();
-								} catch (Exception e2) {
-									System.out.println(e2.getMessage());
-								}
-							});
-							t.start();
-						}
-					}
-				}
+				int x = e.getX(), y = e.getY();
+				doubleClick = mouseInArc(x, y) != null ? doubleClick : 0;
 			}
 		});
 		
@@ -130,16 +85,27 @@ public class Serch extends BaseFrame{
 			panels.get(i).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					System.out.println(category.get(i));
 					JPanel p = panels.get(i);
 					p.setBackground(p.getBackground() == Color.white ? Color.red : Color.white);
 					JLabel l = (JLabel) p.getComponent(0);
 					l.setForeground(p.getBackground() == Color.white ? Color.black : Color.white);
 					clickCheck[i] = p.getBackground() == Color.WHITE ? false : true;
+					if(i == 0) {
+						for(int s = 1; s < panels.size(); s++) {
+							panels.get(s).setBackground(Color.white);
+							panels.get(s).getComponent(0).setForeground(Color.black);
+							clickCheck[s] = false;
+						}
+					}else {
+						panels.get(0).setBackground(Color.white);
+						panels.get(0).getComponent(0).setForeground(Color.black);
+						clickCheck[0] = false;
+					}
 					mainPanel.removeAll();
 					mainPanel.add(new point() {{
 						setBounds(0, 0, 500, 500);
 					}});
+
 					RePaint();
 				}
 			});
@@ -158,26 +124,20 @@ public class Serch extends BaseFrame{
 	    JPopupMenu popupMenu = new JPopupMenu();
 	    JLabel label = new JLabel();
 	    doubleClick = 0;
-	    for(Row row : listXY) {
-	    	int w = (int) (row.getInt(3) * (500.0 / 600.0));
-			if(w < x && w+10 > x) {
-				if(row.getInt(4) < y && row.getInt(4)+10 > y) {
-					mouse = true; doubleClick = 1; brand = row.getInt(0);
-					label.setText(row.getString(1));
-					break;
-				}
-			}
-		}
+	    Row row = mouseInArc(x, y);
+	    if(row != null) {
+	    	mouse = true; doubleClick = 1; brand = row.getInt(0);
+			label.setText(row.getString(1));
+	    }
 	    popupMenu.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 	    popupMenu.setBackground(Color.white);
 	    popupMenu.add(label);
 	    popupMenu.show(this, x, y+5);
 	    popupMenu.setVisible(mouse);
 	}
-	public static class point extends JPanel{
+	private static class point extends JPanel{
 		@Override
 		public void paintComponent(Graphics g) {
-			XY = new ArrayList<>();
 			g.clearRect(0, 0, 500, 500);
 			g.drawImage(sp.getImg("지도.png", 500,500).getImage(),0, 0, this);
 			g.setColor(Color.red);
@@ -187,12 +147,21 @@ public class Serch extends BaseFrame{
 							i == 0 ? 0 : i, i == 0 ? 10 : i);
 					for(Row row : list) {
 						int w = (int) (row.getInt(3) * (500.0 / 600.0)), h = row.getInt(4);
-						XY.add(new Row() {{  add(w); add(h);  }});
 						g.fillOval(w, h, 10, 10);
 					}
 				}
-			if(clickCheck[0]) XY = Query.select("SELECT bxx, byy FROM parttimecat.brand");
 		}
+	}
+	private Row mouseInArc(int x, int y) {
+		for(Row row : listXY) {
+	    	int w = (int) (row.getInt(3) * (500.0 / 600.0));
+			if(w < x && w+10 > x) {
+				if(row.getInt(4) < y && row.getInt(4)+10 > y) {
+					return row;
+				}
+			}
+		}
+		return null;
 	}
 	public static void main(String[] args) {
 		new Serch();
