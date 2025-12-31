@@ -102,7 +102,7 @@ public class movieChange extends BaseFrame{
 				}
 			}
 			sp.Infor("정보가 수정되었습니다.");
-			Query.update("update movie set m_name = ?, l_no = ?, m_plot = ?, g_no = ?", name, age.getSelectedIndex()+1, infor, category.getSelectedIndex()+1);
+			Query.update("update movie set m_name = ?, l_no = ?, m_plot = ?, g_no = ? where m_no = ?", name, age.getSelectedIndex()+1, infor, category.getSelectedIndex()+1, movie.get(0));
 			new AdminSerch();
 			dispose();
 			
