@@ -10,6 +10,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +40,8 @@ public class seatChoice extends BaseFrame{
 	String seatString = "";
 	JTextArea pay = new ca("좌석 결제").font(sp.font(1, 20)).setting();
 	JLabel money = new cl("15000원").font(sp.font(1, 20)).setHo(JLabel.LEFT);
-	seatChoice(int sc_no){
-		row = Query.select("SELECT * FROM schedule where sc_no = ?;", sc_no).get(0);
+	seatChoice(int m_no, LocalDate date, LocalTime time){
+		row = Query.select("SELECT * FROM schedule where m_no = ? and sc_date = ? and sc_time = ?;", m_no, date, time).get(0);
 		setFrame("좌석 예매", 725,680, ()->{});
 	}
 	@Override
@@ -163,9 +165,5 @@ public class seatChoice extends BaseFrame{
 				});
 			}
 		}
-	}
-	
-	public static void main(String[] args) {
-		new seatChoice(399);
 	}
 }

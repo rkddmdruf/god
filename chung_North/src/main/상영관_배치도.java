@@ -2,40 +2,59 @@ package main;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.swing.JLabel;
-
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import utils.*;
 import utils.sp.*;
 
 public class 상영관_배치도 extends BaseFrame{
 // 0길, 1벽, 2도착지
 	int[][] n = new int[9][9];
+	Point tt[][] = new Point[9][9];
+	List<Point> pointList = new ArrayList<>();
+	int listSize = 0, number = 0;
+	boolean colors = true;
 	List<Row> list = Query.select("SELECT * FROM moviedb.srm;");
-	int s = 0;
-	List<Integer[]> ints = new ArrayList<>();
+	int s = 0, m_no = 0;
+	LocalDate date;
+	LocalTime time;
+	List<Point> ints = new ArrayList<>();
 	List<List<JLabel>> labelList = new ArrayList<List<JLabel>>();
-	상영관_배치도(int s){
+	Timer t;
+	
+	상영관_배치도(int s, int m_no, LocalDate date, LocalTime time){
 		this.s = s;
+		this.m_no = m_no;
+		this.date = date;
+		this.time = time;
 		setFrame("상영관 배치도", 405 + 11 + 16, 405 + 11 + 39, ()->{}); 
 	}
 	@Override
 	protected void desing() {
 		for(int i = 0; i < 6; i++) {
-			ints.add(new Integer[2]);
+			ints.add(new Point());
 		}
 		for(int i = 0; i < 9; i++) {
 			for(int j = 0; j < 9; j++) {
 				n[i][j] = list.get((i*9) + j).getInt(1);
+				tt[i][j] = new Point(0, 0);
 				if(list.get((i*9) + j).get(2) != null) {
 					Integer[] intz = {i, j};
-					ints.set(list.get((i*9) + j).getInt(2)-1,intz);
+					ints.set(list.get((i*9) + j).getInt(2) - 1, new Point(i , j));
 				}
-				System.out.print(n[i][j]);
 			}
-			System.out.println("");
 		}
 		
 		getContentPane().setLayout(new GridLayout(9,9));
@@ -58,18 +77,99 @@ public class 상영관_배치도 extends BaseFrame{
 				add(labelList.get(i).get(j));
 			}
 		}
-		Astar(n, ints.get(s-1)[0], ints.get(s-1)[1], 8, 0);
+		bfs(ints.get(s-1).x, ints.get(s-1).y);
+		listSize = pointList.size()-2;
+		number = pointList.size() -1;
+		setColor();
+		RePaint();
 	}
+	private void setColor() {
+		t = new Timer(200, e->{
+			if(0 <= listSize) {
+				labelList.get(pointList.get(listSize).x).get(pointList.get(listSize).y).setBackground(Color.red);//출발-도착
+			}
+			listSize = listSize - 1;
+			if(listSize == -1) {
+				System.out.println(listSize);
+				labelList.get(pointList.get(0).x).get(pointList.get(0).y).setBackground(Color.green);//도착지
 
-	private void Astar(int[][] map, int ex, int ey, int sx, int sy) {
-		
+				new Thread() {
+					public void run() {
+						for(int i = 0; i < pointList.size()-1; i++) {
+							number = number - 1;
+							Timer t2 = null;
+							if(number > 0) {
+								t2 = new Timer(100, e2->{
+									if(colors) colors = false;
+									else colors = true;
+									if(number > 0) 
+										labelList.get(pointList.get(number).x).get(pointList.get(number).y).setBackground(colors ? Color.white : Color.red);
+								});
+								t2.start();
+							}
+							try {
+								Thread.sleep(500);
+								if(t2 != null) {
+									t2.stop();
+									labelList.get(pointList.get(number).x).get(pointList.get(number).y).setBackground(Color.red);
+								}
+							} catch (Exception e2) {
+								// TODO: handle exception
+							}
+						}
+						sp.Infor(s+"관에 도착했습니다.");
+						new seatChoice(m_no, date, time);
+					}
+				}.start();
+			}
+		});
+		t.start();
+	}
+	static class Node{
+		List<Point> list = new ArrayList<>();
+		private void addNode(Point p) {
+			list.add(p);
+		}
+		private boolean check(Point p) {
+			for(Point pp : list) {
+				if(pp.x == p.x && pp.y == p.y) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+	
+	private void bfs(int ex, int ey) {
+		int[] x = {-1,1,0,0};
+		int[] y = {0,0,-1,1};
+		Node node = new Node();
+		Queue<Point> q = new LinkedList<>();
+		Point p = new Point(8,0);
+		q.add(p);
+		node.addNode(p);
+		while(!q.isEmpty()) {
+			p = q.poll();
+			for(int i = 0; i < 4; i++) {
+				if(p.x + x[i] >= 0 && p.x + x[i] < 9 && p.y + y[i] >= 0 && p.y + y[i] < 9) {
+					Point pp = new Point(p.x + x[i], p.y + y[i]);
+					if(!node.check(pp) && n[pp.x][pp.y] != 1) {
+						q.add(pp);
+						tt[pp.x][pp.y] = new Point(p.x, p.y);
+						node.addNode(pp);
+					}
+				}
+			}
+		}
+
+		Point xx = new Point(ex,ey);
+		while(xx.x + xx.y != 0) {
+			pointList.add(xx);
+			xx = tt[xx.x][xx.y];
+		}
 	}
 	@Override
 	protected void action() {
-		// TODO Auto-generated method stub
 		
-	}
-	public static void main(String[] args) {
-		new 상영관_배치도(1);
 	}
 }

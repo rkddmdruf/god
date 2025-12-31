@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,6 +80,7 @@ public class 예약 extends BaseFrame{
 		movie = Query.select("SELECT * FROM moviedb.schedule "
 				+ "where m_no = ? and date(sc_date) = ?"
 				+ "order by sc_date, sc_time;", mno, dateList.get(day));//영화 예매 시간 몇관인지
+		System.out.println(movie);
 		for(int i = 0; i < movie.size(); i++) {final int index = i;
 			List<Row> list = Query.select("SELECT * FROM moviedb.reservation \r\n"
 					+ "where m_no = ? and r_date = ? and r_time = ?;", mno, movie.get(i).get(3), movie.get(i).get(4));// 예약있는지
@@ -119,8 +121,9 @@ public class 예약 extends BaseFrame{
 				sp.err("스케줄을 선택해주세요.");
 				return;
 			}
-			new seatChoice(movie.get(time).getInt(0));
 			sp.Infor("좌석예매 폼으로 이동하겠습니다.");
+			new 상영관_배치도(movie.get(time).getInt(2), movie.get(0).getInt(1), LocalDate.parse(movie.get(0).getString(3)), LocalTime.parse(movie.get(0).getString(4)));
+			dispose();
 		});
 		for(int i = 0; i < dayPanelList.size(); i++) {final int index = i;
 			dayPanelList.get(i).addMouseListener(new MouseAdapter() {
