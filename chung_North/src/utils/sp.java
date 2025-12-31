@@ -17,6 +17,7 @@ import utils.sp.cl;
 public class sp {
 	
 	public static Row user = Query.select("select * from user where u_no = 1").get(0);
+	public static boolean admin = true;
 	public static String n = "North";
 	public static String s = "South";
 	public static String c = "Center";
@@ -46,6 +47,15 @@ public class sp {
 			}
 		}
 		return age - 1;
+	}
+	public static boolean getBirthday(LocalDate d2) {
+		LocalDate d1 = LocalDate.of(2025, 9, 10);
+		if(d1.getMonthValue() == d2.getMonthValue()) {
+			if(d1.getDayOfMonth() == d2.getDayOfMonth()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	public static void err(String string) {
 		JOptionPane.showMessageDialog(null, string, "경고", JOptionPane.ERROR_MESSAGE);

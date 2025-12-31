@@ -75,4 +75,11 @@ public enum Query {
 			e.printStackTrace();
 		}
 	}
+	public static void update(String string, Object...val) {
+		try {
+			getC(string, val).executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

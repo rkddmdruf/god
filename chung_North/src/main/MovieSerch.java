@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +18,7 @@ import utils.sp.*;
 
 public class MovieSerch extends BaseFrame{
 	JPanel borderPanel = new sp.cp(new BorderLayout(), sp.em(10, 10, 10, 10), null);
-	JPanel northPanel = new sp.cp(new BorderLayout(), null, null);
+	static JPanel northPanel = new sp.cp(new BorderLayout(), null, null);
 	JTextField serch = new JTextField() {{
 		setPreferredSize(new Dimension(175, 25));
 	}};
@@ -28,7 +30,7 @@ public class MovieSerch extends BaseFrame{
 			addItem(row.getString(1));
 	}};
 	boolean serchDouble = true;
-	
+	List<Row> list;
 	JPanel mainPanel = new sp.cp(new GridLayout(0, 4, 10, 10), null, null);
 	JScrollPane sc = new JScrollPane(mainPanel) {{setBorder(sp.em(0, 0, 0, 0)); getVerticalScrollBar().setUnitIncrement(20);}};
 	public MovieSerch(){
@@ -36,12 +38,6 @@ public class MovieSerch extends BaseFrame{
 	}
 	@Override
 	protected void desing() {
-		northPanel.add(new cp(new BorderLayout(), null, null) {{
-			add(logo, sp.w);
-			add(new cp(new GridLayout(0, 2, 5, 5), null, null) {{
-				add(loginAll); add(movieSerch);
-			}}, sp.e);
-		}}, sp.n);
 		northPanel.add(new cp(new FlowLayout(FlowLayout.LEFT), null, null) {{
 			add(new cl("검색창").font(sp.font(1, 20)));
 			add(serch);
@@ -58,7 +54,7 @@ public class MovieSerch extends BaseFrame{
 		mainPanel.removeAll();
 		int[] gno = {cb2.getSelectedIndex() == 0 ? 0 : cb2.getSelectedIndex()
 				, cb2.getSelectedIndex() == 0 ? 21 : cb2.getSelectedIndex()}; 
-		List<Row> list = (cb1.getSelectedIndex() == 0 ? Query.MovieSerch_All : 
+		list = (cb1.getSelectedIndex() == 0 ? Query.MovieSerch_All : 
 			(cb1.getSelectedIndex() == 1 ? Query.MovieSerch_예매순 : Query.MovieSerch_평점순)).select(gno[0], gno[1], "%" + serch.getText() + "%");
 		System.out.println(list.size());
 		
@@ -83,9 +79,26 @@ public class MovieSerch extends BaseFrame{
 		System.out.println(mainPanel.getComponentCount());
 		borderPanel.add(northPanel, sp.n);
 		borderPanel.add(sc);
+		setAction();
 		RePaint();
 	}
 	
+	void setAction() {
+		for(int i = 0; i < mainPanel.getComponentCount(); i++) {final int index = i;
+			mainPanel.getComponent(index).addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(sp.admin) {
+						new movieChange(list.get(index).getInt(0));
+						dispose();
+						return;
+					}
+					new MovieInfor(list.get(index).getInt(0));
+					dispose();
+				}
+			});
+		}
+	}
 	private void setNumbering(JComponent c, int n) {
 		c.add(new cl("No." + n) {{
 			setOpaque(true);
@@ -116,8 +129,5 @@ public class MovieSerch extends BaseFrame{
 				setMainPanel();
 			}
 		});
-	}
-	public static void main(String[] args) {
-		new MovieSerch();
 	}
 }

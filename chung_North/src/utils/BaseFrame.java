@@ -17,9 +17,9 @@ import utils.sp.cb;
 import utils.sp.cl;
 
 public abstract class BaseFrame extends JFrame{
-	public JButton loginAll = new cb(sp.user.isEmpty() ? "로그인" : "내 정보").BackColor(sp.color).fontColor(Color.white).size(90, 50);
-	public JButton movieSerch = new cb("영화 검색").BackColor(sp.color).fontColor(Color.white).size(90,  50);
-	public JLabel logo = new cl(sp.getImg("datafiles/로고1.jpg", 150, 50)).size(150, 50);
+	public static JButton loginAll = new cb(sp.user.isEmpty() ? "로그인" : "내 정보").BackColor(sp.color).fontColor(Color.white).size(90, 50);
+	public static JButton movieSerch = new cb("영화 검색").BackColor(sp.color).fontColor(Color.white).size(90,  50);
+	public static JLabel logo = new cl(sp.getImg("datafiles/로고1.jpg", 150, 50)).size(150, 50);
 	
 	public void setFrame(String t, int w, int h, Runnable run) {
 		setTitle(t);
