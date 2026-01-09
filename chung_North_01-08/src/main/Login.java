@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.util.Arrays;
 import java.util.List;
 
 import static javax.swing.BorderFactory.*;
@@ -25,21 +26,25 @@ public class Login extends JFrame{
 		setBorder(createEmptyBorder(5, 5, 5, 5));
 		setBackground(Color.white);
 	}};
+	
 	JTextField id = new JTextField() {{
 		setPreferredSize(new Dimension(280, this.getSize().height));
 	}};
+	
 	JTextField pw = new JPasswordField() {{
 		setPreferredSize(new Dimension(280, this.getSize().height));
 	}};
-	JButton login = new JButton("로그인") {{
-		setForeground(Color.white);
-		setBackground(Color.blue);
-	}};
+	
+	JButton login = new CustumButton("로그인");
+	
+	Color[] colors = {Color.red, Color.blue, Color.yellow, Color.green};
+	
 	Login(){
-		new A_setFrame(this, "로그인", 400, 200);
+		
 		JPanel LoginPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		LoginPanel.setBackground(Color.white);
 		LoginPanel.setBorder(createMatteBorder(0, 0, 1, 0, Color.black));
+		
 		JLabel loginl = new JLabel("로그인");
 		loginl.setFont(new Font("맑은 고딕", 1, 30));
 		LoginPanel.add(loginl);
@@ -55,6 +60,7 @@ public class Login extends JFrame{
 		add(southPanel, BorderLayout.SOUTH);
 		
 		setAction();
+		new A_setFrame(this, "로그인", 400, 200);
 	}
 	
 	private void setMainPanel() {
@@ -64,13 +70,16 @@ public class Login extends JFrame{
 			setFont(new Font("맑은 고딕", 1, 22));
 		}}, BorderLayout.WEST);
 		ID.add(id, BorderLayout.EAST);
+		
 		textPanel.add(ID, BorderLayout.NORTH);
+		
 		JPanel PW = new JPanel(new BorderLayout());
 		PW.setBackground(Color.white);
 		PW.add(new JLabel("비밀번호") {{
 			setFont(new Font("맑은 고딕", 1, 22));
 		}}, BorderLayout.WEST);
 		PW.add(pw, BorderLayout.EAST);
+		
 		textPanel.add(PW, BorderLayout.SOUTH);
 	}
 	
@@ -82,18 +91,26 @@ public class Login extends JFrame{
 				JOptionPane.showMessageDialog(null, "입력하지 않은 항목이 있습니다", "경고", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			List<String> checkList = Arrays.asList("시발,개새끼,존나,병신".split(","));
+			if (checkList.contains(id)) {
+				
+			}
+			
 			if(id.equals("admin") && pw.equals("1234")) {
 				JOptionPane.showMessageDialog(null, "관리자님 환영합니다", "정보", JOptionPane.INFORMATION_MESSAGE);
 				//new ...();
 				dispose();
 				return;
 			}
-			List<Data> user = new Connections().select("select * from user where u_id = ? and u_pw = ?", id, pw);
+			Data user = new Connections().select("select * from user where u_id = ? and u_pw = ?", id, pw).get(0);
 			if(user.isEmpty()) {
 				JOptionPane.showMessageDialog(null, "존재하는 회원이 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			JOptionPane.showMessageDialog(null, user.get(1) + "회원님 환영합니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
 			new Main(Integer.parseInt(user.get(0).toString()));
+			
 			dispose();
 		});
 	}

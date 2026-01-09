@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 
 public class A_setFrame{
 	private JFrame f;
+	public Connections c = new Connections();
 	public A_setFrame(JFrame f, String string, int w, int h) {
 		this.f = f;
 		change(string, w, h);

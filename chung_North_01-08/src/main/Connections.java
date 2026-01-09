@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Connections {
 	
-	String[] stringQ = {
+	private String[] stringQ = {
 			
 	};
 	private Connection c = null;
@@ -23,6 +23,7 @@ public class Connections {
 		for(int i = 0; i < objects.length; i++)
 			ps.setObject(i+1, objects[i]);
 	}
+	
 	
 	public List<Data> select(String string, Object...objects){
 		List<Data> list = new ArrayList<>();
