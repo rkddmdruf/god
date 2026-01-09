@@ -57,6 +57,8 @@ public class Main extends JFrame{
 	
 	JButton movieAllShow = new CustumButton("영화 전체보기");
 	CustumButton kiosc = new CustumButton("먹거리키오스크");
+	List<Data> ads = c.select("select * from movie where m_no in (6, 2, 32, 9, 18) ORDER BY FIELD(m_no, 6, 2, 32, 9, 18)");
+	List<JPanel> panels = new ArrayList<>();
 	
 	List<Data> listA = c.select("SELECT movie.*, count(movie.m_no) as c FROM moviedb.reservation "
 			+ "join movie on movie.m_no = reservation.m_no "
@@ -167,8 +169,6 @@ public class Main extends JFrame{
 	}
 	
 	private void setAdverPanel() {
-		List<Data> ads = c.select("select * from movie where m_no in (6, 2, 32, 9, 18) ORDER BY FIELD(m_no, 6, 2, 32, 9, 18)");
-		List<JPanel> panels = new ArrayList<>();
 		
 		for (int i = 0; i < ads.size(); i++) {
 			int index = i;
@@ -202,9 +202,9 @@ public class Main extends JFrame{
 					
 					Thread.sleep(2000);
 					
-					for (int i = 0; i < 590; i+=2) {
-						panels.get(0).setBounds(-i, 0, 590, 200);
-						panels.get(1).setBounds(590 - i, 0, 590, 200);
+					for (int i = 0; i < 590; i+=4) {
+						panels.get(0).setBounds(-i - 1, 0, 590, 200);
+						panels.get(1).setBounds(590 - i - 1, 0, 590, 200);
 						
 						Thread.sleep(1);
 						
@@ -289,23 +289,15 @@ public class Main extends JFrame{
 			p.addMouseMotionListener(m2);
 		}
 		
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				if(t != null) {
-					t.stop(); 
+		for(int i = 0; i < 5; i++) {
+			final int index = i;
+			panels.get(index).addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					System.out.println(Integer.parseInt(ads.get(index).get(0).toString()));
 				}
-			}
-		});
-//		for(int i = 0; i < 5; i++) {
-//			final int index = i;
-//			img[i].addMouseListener(new MouseAdapter() {
-//				@Override
-//				public void mouseClicked(MouseEvent e) {
-//					System.out.println(adver[index]);
-//				}
-//			});
-//		}
+			});
+		}
 	}
 	
 	private ImageIcon getImages(String string, int w, int h) {
