@@ -17,7 +17,7 @@ import static javax.swing.BorderFactory.*;
 import javax.swing.*;
 
 public class MovieSerch extends JFrame{
-	Connections c = new Connections();
+	
 	JPanel borderPanel = new JPanel(new BorderLayout()) {{
 		setBackground(Color.white);
 		setBorder(createEmptyBorder(0,5,5,5));
@@ -36,7 +36,7 @@ public class MovieSerch extends JFrame{
 	JComboBox<String> genre = new JComboBox<String>() {{
 		setBackground(Color.white);
 		addItem("전체");
-		for(Data d : c.select("select * from genre")) {
+		for(Data d : Connections.select("select * from genre")) {
 			addItem(d.get(1).toString());
 		}
 	}};
@@ -65,9 +65,9 @@ public class MovieSerch extends JFrame{
 	int u_no = 0;
 	MovieSerch(int u_no){
 		this.u_no = u_no;
-		String title = "영화 검색";
+		String title = "관리자 검색";
 		if(u_no != -1) {
-			title = "관리자 검색";
+			title = "영화 검색";
 			borderPanel.add(new NorthPanel(u_no, this), BorderLayout.NORTH);			
 		}
 		
@@ -95,7 +95,7 @@ public class MovieSerch extends JFrame{
 		String txt = tf.getText();
 		int index = genre.getSelectedIndex();
 		int[] cno = {index == 0 ? 1 : index, index == 0 ? 20 : index};
-		list = c.select(query[order.getSelectedIndex()], cno[0], cno[1], "%" + tf.getText() + "%");
+		list =Connections.select(query[order.getSelectedIndex()], cno[0], cno[1], "%" + tf.getText() + "%");
 		mainPanel.removeAll();
 		mainPanel.setBorder(createEmptyBorder(5,5,5,5));
 		for(int i = 0; i < list.size(); i++) {
@@ -187,6 +187,6 @@ public class MovieSerch extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		new MovieSerch(1);
+		new MovieSerch(-1);
 	}
 }

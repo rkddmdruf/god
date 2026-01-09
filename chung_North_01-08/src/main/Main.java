@@ -25,7 +25,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Main extends JFrame{
-	Connections c = new Connections();
+	
 	JPanel borderPanel = new JPanel(new BorderLayout(5,5)) {{
 		setBackground(Color.white);
 		setBorder(createEmptyBorder(0,5,5,5));
@@ -57,20 +57,19 @@ public class Main extends JFrame{
 	
 	JButton movieAllShow = new CustumButton("영화 전체보기");
 	CustumButton kiosc = new CustumButton("먹거리키오스크");
-	List<Data> ads = c.select("select * from movie where m_no in (6, 2, 32, 9, 18) ORDER BY FIELD(m_no, 6, 2, 32, 9, 18)");
+	List<Data> ads = Connections.select("select * from movie where m_no in (6, 2, 32, 9, 18) ORDER BY FIELD(m_no, 6, 2, 32, 9, 18)");
 	List<JPanel> panels = new ArrayList<>();
 	
-	List<Data> listA = c.select("SELECT movie.*, count(movie.m_no) as c FROM moviedb.reservation "
+	List<Data> listA = Connections.select("SELECT movie.*, count(movie.m_no) as c FROM moviedb.reservation "
 			+ "join movie on movie.m_no = reservation.m_no "
 			+ "group by movie.m_no order by c desc, m_no limit 10;");
-	List<Data> listB = c.select("SELECT movie.*, avg(re_star) a FROM moviedb.review "
+	List<Data> listB = Connections.select("SELECT movie.*, avg(re_star) a FROM moviedb.review "
 			+ "join movie on movie.m_no = review.m_no "
 			+ "group by movie.m_no order by a desc, m_no limit 5;");
 	int start1 = 0, start2 = 1;
 	int x1 = 0, x2 = 0;
 	Main(int u_no){
 		this.u_no = u_no;
-		
 		borderPanel.add(new NorthPanel(u_no, this), BorderLayout.NORTH);
 		add(borderPanel);
 		

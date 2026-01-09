@@ -103,7 +103,7 @@ public class Login extends JFrame{
 				dispose();
 				return;
 			}
-			Data user = new Connections().select("select * from user where u_id = ? and u_pw = ?", id, pw).get(0);
+			Data user = Connections.select("select * from user where u_id = ? and u_pw = ?", id, pw).get(0);
 			if(user.isEmpty()) {
 				JOptionPane.showMessageDialog(null, "존재하는 회원이 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
 				return;

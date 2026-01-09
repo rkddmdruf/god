@@ -10,22 +10,22 @@ import java.util.List;
 
 public class Connections {
 	
-	private String[] stringQ = {
+	private static String[] stringQ = {
 			
 	};
-	private Connection c = null;
-	private PreparedStatement ps = null;
-	private ResultSet re = null;
+	private static Connection c = null;
+	private static PreparedStatement ps = null;
+	private static ResultSet re = null;
 	
-	private void getConAndStatement(String string, Object...objects) throws SQLException {
-		c = DriverManager.getConnection("jdbc:mysql://localhost/moviedb?serverTimezone=UTC&allowLoadLocalInfile=true", "root", "1234");
+	private static void getConAndStatement(String string, Object...objects) throws SQLException {
+		c = DriverManager.getConnection("jdbc:mysql://localhost/moviedb?serverTimezone=Asia/Seoul&allowLoadLocalInfile=true", "root", "1234");
 		ps = c.prepareStatement(string);
 		for(int i = 0; i < objects.length; i++)
 			ps.setObject(i+1, objects[i]);
 	}
 	
 	
-	public List<Data> select(String string, Object...objects){
+	public static List<Data> select(String string, Object...objects){
 		List<Data> list = new ArrayList<>();
 		try {
 			getConAndStatement(string, objects);
@@ -36,32 +36,39 @@ public class Connections {
 					data.add(re.getObject(i + 1));
 				list.add(data);
 			}
-			closed();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			closed();
 		}
 		return list;
 	}
 	
-	public List<Data> select(int index){
+	public static List<Data> select(int index){
 		return select(stringQ[index]);
 	}
 	
-	public void update(String string, Object...objects) {
+	public static void update(String string, Object...objects) {
 		try { 
 			getConAndStatement(string, objects);
 			ps.executeUpdate(); 
-			closed();
 		}
 		catch (SQLException e) { 
 			System.out.println(e.getMessage()); 
+		}finally {
+			closed();
 		}
 	}
 	
-	private void closed() throws SQLException{
-		if(!re.isClosed()) re.close();
-		if(!ps.isClosed()) ps.close();
-		if(!c.isClosed()) c.close();
+	private static void closed(){
+		try {
+			if(!re.isClosed() && re != null) re.close();
+			if(!ps.isClosed() && ps != null) ps.close();
+			if(!c.isClosed() && c != null) c.close(); 
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
 	}
 }
 class Data extends ArrayList<Object> { }
