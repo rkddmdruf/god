@@ -14,7 +14,7 @@ public class Connections {
 	private static ResultSet re = null;
 	
 	private static void ConnectAndSetPs(String s, Object...objects) throws SQLException{
-		c = DriverManager.getConnection("jdbc:mysql://localhost/moviedb?serverTimezone=UTC&allowLoadLocalInfile=true", "root", "1234");
+		c = DriverManager.getConnection("jdbc:mysql://localhost/moviedb?serverTimezone=Asia/Seoul&allowLoadLocalInfile=true", "root", "1234");
 		ps = c.prepareStatement(s);
 		for(int i = 0; i < objects.length; i++) {
 			ps.setObject(i+1, objects[i]);
