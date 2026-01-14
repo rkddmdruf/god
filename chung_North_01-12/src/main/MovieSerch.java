@@ -8,6 +8,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +80,17 @@ public class MovieSerch extends JFrame{
 	};
 	List<Data> movieList = new ArrayList<>();
 	List<JLabel> imageList = new ArrayList<>();
+	int u_no = 0;
 	public MovieSerch(int u_no) {
+		this.u_no = u_no;
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(u_no == -1) { new Login(); }
+				else { new Main(u_no); }
+				dispose();
+			}
+		});
 		String title = "관리자 검색";
 		if(u_no != -1) {
 			title = "영화 검색";
@@ -112,11 +126,11 @@ public class MovieSerch extends JFrame{
 					setForeground(Color.white);
 				}}, BorderLayout.NORTH);
 			}
-			p.add(new JLabel(getImage("datafiles/limits/" + data.get(2) + ".png", 35, 35), JLabel.LEFT) {{
+			p.add(new JLabel(getter.getImage("datafiles/limits/" + data.get(2) + ".png", 35, 35), JLabel.LEFT) {{
 				setVerticalAlignment(JLabel.TOP);
 				setBorder(createEmptyBorder(0, 3, 0, 0));
 			}}, BorderLayout.WEST);
-			imageList.add(new JLabel(getImage("datafiles/movies/" + data.get(0) + ".jpg", 120, 200), JLabel.LEFT) {{
+			imageList.add(new JLabel(getter.getImage("datafiles/movies/" + data.get(0) + ".jpg", 120, 200), JLabel.LEFT) {{
 				setVerticalAlignment(JLabel.TOP);
 				setBackground(Color.red);
 				setOpaque(true);
@@ -132,15 +146,15 @@ public class MovieSerch extends JFrame{
 	}
 	
 	private void setAction() {
-		ItemListener i = e->{
+		ItemListener itemAction = e->{
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				setJScrollPane();
 				revalidate();
 				repaint();
 			}
 		};
-		order.addItemListener(i);
-		genre.addItemListener(i);
+		order.addItemListener(itemAction);
+		genre.addItemListener(itemAction);
 		serchBut.addActionListener(e->{
 			setJScrollPane();
 			if(movieList.isEmpty()) {
@@ -151,12 +165,22 @@ public class MovieSerch extends JFrame{
 			revalidate();
 			repaint();
 		});
-	}
-	private ImageIcon getImage(String string, int w, int h) {
-		return new ImageIcon(new ImageIcon(string).getImage().getScaledInstance(w, h, 4));
+		
+		for(int i = 0; i < imageList.size(); i++){
+			final int index = i;
+			imageList.get(i).addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					int mno = Integer.parseInt(movieList.get(index).get(0).toString());
+					if(u_no == -1) { new MovieChage(u_no, mno); }
+					else { new MovieInfor(u_no, mno, false); }
+					dispose();
+				}
+			});
+		}
 	}
 	
 	public static void main(String[] args) {
-		new MovieSerch(1);
+		new MovieSerch(-1);
 	}
 }

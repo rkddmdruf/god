@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,14 +58,16 @@ public class MovieChage extends JFrame{
 	
 	Data data;
 	public MovieChage(int u_no, int m_no){
-		
+		addWindowListener(new WindowAdapter() {
+			@Override public void windowClosing(WindowEvent e) { new MovieSerch(-1); }
+		});
 		data = Connections.select("select * from movie where m_no = ?", m_no).get(0);
 		genre.setSelectedIndex(Integer.parseInt(data.get(5).toString()) - 1);
 		ageLimit.setSelectedIndex(Integer.parseInt(data.get(2).toString()) - 1);
 		movieName.setText(data.get(1).toString());
 		movieInfor.setText(data.get(4).toString());
 		
-		borderPanel.add(new JLabel(getImage("datafiles/movies/" + data.get(0) + ".jpg", 150, 225)), BorderLayout.WEST);		
+		borderPanel.add(new JLabel(getter.getImage("datafiles/movies/" + data.get(0) + ".jpg", 150, 225)), BorderLayout.WEST);		
 		
 		JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 		flowPanel.setBackground(Color.white);
@@ -111,10 +115,6 @@ public class MovieChage extends JFrame{
 		});
 		
 		new A_setFrame(this, "영화수정", 600, 310);
-	}
-	
-	private ImageIcon getImage(String file, int w, int h) {
-		return new ImageIcon(new ImageIcon(file).getImage().getScaledInstance(w, h, 4));
 	}
 	
 	public static void main(String[] args) {

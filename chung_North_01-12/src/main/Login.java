@@ -25,19 +25,21 @@ public class Login extends JFrame{
 		}}, BorderLayout.NORTH);
 		
 		
-		JPanel IPP = new JPanel(new GridLayout(2, 0, 5, 5));
-		JPanel idp = new JPanel(new BorderLayout());
-		JPanel pwp= new JPanel(new BorderLayout());
 		Font font = new Font("맑은 고딕", 1, 18);
 		Dimension sizz = new Dimension(100, 20);
 		
+		JPanel idPasswordPanel = new JPanel(new GridLayout(2, 0, 5, 5));
+		
+		JPanel idp = new JPanel(new BorderLayout());
 		idp.setBackground(Color.white);
 		idp.add(new JLabel("아이디") {{
 			setFont(font);
 			setPreferredSize(sizz);
 		}}, BorderLayout.WEST);
+
 		idp.add(id);
 		
+		JPanel pwp= new JPanel(new BorderLayout());
 		pwp.setBackground(Color.white);
 		pwp.add(new JLabel("비밀번호") {{
 			setFont(font);
@@ -45,10 +47,10 @@ public class Login extends JFrame{
 		}}, BorderLayout.WEST);
 		pwp.add(pw);
 		
-		IPP.setBackground(Color.white);
-		IPP.add(idp);
-		IPP.add(pwp);
-		mainPanel.add(IPP);
+		idPasswordPanel.setBackground(Color.white);
+		idPasswordPanel.add(idp);
+		idPasswordPanel.add(pwp);
+		mainPanel.add(idPasswordPanel);
 		mainPanel.add(new JPanel(new FlowLayout(FlowLayout.RIGHT)) {{
 			setBackground(Color.white);
 			add(login);
@@ -65,6 +67,7 @@ public class Login extends JFrame{
 			}
 			if(id.equals("admin") && pw.equals("1234")) {				
 				JOptionPane.showMessageDialog(null, "관리자님 환영합니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+				new MovieSerch(-1);
 				dispose();
 				return;
 			}

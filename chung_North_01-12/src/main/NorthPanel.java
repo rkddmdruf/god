@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class NorthPanel extends JPanel{
-	JLabel logo = new JLabel(getImage("datafiles/로고1.jpg", 150, 50));
+	JLabel logo = new JLabel(getter.getImage("datafiles/로고1.jpg", 150, 50));
 	Font font = new Font("맑은 고딕", 0, 14);
 	JButton login = new CustumButton("로그인");
 	JButton movieSerch = new CustumButton("영화 검색");
@@ -59,12 +59,9 @@ public class NorthPanel extends JPanel{
 			System.out.println("내정보");
 		});
 		movieSerch.addActionListener(e->{
+			System.out.println(u_no);
 			new MovieSerch(u_no);
 			f.dispose();
 		});
-	}
-	private ImageIcon getImage(String file, int w, int h) {
-		return new ImageIcon(new ImageIcon(file).getImage().getScaledInstance(w, h, 4) );
-		
 	}
 }

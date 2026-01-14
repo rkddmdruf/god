@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -50,8 +52,12 @@ public class Reservation extends JFrame{
 	List<JTextArea> textAreaList = new ArrayList<>();
 	List<LocalDate> dates = new ArrayList<>();
 	int u_no, m_no, selectDay = -1;
-	
-	public Reservation(int u_no, int m_no) {
+	boolean isFromMain = false;
+	public Reservation(int u_no, int m_no, boolean isFromMain) {
+		this.isFromMain = isFromMain;
+		addWindowListener(new WindowAdapter() {
+			@Override public void windowClosing(WindowEvent e) { new MovieInfor(u_no, m_no, isFromMain); }
+		});
 		this.u_no = u_no;
 		this.m_no = m_no;
 		setWestPanel();
@@ -159,7 +165,7 @@ public class Reservation extends JFrame{
 				return;
 			}
 			JOptionPane.showMessageDialog(null, "좌석예매 폼으로 이동하겠습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
-			new 상영관_배치도(u_no, m_no, selectDate, selectTime);
+			new 상영관_배치도(u_no, m_no, isFromMain, selectDate, selectTime);
 			dispose();
 		});
 		for (int i = 0; i < panels.size(); i++) {
@@ -181,6 +187,6 @@ public class Reservation extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		new Reservation(1, 2);
+		new Reservation(1, 1, true);
 	}
 }

@@ -9,6 +9,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Arc2D.Double;
 import java.awt.image.ImageObserver;
@@ -49,9 +53,18 @@ public class MovieInfor extends JFrame{
 	
 	int u_no = 0, m_no = 0;
 	double start = 90, end = 0;
-	public MovieInfor(int u_no, int m_no) {
+	public MovieInfor(int u_no, int m_no, boolean isFromMain) {
 		this.u_no = u_no; this.m_no = m_no;
 		movie = Connections.select("select * from movie where m_no = ?", m_no).get(0);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(isFromMain) new Main(u_no);
+				else new MovieSerch(u_no);
+				dispose();
+			}
+		});
 		
 		borderPanel.add(new NorthPanel(this, u_no), BorderLayout.NORTH);
 		borderPanel.add(sc);
@@ -63,11 +76,16 @@ public class MovieInfor extends JFrame{
 			chatPanel.setPreferredSize(new Dimension(200, 300));
 			mainPanel.add(chatPanel, BorderLayout.SOUTH);
 		}else setChat();
+		
+		but.addActionListener(e->{
+			new Reservation(u_no, m_no, isFromMain);
+			dispose();
+		});
 		new A_setFrame(this, "영화 정보", 725, 500);
 	}
 	
 	private void setMoviePoster() {
-		JLabel movieImage = new JLabel(getImage("datafiles/movies/" + m_no + ".jpg", 150, 225)) {
+		JLabel movieImage = new JLabel(getter.getImage("datafiles/movies/" + m_no + ".jpg", 150, 225)) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -195,7 +213,7 @@ public class MovieInfor extends JFrame{
 		for(Data d : rv) {
 			JPanel p = new JPanel(new BorderLayout());
 			p.setBackground(Color.white);
-			p.add(new JLabel(getImage("datafiles/user/" + d.get(0) + ".jpg", 60, 60)), BorderLayout.WEST);
+			p.add(new JLabel(getter.getImage("datafiles/user/" + d.get(0) + ".jpg", 60, 60)), BorderLayout.WEST);
 			p.add(new JTextArea(d.get(1) + "\n\n" + d.get(2)) {{
 				setLineWrap(true);
 				setBorder(createEmptyBorder(7, 7, 7, 0));
@@ -215,11 +233,7 @@ public class MovieInfor extends JFrame{
 		mainPanel.add(chatPanel, BorderLayout.SOUTH);
 	}
 	
-	private ImageIcon getImage(String file, int w, int h) {
-		return new ImageIcon(new ImageIcon(file).getImage().getScaledInstance(w, h, 4));
-	}
-	
 	public static void main(String[] args) {
-		new MovieInfor(1, 1);
+		new MovieInfor(1, 1, true);
 	}
 }

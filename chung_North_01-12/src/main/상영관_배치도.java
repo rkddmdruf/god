@@ -3,6 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -25,7 +27,15 @@ public class 상영관_배치도 extends JFrame{
 	JLabel[][] labels = new JLabel[9][9];
 	List<Point> load = new ArrayList<>();
 	Point start = new Point(8, 0), end;
-	public 상영관_배치도(int u_no, int m_no, LocalDate date, LocalTime time) {
+	Thread thread;
+	public 상영관_배치도(int u_no, int m_no, boolean isFromMain, LocalDate date, LocalTime time) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(thread != null) thread.interrupt();
+				new Reservation(u_no, m_no, isFromMain);
+			}
+		});
 		setLayout(new GridLayout(9,9));
 		data = Connections.select("select * from schedule where m_no = ? and sc_date = ? and sc_time = ?",m_no, date, time).get(0);
 		List<Data> srm = Connections.select("SELECT * FROM moviedb.srm;");
@@ -50,7 +60,7 @@ public class 상영관_배치도 extends JFrame{
 	}
 	
 	private void go() {
-		new Thread(()->{
+		thread = new Thread(()->{
 			try {
 				for(int i = load.size() - 1; i >= 0; i--) {
 					Point xy = load.get(i);
@@ -69,7 +79,8 @@ public class 상영관_배치도 extends JFrame{
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
-		}).start();
+		});
+		thread.start();
 	}
 	
 	private void bfs() {
@@ -85,10 +96,11 @@ public class 상영관_배치도 extends JFrame{
 				int xx = p.x + x[i];
 				int yy = p.y + y[i];
 				if(infield(xx) && infield(yy) && map[xx][yy] != 1 && node.isEmpty(new Point(xx, yy))) {
+					//좌우 상하가 맵보다 큰지 체크 && 맵이 길인지 체크 && 길을 체크 했는지 체크
 					Point pp = new Point(xx, yy);
-					backPoint[xx][yy] = p;
+					backPoint[xx][yy] = p;//왔던 경로를 저장하는 2차원 배열
 					q.add(pp);
-					node.add(pp);
+					node.add(pp);//길 체크
 				}
 			}
 		}
@@ -97,8 +109,7 @@ public class 상영관_배치도 extends JFrame{
 		load.add(last);
 		while(!last.equals(new Point(8, 1))) {
 			load.add(last = new Point(backPoint[last.x][last.y]));
-		}
-		System.out.println(load);
+		}//경로 추적
 	}
 	
 	private boolean infield(int n) {
