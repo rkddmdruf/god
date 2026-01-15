@@ -4,102 +4,120 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static javax.swing.BorderFactory.*;
-import javax.swing.*;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+
 public class MovieChage extends JFrame{
-	JPanel borderPanel = new JPanel(new BorderLayout()) {{
+
+	JPanel borderPanel = new JPanel(new BorderLayout(5,5)) {{
 		setBackground(Color.white);
 		setBorder(createEmptyBorder(7,7,7,7));
 	}};
 	
-	JButton movieChageBut = new CustumButton("수정");
-	Data movie;
+	JButton chage = new CustumButton("수정") {{
+		setPreferredSize(new Dimension(100, 25));
+	}};
+	JPanel butPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0)) {{
+		setBackground(Color.white);
+		add(chage);
+	}};
 	
-	JTextField name = new JTextField() {{
-		setBorder(createLineBorder(Color.black));
-		setPreferredSize(new Dimension(0, 30));
-	}};
-	JTextArea infor = new JTextArea() {{
-		setBorder(createLineBorder(Color.black));
-	}};
-	JScrollPane sc = new JScrollPane(infor) {{
-		setBorder(createLineBorder(Color.black));
+	JPanel inforPanel = new JPanel(new BorderLayout(10, 10)) {{
 		setBackground(Color.white);
 	}};
-	TitledBorder tb = createTitledBorder(createCompoundBorder(createLineBorder(Color.black), createEmptyBorder(3, 1, 1, 1)), "설명", TitledBorder.LEFT, TitledBorder.TOP);
-	JComboBox<String> genre = new JComboBox<>() {{
+	JTextField movieName = new JTextField() {{
+		setPreferredSize(new Dimension(0, 30));
+		setBorder(createLineBorder(Color.black));
+	}};
+	JTextArea movieInfor = new JTextArea();
+	JComboBox<String> genre = new JComboBox<String>() {{
 		for(Data d : Connections.select("select g_name from genre")) addItem(d.get(0).toString());
 	}};
-	JComboBox<String> ageLimit = new JComboBox<String>("ALL,12,15,19".split(","));
+	JComboBox<String> ageLimit = new JComboBox<String>("ALL,12,15,19".split(",")) {{
+		setPreferredSize(new Dimension(80, 25));
+	}};
 	
-	int m_no;
-	public MovieChage(int m_no) {
-		this.m_no = m_no;
-		movie = Connections.select("select * from movie where m_no = ?", m_no).get(0);
-
-		name.setText(movie.get(1).toString());
-		infor.setText(movie.get(4).toString());
-		genre.setSelectedIndex(Integer.parseInt(movie.get(5).toString()) - 1);
-		ageLimit.setSelectedIndex(Integer.parseInt(movie.get(2).toString()) - 1);
+	Data data;
+	public MovieChage(int u_no, int m_no){
+		addWindowListener(new WindowAdapter() {
+			@Override public void windowClosing(WindowEvent e) { new MovieSerch(-1); }
+		});
+		data = Connections.select("select * from movie where m_no = ?", m_no).get(0);
+		genre.setSelectedIndex(Integer.parseInt(data.get(5).toString()) - 1);
+		ageLimit.setSelectedIndex(Integer.parseInt(data.get(2).toString()) - 1);
+		movieName.setText(data.get(1).toString());
+		movieInfor.setText(data.get(4).toString());
 		
+		borderPanel.add(new JLabel(getter.getImage("datafiles/movies/" + data.get(0) + ".jpg", 150, 225)), BorderLayout.WEST);		
 		
+		JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+		flowPanel.setBackground(Color.white);
+		flowPanel.add(genre);
+		flowPanel.add(ageLimit);
 		
-		JPanel mainPanel = new JPanel(new BorderLayout(10,10));
-		mainPanel.setBackground(Color.white);
-		mainPanel.add(new JLabel(getter.getImageIcon("datafiles/movies/" + m_no + ".jpg", 175, 250)), BorderLayout.WEST);
+		TitledBorder tb = new TitledBorder(createCompoundBorder(createLineBorder(Color.black), createEmptyBorder(5,1,1,1)), "설명", TitledBorder.LEFT, TitledBorder.TOP);
+		JPanel titlePanel = new JPanel(new BorderLayout());
+		titlePanel.setBackground(Color.white);
+		titlePanel.setBorder(tb);
+		titlePanel.add(new JScrollPane(movieInfor));
 		
-		JPanel inforPanel = new JPanel(new BorderLayout(15,15));
-		inforPanel.setBackground(Color.white);
-		inforPanel.add(name, BorderLayout.NORTH);
-		sc.setBorder(tb);
-		inforPanel.add(sc);
-		inforPanel.add(new JPanel(new FlowLayout(FlowLayout.RIGHT)) {{
-			setBackground(Color.white);
-			add(genre);
-			add(ageLimit);
-		}}, BorderLayout.SOUTH);
-		mainPanel.add(inforPanel);
+		inforPanel.add(titlePanel);
+		inforPanel.add(movieName, BorderLayout.NORTH);
+		inforPanel.add(flowPanel, BorderLayout.SOUTH);
 		
-		borderPanel.add(mainPanel);
-		
-		borderPanel.add(new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0)) {{
-			setBackground(Color.white);
-			add(movieChageBut);
-		}}, BorderLayout.SOUTH);
+		borderPanel.add(butPanel, BorderLayout.SOUTH);
+		borderPanel.add(inforPanel);
 		add(borderPanel);
 		
-		movieChageBut.addActionListener(e->{
-			String name = this.name.getText();
-			String inf = this.infor.getText();
-			if(name.isEmpty() || inf.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "빈칸이 있습니다", "경고", JOptionPane.ERROR_MESSAGE);
+		chage.addActionListener(e -> {
+			String n = movieName.getText();
+			String i = movieInfor.getText();
+			int g = genre.getSelectedIndex();
+			int age = ageLimit.getSelectedIndex();
+			if(n.isEmpty() || i.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "빈칸이 있습니다.", "경고", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if(name.equals(movie.get(1).toString()) && inf.equals(movie.get(4).toString())
-					&& (genre.getSelectedIndex() + 1) == Integer.parseInt(movie.get(5).toString()) && (ageLimit.getSelectedIndex() + 1) == Integer.parseInt(movie.get(2).toString()) ) {
-				JOptionPane.showMessageDialog(null, "수정된 부분이 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
+			if(n.equals(data.get(1).toString()) && i.equals(data.get(4).toString()) && g == Integer.parseInt(data.get(5).toString()) - 1 && age == Integer.parseInt(data.get(2).toString()) - 1) {
+				JOptionPane.showMessageDialog(null, "수정된 부분인 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			String[] ti = "시발,개새끼,존나,병신".split(",");
-			for(int i = 0; i < 4; i++) {
-				if(inf.contains(ti[i])) {
+			for(String s : ti) {
+				if(i.contains(s)) {
 					JOptionPane.showMessageDialog(null, "욕설을 포함하고 있습니다.", "경고", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
-			JOptionPane.showMessageDialog(null, "정보가 수정되었습니다", "정보", JOptionPane.INFORMATION_MESSAGE);
-			Connections.update("update movie set m_name = ?, l_no = ?, m_plot = ?, g_no = ? where m_no = ?;", name, ageLimit.getSelectedIndex() + 1, inf, genre.getSelectedIndex() + 1, movie.get(0));
-			new MovieSerch(false);
+			JOptionPane.showMessageDialog(null, "정보가 수정되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+			Connections.update("update movie set m_name = ?, m_plot = ?, g_no = ?, l_no = ? where m_no = ?", n, i, g + 1, age + 1, m_no);
+			new MovieSerch(-1);
 			dispose();
-			return;
 		});
-		A_setFrame.setting(this, "영화수정", 700, 350);
+		
+		new A_setFrame(this, "영화수정", 600, 310);
 	}
 	
 	public static void main(String[] args) {
-		new MovieChage(1);
+		new MovieChage(-1, 1);
 	}
 }
