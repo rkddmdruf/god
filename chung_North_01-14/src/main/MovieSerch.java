@@ -10,177 +10,140 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import static javax.swing.BorderFactory.*;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class MovieSerch extends JFrame{
+	Font font = new Font("맑은 고딕", 1, 18);
 	
-	JPanel borderPanel = new JPanel(new BorderLayout(5,5)) {{
-		setBackground(Color.white);
-		setBorder(createEmptyBorder(0, 10, 10, 10));
-	}};
-	JPanel mainPanel = new JPanel(new BorderLayout(10, 10)) {{
-		setBackground(Color.white);
-	}};
+	JPanel borderPanel = new JPanel(new BorderLayout(5, 5));
 	
-	////아래는 검색 판넬 관련 Component
-	JTextField serch = new JTextField() {{
-		setPreferredSize(new Dimension(175, 25));
-	}};
+	JTextField serch = new JTextField() {{ setPreferredSize(new Dimension(180, 25));}};
 	JButton serchBut = new CustumButton("검색");
-	JComboBox<String> order = new JComboBox<>("전체            ,예매순,평점순".split(","));
-	JComboBox<String> genre = new JComboBox<String>() {{
+	JComboBox<String> order = new JComboBox<String>("전체,예매순,평점순".split(","));
+	JComboBox<String> genre= new JComboBox<String>() {{
 		addItem("전체");
-		for(Data d : Connections.select("select * from genre")) {
+		for(Data d : Connections.select("select g_name from genre"))
 			addItem(d.get(0).toString());
-		}
 	}};
-	JPanel serchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
-		setBackground(Color.white);
-		setPreferredSize(new Dimension(800, 30));
-		add(new JLabel("검색창") {{ setFont(new Font("맑은 고딕", 1, 18)); }} );
-		add(serch);
-		add(serchBut);
-		add(order);
-		add(genre);
-	}};
+	JPanel serchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
 	
-	///아래는 영화 생긴거 관련 변수
-	JPanel moviePanel = new JPanel(new GridLayout(0, 4,15,15)) {{
-		setBackground(Color.white);
-	}};
-	JScrollPane sc = new JScrollPane(moviePanel);
+	JPanel mainPanel = new JPanel(new GridLayout(0, 4, 7,7));
+	JScrollPane sc = new JScrollPane(mainPanel);
 	
-	String[] query = {"SELECT * FROM moviedb.movie where m_plot like ? and g_no between ? and ?;",
+	String[] query = {"select * from movie where m_name like ? and g_no between ? and ?",
+			"SELECT movie.*, avg(re_star) as a FROM moviedb.review\r\n"
+			+ "right join movie on movie.m_no = review.m_no\r\n"
+			+ "where m_name like ? and g_no between ? and ?\r\n"
+			+ "group by movie.m_no order by a desc, movie.m_no;",
 			
-			"SELECT movie.*, count(movie.m_no) as c FROM moviedb.reservation "
-			+ "			join movie on movie.m_no = reservation.m_no "
-			+ "			where m_plot like ? and g_no between ? and ? "
-			+ "            group by movie.m_no order by c desc, movie.m_no;",
-			
-			"SELECT movie.*, avg(re_star) as a FROM moviedb.review "
-			+ "		right join movie on movie.m_no = review.m_no "
-			+ "		where m_plot like ? and g_no between ? and ? "
-			+ "		group by movie.m_no order by a desc, movie.m_no;"
+			"SELECT movie.*, count(movie.m_no) as c FROM moviedb.reservation\r\n"
+			+ "join movie on movie.m_no = reservation.m_no\r\n"
+			+ "where m_name like ? and g_no between ? and ?\r\n"
+			+ "group by movie.m_no order by c desc, movie.m_no"
 	};
-	List<Data> movieList = new ArrayList<>();
-	List<JLabel> imageList = new ArrayList<>();
-	int u_no = 0;
-	public MovieSerch(int u_no) {
-		this.u_no = u_no;
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if(u_no == -1) { new Login(); }
-				else { new Main(u_no); }
-				dispose();
-			}
-		});
-		String title = "관리자 검색";
-		if(u_no != -1) {
-			title = "영화 검색";
-			borderPanel.add(new NorthPanel(this, u_no), BorderLayout.NORTH);
+	List<JLabel> labels = new ArrayList<>();
+	List<Data> list = new ArrayList<>();
+	boolean isFromMain = false;
+	MovieSerch(boolean isFromMain){
+		this.isFromMain = isFromMain;
+		borderPanel.setBackground(Color.white);
+		serchPanel.setBackground(Color.white);
+		serchPanel.add(new JLabel("검색창") {{
+			setFont(font);
+		}});
+		serchPanel.add(serch);
+		serchPanel.add(serchBut);
+		serchPanel.add(order);
+		serchPanel.add(genre);
+		
+		
+		setMainPanel();
+		int admin = 0;
+		if(User.admin) {
+			admin = 55;
+		}else {
+			borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
 		}
-		setJScrollPane();
-		setAction();
-		mainPanel.add(sc);
-		mainPanel.add(serchPanel, BorderLayout.NORTH);
-		borderPanel.add(mainPanel);
+		mainPanel.setBackground(Color.white);
+		sc.setPreferredSize(new Dimension(0, 235 + admin));
+		borderPanel.add(sc, BorderLayout.SOUTH);
+		borderPanel.add(serchPanel);
+		borderPanel.setBorder(createEmptyBorder(0, 5, 5, 5));
 		add(borderPanel);
-		new A_setFrame(this, title, 900, 450);
+		setAction();
+		A_setFrame.setting(this, "열화 검색", 900, 369);
 	}
 	
-	private void setJScrollPane() {
-		moviePanel.removeAll();
-		imageList.clear();
-		String text = "%" + serch.getText() + "%";
-		int genreN = genre.getSelectedIndex();
-		int[] cno = {genreN == 0 ? 1 : genreN, genreN == 0 ? 20 : genreN};
-		movieList = Connections.select(query[order.getSelectedIndex()], text, cno[0], cno[1]);
-		for(int i = 0; i < movieList.size(); i++) {
-			int index = i;
-			Data data = movieList.get(index);
-			JPanel p = new JPanel(new BorderLayout(1,10));
+	private void setMainPanel() {
+		labels.clear();
+		mainPanel.removeAll();
+		int g_no = genre.getSelectedIndex();
+		int[] cno = {g_no == 0 ? 1 : g_no, g_no == 0 ? 20 : g_no};
+		list = Connections.select(query[order.getSelectedIndex()],"%" + serch.getText() + "%", cno[0], cno[1]);
+		for (int i = 0; i < list.size(); i++) {
+			JPanel p = new JPanel(new BorderLayout(2,2));
 			p.setBackground(Color.white);
-			p.setPreferredSize(new Dimension(0, 240));
-			p.add(new JLabel(), BorderLayout.NORTH);
-			if((order.getSelectedIndex() == 1 && i < 10) || (order.getSelectedIndex() == 2 && i < 5)) {
-				p.add(new JLabel("No." + (i+1), JLabel.CENTER) {{
-					setBackground(new Color(255, 0, 0, 100));
-					setOpaque(true);
-					setForeground(Color.white);
-				}}, BorderLayout.NORTH);
-			}
-			p.add(new JLabel(getter.getImage("datafiles/limits/" + data.get(2) + ".png", 35, 35), JLabel.LEFT) {{
-				setVerticalAlignment(JLabel.TOP);
-				setBorder(createEmptyBorder(0, 3, 0, 0));
-			}}, BorderLayout.WEST);
-			imageList.add(new JLabel(getter.getImage("datafiles/movies/" + data.get(0) + ".jpg", 120, 200), JLabel.LEFT) {{
-				setVerticalAlignment(JLabel.TOP);
-				setBackground(Color.red);
-				setOpaque(true);
-			}});
-			p.add(imageList.get(i));
-			p.add(new JLabel("") {{ setPreferredSize(new Dimension(40, 0));}}, BorderLayout.EAST);//이건 어떻게 할지 생각해보기!
-			p.add(new JTextArea(data.get(1).toString() + "\n1.1% | 개봉일: " + data.get(6)) {{
-				setFocusable(false);
-				setCursor(getCursor().getDefaultCursor());
-			}}, BorderLayout.SOUTH);
-			moviePanel.add(p);
+			p.setBorder(createEmptyBorder(5,3,5,5));
+			p.setPreferredSize(new Dimension(750 / 4, 200));
+			JLabel age = new JLabel(getter.getImageIcon("datafiles/limits/" + list.get(i).get(2) + ".png", 30, 30));
+			age.setVerticalAlignment(JLabel.TOP);
+			p.add(age, BorderLayout.WEST);
+			
+			JLabel img = new JLabel(getter.getImageIcon("datafiles/movies/" + list.get(i).get(0) + ".jpg", 120, 170), JLabel.LEFT);
+			p.add(img);
+			labels.add(img);
+			
+			JTextArea t = new JTextArea(list.get(i).get(1) + "\n2.7% | 개봉일: " + list.get(i).get(6));
+			t.setFocusable(false);
+			t.setCursor(getCursor().getDefaultCursor());
+			p.add(t, BorderLayout.SOUTH);
+			
+			mainPanel.add(p);
 		}
+		revalidate();
+		repaint();
 	}
 	
 	private void setAction() {
-		ItemListener itemAction = e->{
-			if(e.getStateChange() == ItemEvent.SELECTED) {
-				setJScrollPane();
-				revalidate();
-				repaint();
+		ItemListener itemAction = new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() != ItemEvent.SELECTED) return;
+				setMainPanel();
 			}
 		};
+		
 		order.addItemListener(itemAction);
 		genre.addItemListener(itemAction);
 		serchBut.addActionListener(e->{
-			setJScrollPane();
-			if(movieList.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "검색결과가 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
-				serch.setText(""); order.setSelectedIndex(0); genre.setSelectedIndex(0);
-				setJScrollPane();
+			if(serch.getText().isEmpty()) {
+				setMainPanel();
 			}
-			revalidate();
-			repaint();
+			setMainPanel();
+			if(list.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "검색결과가 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
+				order.setSelectedIndex(0);
+				genre.setSelectedIndex(0);
+				serch.setText("");
+				setMainPanel();
+			}
 		});
 		
-		for(int i = 0; i < imageList.size(); i++){
+		for(int i = 0; i < labels.size(); i++) {
 			final int index = i;
-			imageList.get(i).addMouseListener(new MouseAdapter() {
+			labels.get(i).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					int mno = Integer.parseInt(movieList.get(index).get(0).toString());
-					if(u_no == -1) { new MovieChage(u_no, mno); }
-					else { new MovieInfor(u_no, mno, false); }
-					dispose();
+					new MovieInfor(Integer.parseInt(list.get(index).get(0).toString()), isFromMain);
 				}
 			});
 		}
 	}
-	
 	public static void main(String[] args) {
-		new MovieSerch(-1);
+		new MovieSerch(true);
 	}
 }

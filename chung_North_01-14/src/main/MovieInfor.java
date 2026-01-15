@@ -8,232 +8,223 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Label;
+import java.awt.ScrollPane;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Arc2D.Double;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.*;
+import javax.swing.border.Border;
+
+
 import static javax.swing.BorderFactory.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-
 public class MovieInfor extends JFrame{
+	Font font = new Font("맑은 고딕", 1, 20);
 	
-	Font font = new Font("맑은 고딕", 0, 12);
-	JPanel borderPanel = new JPanel(new BorderLayout(5, 5)) {{
+	JPanel borderPanel = new JPanel(new BorderLayout(5,5)) {{
+		setBorder(createEmptyBorder(0,5,5,5));
 		setBackground(Color.white);
-		setBorder(createEmptyBorder(5,5,5,5));
 	}};
-	JPanel mainPanel = new JPanel(new BorderLayout(5,5)) {{
+	NorthPanel northPanel = new NorthPanel(this);
+	
+	JPanel mainPanel = new JPanel(new BorderLayout(5, 5)) {{
 		setBackground(Color.white);
-		setBorder(createEmptyBorder(10, 5, 5, 5));
+		setBorder(createEmptyBorder(10, 5,5,5));
 	}};
+	JButton reservation = new CustumButton("예매하기");
 	JScrollPane sc = new JScrollPane(mainPanel);
-	
-	JPanel moviePoster = new JPanel(new BorderLayout(5,5));
-	JButton but = new CustumButton("예매하기");
-	JTextArea movieInfor = new JTextArea();
-	JScrollPane movieInforSc = new JScrollPane(movieInfor);
-	JPanel chatPanel = new JPanel(new BorderLayout());
 	Data movie;
-	
-	int u_no = 0, m_no = 0;
-	double start = 90, end = 0;
-	public MovieInfor(int u_no, int m_no, boolean isFromMain) {
-		this.u_no = u_no; this.m_no = m_no;
+	int m_no = 0;
+	boolean isFromMain;
+	public MovieInfor(int m_no, boolean isFromMain) {
+		this.m_no = m_no;
+		this.isFromMain = isFromMain;
 		movie = Connections.select("select * from movie where m_no = ?", m_no).get(0);
+		borderPanel.add(northPanel, BorderLayout.NORTH);
 		
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if(isFromMain) new Main(u_no);
-				else new MovieSerch(u_no);
-				dispose();
-			}
-		});
 		
-		borderPanel.add(new NorthPanel(this, u_no), BorderLayout.NORTH);
+		setMainPanel();
 		borderPanel.add(sc);
 		add(borderPanel);
-		setMoviePoster();
-		setMovieInfor();
-		if(Connections.select("select * from review where m_no = ?", m_no).isEmpty()) {
-			chatPanel.setBackground(Color.white);
-			chatPanel.setPreferredSize(new Dimension(200, 300));
-			mainPanel.add(chatPanel, BorderLayout.SOUTH);
-		}else setChat();
 		
-		but.addActionListener(e->{
-			new Reservation(u_no, m_no, isFromMain);
+		reservation.addActionListener(e->{
+			LocalDate nows = LocalDate.parse("2006-09-10");
+			if(User.getUno() == null) {
+				JOptionPane.showMessageDialog(null, "로그인을 해주세요", "경고", JOptionPane.ERROR_MESSAGE);
+				new Login();
+				dispose();
+				return;
+			}
+			if(LocalDate.parse(User.getData().get(4).toString()).isAfter(nows)) {
+				JOptionPane.showMessageDialog(null, "미성년자는 시청 금지입니다.", "경고", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			new Reservation(m_no, isFromMain);
 			dispose();
 		});
-		new A_setFrame(this, "영화 정보", 725, 500);
+		A_setFrame.setting(this, "영화 정보", 750, 500);
 	}
 	
-	private void setMoviePoster() {
-		JLabel movieImage = new JLabel(getter.getImage("datafiles/movies/" + m_no + ".jpg", 150, 225)) {
+	private void setMainPanel() {
+		setNorthPanel();
+		setCenterPanel();
+		setSouthPanel();
+	}
+	
+	private void setNorthPanel() {
+		JPanel p = new JPanel(new BorderLayout(5,5));
+		p.setBackground(Color.white);
+		p.setBorder(createEmptyBorder(0,0,20,0));
+		p.setPreferredSize(new Dimension(0, 245));
+		
+		p.add(new JLabel(getter.getImageIcon("datafiles/movies/" + movie.get(0) + ".jpg", 150, 225)) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				g.drawImage(new ImageIcon("datafiles/limits/" + movie.get(2) + ".png").getImage(), 5, 0, 25, 25, null);
+				g.drawImage(new ImageIcon("datafiles/limits/" + movie.get(2) + ".png").getImage(), 5, 0, 20, 20, null);
 			}
-		};
-		movieImage.setVerticalAlignment(JLabel.BOTTOM);
-		movieImage.setPreferredSize(new Dimension(150, 227));
-		
-		JPanel moviePosterInfor = new JPanel(new BorderLayout());
-		moviePosterInfor.setBackground(Color.white);
-		moviePosterInfor.add(new JLabel("제목: " + movie.get(1)) {{
-			setFont(font.deriveFont(1, 22f));
+		}, BorderLayout.WEST);
+		JPanel InforPanel = new JPanel(new BorderLayout());
+		InforPanel.setBackground(Color.white);
+		InforPanel.add(new JLabel("제목: " + movie.get(1).toString()) {{
+			setFont(font.deriveFont(24f));
 		}}, BorderLayout.NORTH);
-		String infor = "\n감독: " + movie.get(3) + "\n\n장르: " + Connections.select("select g_name from genre where g_no = ?", movie.get(5)).get(0).get(0) + "\n\n개봉일: " + movie.get(6);
-		moviePosterInfor.add(new JTextArea(infor) {{
-			setFocusable(false);
-			setCursor(getCursor().getDefaultCursor());
-		}});
-		moviePosterInfor.add(new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
-			setBackground(Color.white);
-			setBorder(createEmptyBorder(0, 0, 30, 0));
-			add(but);
-		}}, BorderLayout.SOUTH);
-		moviePoster.setBackground(Color.white);
-		moviePoster.add(movieImage, BorderLayout.WEST);
-		moviePoster.add(moviePosterInfor);
-		mainPanel.add(moviePoster,BorderLayout.NORTH);
-	}
-	
-	private void setMovieInfor() {
-		movieInfor.setText(movie.get(4).toString());
-		movieInfor.setFont(font.deriveFont(1, 18f));
-		movieInfor.setFocusable(false);
-		movieInfor.setCursor(getCursor().getDefaultCursor());
+		String genre = Connections.select("select g_name from genre where g_no = ?", movie.get(5)).get(0).get(0).toString();
+		JTextArea infor = new JTextArea("\n감독: " + movie.get(3) + "\n\n장르: " + genre + "\n\n개봉일: " + movie.get(6));
+		InforPanel.add(infor);
 		
-		movieInforSc.setBackground(Color.white);
-		movieInforSc.setPreferredSize(new Dimension(0, 200));
-		movieInforSc.setBorder(createCompoundBorder(createEmptyBorder(15, 0, 0, 0), createLineBorder(Color.black)));
-		mainPanel.add(movieInforSc);
+		JPanel reservationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		reservationPanel.setBackground(Color.white);
+		reservationPanel.setBorder(createEmptyBorder(20, 0, 20, 0));
+		reservationPanel.add(reservation);
+		
+		InforPanel.add(reservationPanel, BorderLayout.SOUTH);
+		
+		p.add(InforPanel);
+		mainPanel.add(p, BorderLayout.NORTH);
 	}
 	
-	private void setChat() {
-		Color[] colors = {Color.red, Color.blue, Color.yellow, Color.green};
-		List<Data> rv = Connections.select(
-				  "SELECT user.u_no, u_name, re_com FROM moviedb.review\r\n"
-				  + "join user on user.u_no = review.u_no\r\n"
-				  + " where m_no = ?;", m_no);
-		List<Integer> age = new ArrayList<>();
+	private void setCenterPanel() {
+		JTextArea ta = new JTextArea(movie.get(4).toString());
+		ta.setLineWrap(true);
+		ta.setFocusable(false);
+		ta.setFont(font);
+		JScrollPane scsc = new JScrollPane(ta);
+		scsc.setPreferredSize(new Dimension(0, 200));
+		mainPanel.add(scsc);
+	}
+	
+	private void setSouthPanel() {
+		final Color[] colors = {Color.red, Color.blue, Color.yellow, Color.green};
+		
+		JPanel southPanel = new JPanel(new BorderLayout());
+		southPanel.setPreferredSize(new Dimension(0, 225));
+		southPanel.setBackground(Color.white);
+		
+		String QueryString = "select *\r\n"
+				+ "from (SELECT \r\n"
+				+ "case \r\n"
+				+ "	when timestampdiff(YEAR, u_birth, \"2025-09-10\") >= 19 then 0\r\n"
+				+ "    when timestampdiff(YEAR, u_birth, \"2025-09-10\") >= 13 then 1\r\n"
+				+ "    when timestampdiff(YEAR, u_birth, \"2025-09-10\") >= 5 then 2\r\n"
+				+ "    else 3\r\n"
+				+ "    end as caze\r\n"
+				+ " FROM moviedb.review\r\n"
+				+ "join user on user.u_no = review.u_no\r\n"
+				+ " where m_no = ?) as test\r\n"
+				+ " where caze = ?";
+		List<Integer> ageSizeList = new ArrayList<>();
 		int total = 0;
 		for(int i = 0; i < 4; i++) {
-			int size = Connections.select("SELECT ages, u_name, re_com\r\n"
-					+ "FROM (\r\n"
-					+ "    SELECT \r\n"
-					+ "        CASE \r\n"
-					+ "            WHEN TIMESTAMPDIFF(YEAR, u_birth, NOW()) >= 19 THEN 0\r\n"
-					+ "            WHEN TIMESTAMPDIFF(YEAR, u_birth, NOW()) >= 13 THEN 1\r\n"
-					+ "            WHEN TIMESTAMPDIFF(YEAR, u_birth, NOW()) >= 5 THEN 2\r\n"
-					+ "            ELSE 3\r\n"
-					+ "        END AS ages, u_name, re_com\r\n"
-					+ "    FROM moviedb.review \r\n"
-					+ "    JOIN user ON user.u_no = review.u_no\r\n"
-					+ "    WHERE m_no = ?\r\n"
-					+ ") AS subquery\r\n"
-					+ "WHERE ages = ?;", m_no, i).size();
-			age.add(size);
+			int size = Connections.select(QueryString, m_no, i).size();
+			ageSizeList.add(size);
 			total += size;
 		}
-		double theta = 360.0 / total;
+		int totals = total;
 		JLabel l = new JLabel() {
+			private double start = 90;
+			private double end = 0;
+			
+			private final double theta = 360.0 / totals;
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				Graphics2D g2 = (Graphics2D) g;
 				for(int i = 0; i < 4; i++) {
-					start = start + end;
-					end = age.get(i) * theta;
+					Graphics2D g2 = (Graphics2D) g;
 					g2.setColor(colors[i]);
-					Arc2D.Double arc = new Arc2D.Double(20, 12, 175, 175, start, end, Arc2D.Double.PIE);
+					start += end;
+					end = ageSizeList.get(i) * theta;
+					Arc2D.Double arc = new Arc2D.Double(20, 40, 150, 150, start, end, Arc2D.PIE);
 					g2.fill(arc);
 				}
 			}
 		};
-		l.setPreferredSize(new Dimension(200, 200));
+		l.setPreferredSize(new Dimension(200,225));
 		
-		JPanel gridPanel = new JPanel(new GridLayout(0, 1));
-		gridPanel.setBorder(createEmptyBorder(20, 10, 100, 0));
-		gridPanel.setBackground(Color.white);
+		JPanel ageNamePanel = new JPanel(new GridLayout(4, 1, 3, 3));
+		ageNamePanel.setBorder(createEmptyBorder(10, 0, 70, 0));
+		ageNamePanel.setBackground(Color.white);
 		
-		int pursent = 100 / total;
-		String[] ageNames = "성인,청소년,어린이,유아".split(",");
-		for(int i = 0; i < 4; i++) {
-			int index = i;
+		String[] ageName = "성인,청소년,어린이,유아".split(",");
+		int n = 100 / total;
+		
+		for (int i = 0; i < 4; i++) {
+			String pursent = (ageSizeList.get(i) * n) + "%";
+			final int index = i;
 			JPanel p = new JPanel(new BorderLayout());
 			p.setBackground(Color.white);
-			
-			Font font = this.font.deriveFont(1, 18f);
 			JLabel rect = new JLabel() {
-				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
 					g.setColor(colors[index]);
 					g.fillRect(0, 5, 15, 15);
-				}
+					g.setColor(Color.black);
+					g.setFont(font);
+					g.drawString(ageName[index], 17, 20);
+					g.drawString(pursent,80, 20);
+					
+				};
 			};
-			rect.setPreferredSize(new Dimension(15, 0));
-			
-			JLabel ageName = new JLabel(ageNames[i]);
-			ageName.setFont(font);
-			
-			JLabel pursentLabel = new JLabel(age.get(i) * pursent + "%", JLabel.LEFT);
-			pursentLabel.setPreferredSize(new Dimension(50, 0));
-			pursentLabel.setFont(font);
-			
-			p.add(rect, BorderLayout.WEST);
-			p.add(ageName);
-			p.add(pursentLabel, BorderLayout.EAST);
-			gridPanel.add(p);
+			p.add(rect);
+			ageNamePanel.add(p);
 		}
-		chatPanel.setBackground(Color.white);
-		chatPanel.add(l, BorderLayout.WEST);
-		chatPanel.add(gridPanel);
-		JPanel scPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-		scPanel.setBackground(Color.white);
-		for(Data d : rv) {
-			JPanel p = new JPanel(new BorderLayout());
-			p.setBackground(Color.white);
-			p.add(new JLabel(getter.getImage("datafiles/user/" + d.get(0) + ".jpg", 60, 60)), BorderLayout.WEST);
-			p.add(new JTextArea(d.get(1) + "\n\n" + d.get(2)) {{
-				setLineWrap(true);
-				setBorder(createEmptyBorder(7, 7, 7, 0));
-				setFont(font.deriveFont(1, 11));
-			}});
+		String queryReviews = "SELECT user.u_no, u_name, re_com FROM moviedb.review\r\n"
+				+ "join user on user.u_no = review.u_no\r\n"
+				+ " where m_no = ?;";
+		List<Data> review = Connections.select(queryReviews, m_no);
+		JPanel reviewPanel = new JPanel(new GridLayout(0, 1, 3,3));
+		reviewPanel.setBackground(Color.white);
+		
+		for(Data d : review) {
+			JPanel p = new JPanel(new BorderLayout(5, 5));
 			p.setBorder(createLineBorder(Color.black));
-			p.setPreferredSize(new Dimension(0, 60));
-			scPanel.add(p);
+			p.setBackground(Color.white);
+			
+			JPanel namerePanel = new JPanel(new GridLayout(0, 1 ,0,0));
+			namerePanel.setBackground(Color.white);
+			namerePanel.add(new JLabel(d.get(1).toString()));
+			namerePanel.add(new JLabel(d.get(2).toString()));
+			
+			p.add(new JLabel(getter.getImageIcon("datafiles/user/" + d.get(0) + ".jpg", 55, 55)), BorderLayout.WEST);
+			p.add(namerePanel);
+			reviewPanel.add(p, BorderLayout.WEST);
 		}
-		int fn = 4 - rv.size();
-		for(int i = 0; i < (fn < 0 ? 0 : fn); i++) {
-			scPanel.add(new JLabel(""));
+		for(int i = 0; i < 4 - review.size(); i++) {
+			reviewPanel.add(new JLabel(" "));
 		}
-		chatPanel.add(new JScrollPane(scPanel) {{
-			setPreferredSize(new Dimension(330, 0));
+		southPanel.add(new JScrollPane(reviewPanel) {{
+			setPreferredSize(new Dimension(350, 0));
 		}}, BorderLayout.EAST);
-		mainPanel.add(chatPanel, BorderLayout.SOUTH);
+		southPanel.add(l, BorderLayout.WEST);
+		southPanel.add(ageNamePanel);
+		
+		mainPanel.add(southPanel, BorderLayout.SOUTH);
 	}
 	
 	public static void main(String[] args) {
-		new MovieInfor(1, 1, true);
+		new MovieInfor(1, true);
 	}
 }

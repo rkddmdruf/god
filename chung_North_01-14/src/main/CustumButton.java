@@ -6,8 +6,8 @@ import javax.swing.JButton;
 
 public class CustumButton extends JButton{
 
-	CustumButton(String string){
-		setText(string);
+	public CustumButton(String text) {
+		super(text);
 		setBackground(Color.blue);
 		setForeground(Color.white);
 	}

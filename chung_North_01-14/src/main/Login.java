@@ -11,82 +11,76 @@ import java.awt.Font;
 import java.awt.GridLayout;
 
 public class Login extends JFrame{
+
+	Font font = new Font("맑은 고딕", 1, 24);
+	
 	JTextField id = new JTextField();
 	JTextField pw = new JPasswordField();
-	JPanel mainPanel = new JPanel(new BorderLayout(25, 25)) {{
-		setBackground(Color.white);
-		setBorder(createEmptyBorder(10, 10, 10, 10));
-	}};
 	JButton login = new CustumButton("로그인");
-	Login(){
-		add(new JLabel("로그인") {{
-			setBorder(createCompoundBorder(createMatteBorder(0, 0, 1, 0, Color.black), createEmptyBorder(10, 10, 10, 10)));
-			setFont(new Font("맑은 고딕", 1, 24));
-		}}, BorderLayout.NORTH);
+	JPanel idPassPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+	
+	
+	
+	public Login() {
+		JLabel label = new JLabel("로그인");
+		label.setBorder(createCompoundBorder(createMatteBorder(0, 0, 1, 0, Color.black), createEmptyBorder(10, 5, 0, 5)));
+		label.setFont(font);
+		add(label, BorderLayout.NORTH);
 		
+		idPassPanel.setBorder(createEmptyBorder(5,5,0,5));
+		idPassPanel.setBackground(Color.white);
+		setidPassPanel(idPassPanel, "아이디", id);
+		setidPassPanel(idPassPanel, "비밀번호", pw);
+		add(idPassPanel);
+		JPanel butPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 20));
+		butPanel.setBackground(Color.white);
+		butPanel.add(login);
+		add(butPanel, BorderLayout.SOUTH);
+		setAction();
+		A_setFrame.setting(this, "로그인", 400, 225);
+	}
+	
+	private void setidPassPanel(JPanel panel, String string, JTextField tf) {
+		JLabel l = new JLabel(string);
+		l.setPreferredSize(new Dimension(75, 0));
+		l.setFont(font.deriveFont(1,15));
 		
-		Font font = new Font("맑은 고딕", 1, 18);
-		Dimension sizz = new Dimension(100, 20);
+		JPanel p = new JPanel(new BorderLayout(5, 5));
+		p.setBackground(Color.white);
+		p.add(l, BorderLayout.WEST);
+		p.add(tf);
 		
-		JPanel idPasswordPanel = new JPanel(new GridLayout(2, 0, 5, 5));
-		
-		JPanel idp = new JPanel(new BorderLayout());
-		idp.setBackground(Color.white);
-		idp.add(new JLabel("아이디") {{
-			setFont(font);
-			setPreferredSize(sizz);
-		}}, BorderLayout.WEST);
-
-		idp.add(id);
-		
-		JPanel pwp= new JPanel(new BorderLayout());
-		pwp.setBackground(Color.white);
-		pwp.add(new JLabel("비밀번호") {{
-			setFont(font);
-			setPreferredSize(sizz);
-		}}, BorderLayout.WEST);
-		pwp.add(pw);
-		
-		idPasswordPanel.setBackground(Color.white);
-		idPasswordPanel.add(idp);
-		idPasswordPanel.add(pwp);
-		mainPanel.add(idPasswordPanel);
-		mainPanel.add(new JPanel(new FlowLayout(FlowLayout.RIGHT)) {{
-			setBackground(Color.white);
-			add(login);
-		}}, BorderLayout.SOUTH);
-		
-		add(mainPanel);
-		
+		panel.add(p);
+	}
+	
+	private void setAction() {
 		login.addActionListener(e->{
 			String id = this.id.getText();
 			String pw = this.pw.getText();
 			if(id.isEmpty() || pw.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "입력하지 않은 항목이 있습니다.", "경고", JOptionPane.ERROR_MESSAGE);
+				mg("입력하지 않은 항목이 있습니다.", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if(id.equals("admin") && pw.equals("1234")) {				
-				JOptionPane.showMessageDialog(null, "관리자님 환영합니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
-				new MovieSerch(-1);
-				dispose();
+			if(id.equals("admin") && pw.equals("1234")) {
+				mg("관리자님 환영합니다.", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			Data user = Connections.select("select * from user where u_id = ? and u_pw = ?", id, pw).get(0);
 			if(user.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "존재하는 회원이 없습니다.", "경고", JOptionPane.ERROR_MESSAGE);
+				mg("존재하는 회원이 없습니다.",JOptionPane.ERROR_MESSAGE);
 				this.id.setText("");
 				this.pw.setText("");
 				return;
 			}
-			JOptionPane.showMessageDialog(null,user.get(1) + "회원님 환영합니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
-			new Main(Integer.parseInt(user.get(0).toString()));
+			mg(user.get(1) + "회원님 환영합니다.", JOptionPane.INFORMATION_MESSAGE);
+			User.setUser(user);
+			new Main();
 			dispose();
 		});
-		
-		new A_setFrame(this, "로그인", 400, 250);
 	}
-	
-	
+	private void mg(String string, int type) {
+		JOptionPane.showMessageDialog(null, string, type == JOptionPane.ERROR_MESSAGE ? "경고" : "정보", type);
+	}
 	public static void main(String[] args) {
 		new Login();
 	}

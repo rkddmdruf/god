@@ -3,84 +3,80 @@ package main;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import static javax.swing.BorderFactory.*;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-
 public class 상영관_배치도 extends JFrame{
-//	길: 0, 벽: 1, 도착지: 2
-	Data data = null;
-	Color[] colors = {Color.white, Color.gray, Color.blue, Color.green};
+	
+	// 0길, 1벽, 2도, 3출
 	int[][] map = new int[9][9];
-	Point[][] backPoint = new Point[9][9];
+	Point[][] back = new Point[9][9];
+	List<Data> srm = new ArrayList<>();
+	List<Point> line = new ArrayList<>();
 	JLabel[][] labels = new JLabel[9][9];
-	List<Point> load = new ArrayList<>();
 	Point start = new Point(8, 0), end;
-	Thread thread;
-	public 상영관_배치도(int u_no, int m_no, boolean isFromMain, LocalDate date, LocalTime time) {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if(thread != null) thread.interrupt();
-				new Reservation(u_no, m_no, isFromMain);
-			}
-		});
-		setLayout(new GridLayout(9,9));
-		data = Connections.select("select * from schedule where m_no = ? and sc_date = ? and sc_time = ?",m_no, date, time).get(0);
-		List<Data> srm = Connections.select("SELECT * FROM moviedb.srm;");
+	
+	Color[] colors = {Color.white, Color.GRAY, Color.blue, Color.green};
+	
+	boolean isFromMain;
+	Data data;
+	public 상영관_배치도(Data data, boolean isFromMain) {
+		this.data = data;
+		this.setLayout(new GridLayout(9,9));
+		this.isFromMain = isFromMain;
+		srm = Connections.select("select * from srm");
 		for(int i = 0; i < 81; i++) {
-			int x = i / 9, y = i % 9;
-			int type = Integer.parseInt(srm.get(i).get(1).toString());
-			map[x][y] = type;
-			backPoint[x][y] = new Point(0,0);
-			add(labels[x][y] = new JLabel() {{
-				setBackground(colors[type]);
-				setOpaque(true);
-				setBorder(createLineBorder(Color.black));
-			}});
-			if(srm.get(i).get(2) != null && srm.get(i).get(2).toString().equals(data.get(2).toString())) {
+			Data d = srm.get(i);
+			int type = Integer.parseInt(d.get(1).toString());
+			int x = i / 9;
+			int y = i % 9;
+			if(type == 2 && d.get(2).toString().equals(data.get(2).toString())) {
 				end = new Point(x, y);
 			}
+			map[x][y] = type;
+			back[x][y] = new Point(0,0);
+			JLabel l = new JLabel();
+			l.setBackground(colors[type]);
+			l.setOpaque(true);
+			l.setBorder(BorderFactory.createLineBorder(Color.black));
+			add(l);
+			
+			labels[x][y] = l;
+			
 		}
 		bfs();
 		go();
-		
-		new A_setFrame(this, "상영관_배치도", 500, 500);
+		A_setFrame.setting(this, "상영관 배치도", 400,400);
 	}
 	
 	private void go() {
-		thread = new Thread(()->{
+		new Thread(()->{
 			try {
-				for(int i = load.size() - 1; i >= 0; i--) {
-					Point xy = load.get(i);
+				for(int i = line.size()-1; i >= 0; i--) {
+					Point xy = line.get(i);
 					labels[xy.x][xy.y].setBackground(Color.red);
 					Thread.sleep(100);
 				}
 				labels[end.x][end.y].setBackground(Color.green);
-				for(int i = load.size() - 1; i >= 0; i--) {
-					Point xy = load.get(i);
-					for(int j = 1; j < 5; j++) {
+				for(int i = line.size()-1; i >= 0; i--) {
+					for(int j = 0; j < 5; j++) {
+						Point xy = line.get(i);
 						labels[xy.x][xy.y].setBackground(j % 2 == 0 ? Color.red : Color.white);
-						Thread.sleep(100);
+						Thread.sleep(111);
 					}
 				}
-				JOptionPane.showMessageDialog(null, data.get(2) + "관에 도착했습니다.", "정보",JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, data.get(2) +  "관에 도착했습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				// TODO: handle exception
 			}
-		});
-		thread.start();
+		}).start();
 	}
 	
 	private void bfs() {
@@ -88,41 +84,40 @@ public class 상영관_배치도 extends JFrame{
 		int[] y = {-1,1,0,0};
 		Node node = new Node();
 		Queue<Point> q = new LinkedList<>();
+		Point start = new Point(8, 0);
 		q.add(start);
 		node.add(start);
 		while(!q.isEmpty()) {
 			Point p = q.poll();
-			for(int i = 0; i < 4;i++) {
-				int xx = p.x + x[i];
-				int yy = p.y + y[i];
-				if(infield(xx) && infield(yy) && map[xx][yy] != 1 && node.isEmpty(new Point(xx, yy))) {
-					//좌우 상하가 맵보다 큰지 체크 && 맵이 길인지 체크 && 길을 체크 했는지 체크
-					Point pp = new Point(xx, yy);
-					backPoint[xx][yy] = p;//왔던 경로를 저장하는 2차원 배열
-					q.add(pp);
-					node.add(pp);//길 체크
+			for(int i = 0; i < 4; i++) {
+				Point nextPoint = new Point(p.x + x[i], p.y + y[i]);
+				if(isFieldIn(nextPoint) && map[nextPoint.x][nextPoint.y] != 1 && node.check(nextPoint)) {
+					back[nextPoint.x][nextPoint.y] = p;
+					node.add(nextPoint);
+					q.add(nextPoint);
 				}
 			}
 		}
-		
-		Point last = new Point(backPoint[end.x][end.y]);
-		load.add(last);
-		while(!last.equals(new Point(8, 1))) {
-			load.add(last = new Point(backPoint[last.x][last.y]));
-		}//경로 추적
+		Point xy = end;
+		while(!xy.equals(new Point(8, 1))) {
+			xy = back[xy.x][xy.y];
+			line.add(xy);
+		}
 	}
 	
-	private boolean infield(int n) {
-		return n >= 0 && n < 9;
+	private boolean isFieldIn(Point point) {
+		return point.x < 9 && 0 <= point.x 
+				&& point.y < 9 && 0 <= point.y;
 	}
-	
 	class Node {
 		List<Point> list = new ArrayList<>();
-		public void add(Point p) { list.add(p); }
-		public boolean isEmpty(Point p) {
-			for(Point p1 : list) 
-				if(p.x == p1.x && p.y == p1.y)
-					return false;
+		public void add(Point p) {
+			list.add(p);
+		}
+		public boolean check(Point p) {
+			if(list.contains(p)) {
+				return false;
+			}
 			return true;
 		}
 	}
