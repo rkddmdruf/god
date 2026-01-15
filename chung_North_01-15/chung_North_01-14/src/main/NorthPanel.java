@@ -23,7 +23,7 @@ public class NorthPanel extends JPanel{
 		this.f = f;
 		this.setLayout(new BorderLayout());
 		this.setBackground(Color.white);
-		if(User.getUno() != null) {
+		if(User.getUno() != 0) {
 			login.setText("내정보");
 		}
 		
@@ -45,6 +45,7 @@ public class NorthPanel extends JPanel{
 			public void mouseClicked(MouseEvent e) {
 				if(User.getUno() == 0) { return; }
 				JOptionPane.showMessageDialog(null, "로그아웃 되었습니다.", "정보", JOptionPane.INFORMATION_MESSAGE);
+				login.setText("로그인");
 				User.logOut();
 				return;
 				
@@ -52,7 +53,7 @@ public class NorthPanel extends JPanel{
 		});
 		
 		login.addActionListener(e->{
-			if(User.getUno() == null) {
+			if(User.getUno() == 0) {
 				new Login();
 			}
 			f.dispose();

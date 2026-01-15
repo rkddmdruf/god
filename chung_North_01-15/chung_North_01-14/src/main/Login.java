@@ -32,12 +32,13 @@ public class Login extends JFrame{
 		setidPassPanel(idPassPanel, "아이디", id);
 		setidPassPanel(idPassPanel, "비밀번호", pw);
 		add(idPassPanel);
+		
 		JPanel butPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 20));
 		butPanel.setBackground(Color.white);
 		butPanel.add(login);
 		add(butPanel, BorderLayout.SOUTH);
 		setAction();
-		new A_setFrame(this, "로그인", 400, 225);
+		A_setFrame.setting(this, "로그인", 400, 225);
 	}
 	
 	private void setidPassPanel(JPanel panel, String string, JTextField tf) {
@@ -63,6 +64,8 @@ public class Login extends JFrame{
 			}
 			if(id.equals("admin") && pw.equals("1234")) {
 				mg("관리자님 환영합니다.", JOptionPane.INFORMATION_MESSAGE);
+				User.admin = true;
+				new MovieSerch(false);
 				return;
 			}
 			Data user = Connections.select("select * from user where u_id = ? and u_pw = ?", id, pw).get(0);
@@ -78,9 +81,11 @@ public class Login extends JFrame{
 			dispose();
 		});
 	}
+	
 	private void mg(String string, int type) {
 		JOptionPane.showMessageDialog(null, string, type == JOptionPane.ERROR_MESSAGE ? "경고" : "정보", type);
 	}
+	
 	public static void main(String[] args) {
 		new Login();
 	}

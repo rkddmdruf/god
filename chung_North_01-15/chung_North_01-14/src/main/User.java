@@ -6,8 +6,11 @@ public class User {
 	public static void setUser(Data u) {
 		user = u;
 	}
+	public static Data getData() {
+		return user;
+	}
 	public static Integer getUno() {
-		if(user == null) return null;
+		if(user == null) return 0;
 		return Integer.parseInt(user.get(0).toString());
 	}
 	public static void logOut() {

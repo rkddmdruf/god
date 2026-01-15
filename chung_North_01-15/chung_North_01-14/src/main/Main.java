@@ -64,7 +64,7 @@ public class Main extends JFrame{
 				if(thread != null) thread.interrupt();
 			}
 		});
-		new A_setFrame(this, "메인", 650, 560);
+		A_setFrame.setting(this, "메인", 650, 560);
 	}
 	
 	private void setCenterPanel() {
@@ -224,6 +224,7 @@ public class Main extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				new MovieInfor(Integer.parseInt(list.get(index).get(0).toString()), true);
+				dispose();
 			}
 		};
 	}

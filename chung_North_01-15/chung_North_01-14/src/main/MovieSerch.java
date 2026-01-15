@@ -75,7 +75,7 @@ public class MovieSerch extends JFrame{
 		borderPanel.setBorder(createEmptyBorder(0, 5, 5, 5));
 		add(borderPanel);
 		setAction();
-		new A_setFrame(this, "열화 검색", 900, 369);
+		A_setFrame.setting(this, "열화 검색", 900, 369);
 	}
 	
 	private void setMainPanel() {
@@ -138,7 +138,10 @@ public class MovieSerch extends JFrame{
 			labels.get(i).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					new MovieInfor(Integer.parseInt(list.get(index).get(0).toString()), isFromMain);
+					int m_no = Integer.parseInt(list.get(index).get(0).toString());
+					if(User.admin) new MovieChage(m_no);
+					else new MovieInfor(m_no, isFromMain);
+					dispose();
 				}
 			});
 		}
