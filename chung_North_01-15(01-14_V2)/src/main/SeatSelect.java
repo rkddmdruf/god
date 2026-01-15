@@ -149,6 +149,7 @@ public class SeatSelect extends JFrame{
 				labels[i][j].addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
+						if(labels[index][jndex].getBackground() == Color.LIGHT_GRAY || seatTotal.size() >= people.getSelectedIndex() + 1) return;
 						labels[index][jndex].setBackground(Color.lightGray);
 						seatTotal.add((char) index + "" + jndex);
 						setPrice();
