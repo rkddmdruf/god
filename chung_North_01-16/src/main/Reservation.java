@@ -50,7 +50,7 @@ public class Reservation extends JFrame{
 				return;
 			}
 			JOptionPane.showMessageDialog(null, "좌석예매 폼으로 이동하겠습니다.","정보", JOptionPane.INFORMATION_MESSAGE);
-			new 상영관_배치도();
+			new 상영관_배치도(timeList.get(selectTime));
 			dispose();
 			return;
 		});
@@ -59,6 +59,7 @@ public class Reservation extends JFrame{
 	
 	private void setMainPanel() {
 		timesPanel.removeAll();
+		timesText.clear();
 		JLabel getLabel = ((JLabel) panels.get(panelsColor).getComponent(1));
 		int day = Integer.parseInt(getLabel.getText().substring(0, getLabel.getText().toCharArray().length - 1));
 		selectDay = LocalDate.of(nows.getYear(), nows.getMonthValue(), day);

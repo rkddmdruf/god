@@ -1,8 +1,8 @@
 package main;
 
 public class User {
-	private static Data user = Connections.select("select * from user where u_no = ?", 1).get(0);
-	public static boolean admin = false;
+	private static Data user;
+	public static boolean admin = true;
 	
 	public static void setUser(Data d) {
 		user = d;
