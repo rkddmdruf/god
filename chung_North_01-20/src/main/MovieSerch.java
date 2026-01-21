@@ -132,9 +132,9 @@ public class MovieSerch extends JFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(User.admin) {
-						movies.get(index).get(0);
+						new MovieChange(movies.get(index).getInt(0));
 					}else {
-						movies.get(index).get(0);
+						new MovieInfor(movies.get(index).getInt(0));
 					}
 					dispose();
 				}
