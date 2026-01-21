@@ -1,0 +1,21 @@
+package main;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+public class SetFrame {
+	
+	public static void setFrame(JFrame f, String s, int w, int h) {
+		f.setTitle(s);
+		f.getContentPane().setBackground(Color.white);
+		f.setSize(new Dimension(w + 16, h + 39));
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.setIconImage(new ImageIcon("datafiles/로고1.jpg").getImage());
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+	}
+}
