@@ -129,7 +129,9 @@ public class MovieSerch extends JFrame{
 			labels.get(i).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					System.out.println(list.get(index).get(0));
+					if(User.admin)  new MovieChange(list.get(index).getInt(0));
+						else		new MovieInfor (list.get(index).getInt(0));
+					dispose();
 				}
 			});
 		}
