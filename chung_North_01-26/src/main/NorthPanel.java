@@ -13,11 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
+import utils.*;
 
 public class NorthPanel extends JPanel{
-	Font font = new Font("맑은 고딕", 0, 14);
-	JLabel logo = new JLabel(getter.getImage("datafiles/로고1.jpg", 150, 50));
+	private Font font = new Font("맑은 고딕", 0, 14);
+	private JLabel logo = new JLabel(getter.getImage("datafiles/로고1.jpg", 150, 50));
 	JButton login = new CustumButton("로그인") {{
 		setFont(font);
 	}};
@@ -25,7 +25,9 @@ public class NorthPanel extends JPanel{
 		setFont(font);
 	}};
 	
+	private JFrame f;
 	public NorthPanel(JFrame f) {
+		this.f = f;
 		this.setLayout(new BorderLayout());
 		this.setBackground(Color.white);
 		
@@ -47,12 +49,19 @@ public class NorthPanel extends JPanel{
 			}
 		});
 		
+		setLogin();
+		setMovieSerchBut();
+	}
+	
+	void setLogin() {
 		login.addActionListener(e->{
 			if(User.getUser() != null) return;
 			new Login();
 			f.dispose();
 		});
-		
+	}
+	
+	void setMovieSerchBut() {
 		movieSerchBut.addActionListener(e->{
 			new MovieSerch();
 			f.dispose();

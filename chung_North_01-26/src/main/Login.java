@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+
+import utils.*;
+
 import static javax.swing.BorderFactory.*;
 
 public class Login extends JFrame{
@@ -22,7 +25,7 @@ public class Login extends JFrame{
 	
 	JFrame f = this;
 	JButton login = new CustumButton("로그인");
-	Login(){
+	public Login(){
 		JLabel l = new JLabel("로그인");
 		l.setBorder(createEmptyBorder(7,10,2,0));
 		l.setFont(font);
@@ -55,11 +58,8 @@ public class Login extends JFrame{
 		
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e) {
-				getter.run_Dispose(f);
-				getter.setRun(()->{
-					new Login();
-				});
+			public void windowClosed(WindowEvent e) {
+				getter.fromMove(f);
 			}
 		});
 		setFrame.setframe(this, "로그인", 400, 200);
@@ -87,7 +87,7 @@ public class Login extends JFrame{
 			}
 			getter.mg(user.get(0).get(1) + "회원님 환영합니다", JOptionPane.INFORMATION_MESSAGE);
 			User.setUser(user.get(0));
-			getter.run_Dispose(this);
+			dispose();
 		});
 	}
 	

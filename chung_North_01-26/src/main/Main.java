@@ -1,5 +1,7 @@
 package main;
 
+
+import utils.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,6 +52,7 @@ public class Main extends JFrame{
 	List<JLabel> imgA = new ArrayList<>();
 	JScrollPane scA;
 	
+	JFrame f = this;
 	JButton movieAllShow = new CustumButton("영화 전체보기") {{
 		setFont(font.deriveFont(0, 9));
 	}};
@@ -58,12 +61,26 @@ public class Main extends JFrame{
 	}};
 	
 	Thread thread;
-	Main(){
-		
+	public Main(){
 		setAdverPanel();
 		setwPanel();
 		setePanel();
-		borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
+		borderPanel.add(new NorthPanel(this) {
+			@Override
+			void setLogin() {
+				super.setLogin();
+				login.addActionListener(e->{
+					getter.setR(()->{ new Main(); });
+				});
+			}
+			@Override
+			void setMovieSerchBut() {
+				movieSerchBut.addActionListener(e->{
+					getter.setR(()->{ new Main(); });
+				});
+				super.setMovieSerchBut();
+			}
+		}, BorderLayout.NORTH);
 		borderPanel.add(southPanel, BorderLayout.SOUTH);
 		setAction();
 		
@@ -71,11 +88,9 @@ public class Main extends JFrame{
 			@Override
 			public void windowClosed(WindowEvent e) {
 				thread.interrupt();
-				getter.setRun(()->{new Main();});
 			}
 		});
 		add(borderPanel);
-		
 		
 		setFrame.setframe(this, "메인", 650, 560);
 	}
@@ -234,6 +249,13 @@ public class Main extends JFrame{
 	}
 	
 	private void setAction() {
+		movieAllShow.addActionListener(e->{
+			new MovieSerch();
+			getter.setR(()->{
+				new Main();
+			});
+			dispose();
+		});
 		MouseAdapter m1 = mouseDragAction(scA);
 		MouseAdapter m2 = mouseDragAction(scB);
 		
@@ -273,7 +295,11 @@ public class Main extends JFrame{
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println(list.get(i).getInt(0));;
+				getter.setR(()->{
+					new Main();
+				});
+				new MovieInfor(list.get(i).getInt(0));
+				dispose();
 			}
 		};
 	}

@@ -1,5 +1,6 @@
 package main;
 
+import utils.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,6 +9,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -64,38 +66,53 @@ public class MovieSerch extends JFrame{
 			+ "group by movie.m_no order by c desc, movie.m_no limit 5;");
 	
 	String[] query = {
-		"select * from movie where m_plot like ? and gno between ? and ?",
+		"select * from movie where m_name like ? and g_no between ? and ?",
 		
 		"SELECT movie.*, avg(re_star) as a FROM moviedb.review\r\n"
 				+ "right join movie on movie.m_no = review.m_no\r\n"
-				+ "where m_plot like ? and g_no between ? and ?\r\n"
+				+ "where m_name like ? and g_no between ? and ?\r\n"
 				+ "group by movie.m_no order by a desc, movie.m_no;",
 				
 		"SELECT movie.*, count(r_no) as c FROM moviedb.reservation\r\n"
 		+ "join movie on movie.m_no = reservation.m_no\r\n"
-		+ "where m_plot like ? and g_no between ? and ?\r\n"
+		+ "where m_name like ? and g_no between ? and ?\r\n"
 		+ "group by movie.m_no order by c desc, movie.m_no;"
 		
 	};
 	
 	List<JLabel> imgs = new ArrayList<>();
 	List<Data> list = new ArrayList<>();
-	MovieSerch(){
-		order.setSelectedIndex(1);
+	NorthPanel northPanel = new NorthPanel(f) {
+		@Override
+		void setLogin() {
+			super.setLogin();
+			login.addActionListener(e->{
+				getter.r2 = getter.getR();
+				getter.setR(()->{ new MovieSerch(); });
+			});
+		};
+	};
+	public MovieSerch(){
 		setting();
 		setSerchPanel();
 		setMainPanel();
 		nomalPanel.add(sc);
 		borderPanel.add(nomalPanel);
-		borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
+		borderPanel.add(User.admin ? new JLabel() : northPanel, BorderLayout.NORTH);
 		add(borderPanel);
+		
+		setAction();
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				//getter.run_Dispose(f);
+				if(getter.r2 != null) {
+					getter.r2.run();
+					getter.r2 = null;
+					return;
+				}
+				getter.fromMove(f);
 			}
 		});
-		setAction();
 		setFrame.setframe(this, User.admin ? "관리자 검색" : "영화 검색", 900, 400);
 	}
 	
@@ -115,7 +132,7 @@ public class MovieSerch extends JFrame{
 		list = Connections.select(query[order.getSelectedIndex()], objects);
 		for(int i = 0; i < list.size(); i++) {
 			Data data = list.get(i);
-			
+
 			JPanel p = new JPanel(new BorderLayout(1,5));
 			p.setBackground(Color.white);
 			p.setPreferredSize(new Dimension(0, 260));
@@ -176,10 +193,12 @@ public class MovieSerch extends JFrame{
 		}
 		
 		for(int i = 0; i < imgs.size(); i++) {
+			final int index = i;
 			imgs.get(i).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					
+					new MovieInfor(list.get(index).getInt(0));
+					dispose();
 				}
 			});
 		}
@@ -188,10 +207,15 @@ public class MovieSerch extends JFrame{
 	}
 	
 	private void setAction() {
-		order.addItemListener(e->{
+		ItemListener items = e->{
 			if(e.getStateChange() == ItemEvent.SELECTED) {
 				setMainPanel();
 			}
+		};
+		order.addItemListener(items);
+		genre.addItemListener(items);
+		serchBut.addActionListener(e->{
+			setMainPanel();
 		});
 	}
 	private void setSerchPanel() {
