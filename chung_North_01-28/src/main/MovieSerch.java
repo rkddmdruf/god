@@ -7,6 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +19,7 @@ import javax.swing.*;
 
 import utils.*;
 
-public class MovieSerch extends JFrame{
+public class MovieSerch extends CFrame{
 	Font font = new Font("맑은 고딕", 1, 20);
 	
 	JPanel borderPanel = new JPanel(new BorderLayout(10,10)) {{
@@ -38,6 +42,7 @@ public class MovieSerch extends JFrame{
 		setBackground(Color.white);
 	}};
 	JComboBox<Object> genre = new JComboBox<Object>() {{
+		addItem("전체");
 		setBackground(Color.white);
 		for (Data d : Connections.select("select g_name from genre")) {
 			addItem(d.get(0));
@@ -70,17 +75,19 @@ public class MovieSerch extends JFrame{
 	JPanel mainPanel = new JPanel(new GridLayout(0, 4, 7, 7)) {{
 		setBackground(Color.white);
 	}};
+	JScrollPane sc = new JScrollPane(mainPanel);
 	public MovieSerch() {
 		setting();
 		setSerchPanel();
 		setMainPanel();
 		if(!User.admin)
 			borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
-		nomalPanel.add(new JScrollPane(mainPanel));
+		nomalPanel.add(sc);
 		nomalPanel.add(serchPanel, BorderLayout.NORTH);
 		borderPanel.add(nomalPanel);
 		add(borderPanel);
-		setFrame.setframe(this, User.admin ? "관리자 검색" : "영화 검색", 900, 400);
+		setAction();
+		setFrame(User.admin ? "관리자 검색" : "영화 검색", 900, 400);
 	}
 	
 	private void setting() {
@@ -93,6 +100,7 @@ public class MovieSerch extends JFrame{
 	}
 	
 	private void setMainPanel() {
+		imgs.clear();
 		mainPanel.removeAll();
 		int gno = genre.getSelectedIndex();
 		Object[] obj = {"%" + serch.getText() + "%", gno , gno == 0 ? 20 : gno};
@@ -100,6 +108,7 @@ public class MovieSerch extends JFrame{
 		for (int i = 0; i < list.size(); i++) {
 			final int index = i;
 			JPanel p = new JPanel(new BorderLayout(1, 5));
+			p.setPreferredSize(new Dimension(0, 250));
 			p.setBackground(Color.white);
 			
 			JLabel ageLimit = new JLabel(getter.getImage("datafiles/limits/" + list.get(i).getInt(2) + ".jpg", 30, 30), JLabel.RIGHT);
@@ -113,7 +122,7 @@ public class MovieSerch extends JFrame{
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
-					g.drawImage(new ImageIcon().getImage(), 0, 0, getWidth(), getHeight(), null);
+					g.drawImage(new ImageIcon("datafiles/movies/" + list.get(index).getInt(0) + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
 				}
 			};
 			imgs.add(img);
@@ -125,16 +134,73 @@ public class MovieSerch extends JFrame{
 			
 			JLabel rank = new JLabel("", JLabel.CENTER);
 			
-			if(i < 10 && list.get(i).getInt(0) == listA.get(i).getInt(0)) {
-				rank.setText("No." + 1);
-				rank.setBackground(new Color(255,0,0,100));
-				rank.setForeground(Color.white);
+			if(order.getSelectedIndex() != 0) {
+				List<Data> listC = order.getSelectedIndex() == 1 ? listA : listB;
+				for(int s = 0; s < listC.size(); s++) {
+					if(list.get(i).getInt(0) == listC.get(s).getInt(0)) {
+						rank.setText("No." + listC.get(s).getInt(2));
+						rank.setBackground(new Color(255,0,0,100));
+						rank.setForeground(Color.white);
+						rank.setOpaque(true);
+					}
+				}
 			}
+			p.add(rank, BorderLayout.NORTH);
 			p.add(img);
 			p.add(infor, BorderLayout.SOUTH);
 			p.add(ageLimit, BorderLayout.WEST);
 			p.add(space, BorderLayout.EAST);
+			mainPanel.add(p);
 		}
+		
+		for(int i = 0; i < imgs.size(); i++) {
+			final int index = i;
+			imgs.get(index).addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(User.admin) {
+						new MovieChange(list.get(index).getInt(0));
+					}else {
+						new MovieInfor(list.get(index).getInt(0));
+					}
+					dispose();
+				}
+			});
+		}
+		
+		SwingUtilities.invokeLater(()->{
+			JScrollBar sb = sc.getVerticalScrollBar();
+			sb.setValue(0);
+		});
+		revalidate();
+		repaint();
+	}
+	
+	private void setAction() {
+		ItemListener items = e->{
+			if(e.getStateChange() == ItemEvent.SELECTED)
+				setMainPanel();
+		};
+		
+		order.addItemListener(items);
+		genre.addItemListener(items);
+		serchBut.addActionListener(e->{
+			if(serch.getText().isEmpty()) {
+				order.setSelectedIndex(0);
+				genre.setSelectedIndex(0);
+				setMainPanel();
+				return;
+			}
+			setMainPanel();
+			if(list.isEmpty()) {
+				getter.mg("검색 결과가 없습니다.", JOptionPane.ERROR_MESSAGE);
+				order.setSelectedIndex(0);
+				genre.setSelectedIndex(0);
+				serch.setText("");
+				setMainPanel();
+				return;
+			}
+		});
 	}
 	
 	private void setSerchPanel() {

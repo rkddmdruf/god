@@ -16,7 +16,7 @@ import javax.swing.*;
 
 import utils.*;
 
-public class Login extends JFrame{
+public class Login extends CFrame{
 	Font font = new Font("맑은 고딕", 1, 26);
 	
 	JTextField id = new JTextField();
@@ -56,7 +56,7 @@ public class Login extends JFrame{
 				getter.fromMove(f);
 			}
 		});
-		setFrame.setframe(this, "로그인", 400, 200);
+		setFrame("로그인", 400, 200);
 	}
 	
 	private void setAction() {
@@ -71,6 +71,7 @@ public class Login extends JFrame{
 			if(i.equals("admin") && p.equals("1234")) {
 				getter.mg("관리자님 환영합니다.", JOptionPane.INFORMATION_MESSAGE);
 				User.admin = true;
+				new MovieSerch();
 				return;
 			}
 			

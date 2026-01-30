@@ -22,7 +22,7 @@ import javax.swing.*;
 import utils.*;
 import static javax.swing.BorderFactory.*;
 
-public class Main extends JFrame{
+public class Main extends CFrame{
 	Font font = new Font("맑은 고딕", 1, 24);
 	JPanel borderPanel = new JPanel(new BorderLayout(10,10)) {{
 		setBackground(Color.white);
@@ -72,7 +72,7 @@ public class Main extends JFrame{
 			}
 		});
 		setAction();
-		setFrame.setframe(this, "메인", 650, 575);
+		setFrame("메인", 650, 575);
 	}
 	
 	private void setePanel() {
