@@ -38,17 +38,27 @@ public class MyHome extends CFrame{
 		this.uno = uno;
 		setNorthPanel();
 		UIManager.put("Label.font", font.deriveFont(20f));
-		setUserInforPanel();
-		if(data.getInt(data.size() - 2) == 0) {
+		setUserInforPanel();//여기서 data setting
+		if(data.getInt(7) == 0) {
 			UIManager.put("Label.font", font.deriveFont(14f));
 			setSouthPanel();
 		}else {
 			System.out.println("비공개");
 		}
 		add(mainPanel);
+		setAction();
 		setFrame("마이홈", 700, 500);
 	}
 	
+	private void setAction() {
+		inforChange.addActionListener(e->{
+			new InforChange();
+			dispose();
+		});
+		pointBuy.addActionListener(e->{
+			dispose();
+		});
+	}
 	private void setSouthPanel() {
 		JPanel southPanel = new JPanel(new GridLayout(0, 2, 5, 5));
 		southPanel.setBackground(Color.white);

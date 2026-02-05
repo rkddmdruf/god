@@ -55,6 +55,8 @@ public class Login extends CFrame{
 			}
 			if(i.equals("admin") && p.equals("1234")) {
 				getter.mg("관리자님 환영합니다.", JOptionPane.INFORMATION_MESSAGE);
+				UserU.admin = true;
+				new AdminMain();
 				dispose();
 				return;
 			}

@@ -5,9 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
 public class UserU {
-	private static Data user = Connections.select("select * from user").get(0);
-	public static boolean admin;
-	
+	private static Data user;// = Connections.select("select * from user").get(0);
+	public static boolean admin = true;
 	public static void setUser(Data d) {
 		user = d;
 	}

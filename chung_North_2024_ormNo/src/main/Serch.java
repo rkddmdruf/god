@@ -42,13 +42,22 @@ public class Serch extends CFrame {
 	List<Boolean> bool = new ArrayList<>();
 	List<JPanel> imgList = new ArrayList<>();
 	boolean mouseIn = false;
+	
+	JButton gameInsert = new JButtonC("게임 등록");
 	public Serch() {
-		add(new JLabel("검색", JLabel.CENTER) {
-			{
-				setFont(font);
-				setBorder(createEmptyBorder(5, 0, 5, 0));
+		String title = UserU.admin ? "관리자 검색" : "검색";
+		add(new JPanel(new BorderLayout()) {{
+			setBackground(Color.white);
+			JLabel l = new JLabel(title.equals("검색") ? title : "        " + title, JLabel.CENTER);
+			l.setFont(font);
+			l.setBorder(createEmptyBorder(5, 0, 5, 0));
+			add(l);
+			
+			if(UserU.admin) {
+				gameInsert.setPreferredSize(new Dimension(100, 30));
+				add(gameInsert, BorderLayout.EAST);
 			}
-		}, BorderLayout.NORTH);
+		}}, BorderLayout.NORTH);
 
 		UIManager.put("Label.font", font.deriveFont(15f));
 		setMainPanel();
@@ -59,7 +68,7 @@ public class Serch extends CFrame {
 		southPanel.add(order);
 		add(southPanel, BorderLayout.SOUTH);
 		setAction();
-		setFrame("검색", 475, 400);
+		setFrame(title, 475, 400);
 	}
 
 	private void setMainPanel() {
@@ -126,6 +135,7 @@ public class Serch extends CFrame {
 					if(data.getInt(5) == 1) {
 						g.drawImage(new ImageIcon("datafiles/19세 마크.png").getImage(), getWidth() - 30, 5, 25, 25, null);
 					}
+					if(UserU.admin) return;
 					if(bool.get(index)) {
 						g.drawImage(new ImageIcon("datafiles/담기.png").getImage(), 0, 0, 32, 32, null);
 					}
@@ -164,6 +174,11 @@ public class Serch extends CFrame {
 				}
 				@Override
 				public void mouseClicked(MouseEvent e) {
+					if(UserU.admin) {
+						dispose();
+						new GameInsert_Change(data.getInt(0));
+						return;
+					}
 					if(isInField(e.getPoint())) {
 						if(data.getInt(5) == 1) {
 							getter.mg("19세 게임은 검색폼에서 담을 수 없습니다.", JOptionPane.ERROR_MESSAGE);
@@ -186,6 +201,7 @@ public class Serch extends CFrame {
 						getter.mg("장바구니에 담겼습니다.", JOptionPane.INFORMATION_MESSAGE);
 						Connections.update("insert into shoppingbasket values(0, ?, ?)", gno, uno);
 					}
+					
 					dispose();
 					new GameInfor(data.getInt(0));
 				}
@@ -197,6 +213,12 @@ public class Serch extends CFrame {
 	}
 
 	private void setAction() {
+		if(UserU.admin) {
+			gameInsert.addActionListener(e->{
+				new GameInsert_Change(0);
+				dispose();
+			});
+		}
 		serchLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

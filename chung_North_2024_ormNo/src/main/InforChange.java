@@ -23,8 +23,8 @@ public class InforChange extends CFrame{
 		setEnabled(false);
 	}};
 	
-	JCheckBox publicCheck = new JCheckBox("공개");
-	JCheckBox privateCheck = new JCheckBox("비공개");
+	JRadioButton publicCheck = new JRadioButton("공개");
+	JRadioButton privateCheck = new JRadioButton("비공개");
 	
 	JPanel borderPanel = new JPanel(new BorderLayout(10, 10)) {{
 		setBackground(Color.white);
@@ -32,6 +32,8 @@ public class InforChange extends CFrame{
 	}};
 	
 	Data user = UserU.getUser();
+	
+
 	public InforChange() {
 		setting();
 		UIManager.put("Label.font", new Font("맑은 고딕", 1, 15));
@@ -42,7 +44,19 @@ public class InforChange extends CFrame{
 			add(change);
 		}}, BorderLayout.SOUTH);
 		add(borderPanel);
-		
+		setAction();
+		setFrame("정보 수정", 600, 400);
+	}
+	
+	private void setAction() {
+		privateCheck.addActionListener(e->{
+			privateCheck.setSelected(true);
+			publicCheck.setSelected(false);
+		});
+		publicCheck.addActionListener(e->{
+			publicCheck.setSelected(true);
+			privateCheck.setSelected(false);
+		});
 		change.addActionListener(e->{
 			String nick = this.nick.getText();
 			String p = this.pw.getText();
@@ -76,13 +90,14 @@ public class InforChange extends CFrame{
 			}
 			getter.mg("등록이 완료 되었습니다.", JOptionPane.INFORMATION_MESSAGE);
 			
-			Connections.update("update user set u_name = ?, u_id = ?, u_pw = ?, u_nick = ?, u_bd = ?, u_Disclosure = ? where u_no = ?", n,i, p, nick, b, 1, user.get(0));
+			int selectCheck = publicCheck.isSelected() ? 0 : 1;
+			Connections.update("update user set u_name = ?, u_id = ?, u_pw = ?, u_nick = ?, u_bd = ?, u_Disclosure = ? where u_no = ?", n,i, p, nick, b, selectCheck, user.get(0));
+			UserU.setUser(Connections.select("select * from user where u_no = ?", user.get(0)).get(0));
 			dispose();
 			new MyHome(user.getInt(0));
 		});
-		setFrame("정보 수정", 600, 400);
 	}
-
+	
 	private void setting() {
 		nick.setText(user.get(4).toString());
 		pw.setText(user.get(3).toString());
@@ -124,9 +139,9 @@ public class InforChange extends CFrame{
 		
 		PP.add(new JLabel("공개 여부 :"));
 		PP.add(new JPanel(new GridLayout(0, 2)) {{
-			setBackground(Color.white);
 			add(publicCheck);
 			add(privateCheck);
+			setBackground(Color.white);
 		}});
 		
 		p.add(namePanel);
