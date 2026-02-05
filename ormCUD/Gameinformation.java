@@ -10,12 +10,12 @@ public class Gameinformation extends Entity<Gameinformation> {
 	private LocalDate g_birth;
 	private int ca_no;
 	private int g_limit;
-	private String g_expl;
+	private String g_lebu;
 
 	@Override
 	public String toString() {
 		return "Gameinformation [g_no=" + g_no + ", g_name=" + g_name + ", g_price=" + g_price + ", g_birth=" + g_birth
-				+ ", ca_no=" + ca_no + ", g_limit=" + g_limit + ", g_expl=" + g_expl + "]";
+				+ ", ca_no=" + ca_no + ", g_limit=" + g_limit + ", g_lebu=" + g_lebu + "]";
 	}
 
 	public int getG_no() {
@@ -66,12 +66,12 @@ public class Gameinformation extends Entity<Gameinformation> {
 		this.g_limit = g_limit;
 	}
 
-	public String getG_expl() {
-		return g_expl;
+	public String getG_lebu() {
+		return g_lebu;
 	}
 
-	public void setG_expl(String g_expl) {
-		this.g_expl = g_expl;
+	public void setG_lebu(String g_lebu) {
+		this.g_lebu = g_lebu;
 	}
 
 }

@@ -69,7 +69,7 @@ public class Entity<T extends Entity<T>> extends SaveList{
 		return null;
 	}
 
-	public static <E extends Entity> void where(Class<E> c, String...str) {
+	/*public static <E extends Entity> void where(Class<E> c, String...str) {
 		List<E> list = (List<E>) getSaveList(c);
 		if(list == null) { list = findAll(c); }
 		Field[] fz = c.getDeclaredFields();
@@ -83,7 +83,7 @@ public class Entity<T extends Entity<T>> extends SaveList{
 					}
 			}
 		}
-	}
+	}*/
 	
 	public static <E extends Entity> void create(Class<E> c, E e) {
 		String cName = c.getSimpleName().toLowerCase();

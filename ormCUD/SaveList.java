@@ -14,6 +14,11 @@ public class SaveList {
 		index += i;
 	}
 	
+	public static void getter() {
+		for(int i = 0; i < 6; i++) {
+			System.out.println(saveList[i]);
+		}
+	}
 	protected static List<Entity> getSaveList(Class<? extends Entity> c) {
 		int i = checkSaveListInClass(c);
 		if(i == -1) {
