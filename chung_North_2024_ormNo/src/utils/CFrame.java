@@ -13,7 +13,6 @@ import javax.swing.plaf.FontUIResource;
 
 
 public class CFrame extends JFrame{
-	
 	public CFrame() {
 		Enumeration<Object> keys = UIManager.getDefaults().keys();
 		while (keys.hasMoreElements()) {
@@ -29,6 +28,9 @@ public class CFrame extends JFrame{
 		}
 	}
 	
+	public void setLabelFonts(int size) {
+		UIManager.put("Label.font", new Font("맑은 고딕", 1, size));
+	}
 	public void setFrame(String s, int w, int h) {
 		setTitle(s);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

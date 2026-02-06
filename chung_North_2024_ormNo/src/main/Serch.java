@@ -59,7 +59,7 @@ public class Serch extends CFrame {
 			}
 		}}, BorderLayout.NORTH);
 
-		UIManager.put("Label.font", font.deriveFont(15f));
+		setLabelFonts(15);
 		setMainPanel();
 		
 		JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
