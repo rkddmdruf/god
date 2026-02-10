@@ -1,12 +1,14 @@
 package orm;
 
 public class Category extends Entity<Category>{
+	
 	private int ca_no;
 	private String ca_name;
 	
-	public Category() {
-		
-	}
+	public static final Equalz CA_NO = new Equalz("ca_no");
+	public static final Equalz CA_NAME = new Equalz("ca_name");
+	
+	public Category() {	}
 	
 	public Category(int ca_no, String ca_name) {
 		super();

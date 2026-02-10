@@ -8,6 +8,11 @@ public class Purchasegame extends Entity<Purchasegame> {
 	private int g_no;
 	private LocalDate p_birth;
 
+	public static final Equalz P_NO = new Equalz("p_no");
+	public static final Equalz U_NO = new Equalz("u_no");
+	public static final Equalz G_NO = new Equalz("g_no");
+	public static final Equalz P_BIRTH = new Equalz("p_birth");
+	
 	@Override
 	public String toString() {
 		return "Purchasegame [p_no=" + p_no + ", u_no=" + u_no + ", g_no=" + g_no + ", p_birth=" + p_birth + "]";

@@ -11,11 +11,19 @@ public class Gameinformation extends Entity<Gameinformation> {
 	private int ca_no;
 	private int g_limit;
 	private String g_lebu;
+	
+	public static final Equalz G_NO = new Equalz("g_no");
+	public static final Equalz G_NAME = new Equalz("g_name");
+	public static final Equalz G_PRICE = new Equalz("g_price");
+	public static final Equalz G_BIRTH = new Equalz("g_birth");
+	public static final Equalz CA_NO = new Equalz("ca_no");
+	public static final Equalz G_LIMIT = new Equalz("g_limit");
+	public static final Equalz G_LEBU = new Equalz("g_lebu");
 
 	@Override
 	public String toString() {
 		return "Gameinformation [g_no=" + g_no + ", g_name=" + g_name + ", g_price=" + g_price + ", g_birth=" + g_birth
-				+ ", ca_no=" + ca_no + ", g_limit=" + g_limit + ", g_lebu=" + g_lebu + "]";
+				+ ", ca_no=" + ca_no + ", g_limit=" + g_limit + ", g_expl=" + g_lebu + "]";
 	}
 
 	public int getG_no() {
@@ -73,5 +81,6 @@ public class Gameinformation extends Entity<Gameinformation> {
 	public void setG_lebu(String g_lebu) {
 		this.g_lebu = g_lebu;
 	}
+
 
 }

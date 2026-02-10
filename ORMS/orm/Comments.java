@@ -8,6 +8,11 @@ public class Comments extends Entity<Comments>{
 	private int c_star;
 	private String c_content;
 
+	public static final Equalz C_NO = new Equalz("c_no");
+	public static final Equalz U_NO = new Equalz("u_no");
+	public static final Equalz G_NO = new Equalz("g_no");
+	public static final Equalz C_STAR = new Equalz("c_star");
+	public static final Equalz C_CONTENT = new Equalz("c_content");
 	
 	public int getC_no() {
 		return c_no;

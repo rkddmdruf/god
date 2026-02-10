@@ -5,6 +5,10 @@ public class Shoppingbasket extends Entity<Shoppingbasket> {
 	private int p_no;
 	private int g_no;
 	private int u_no;
+	
+	public static final Equalz P_NO = new Equalz("p_no");
+	public static final Equalz G_NO = new Equalz("g_no");
+	public static final Equalz U_NO = new Equalz("u_no");
 
 	@Override
 	public String toString() {

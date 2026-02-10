@@ -14,6 +14,17 @@ public class User extends Entity<User> {
 	private int u_Disclosure;
 	private Object u_img;
 
+	public static final Equalz U_NO = new Equalz("u_no");
+	public static final Equalz U_NAME = new Equalz("u_name");
+	public static final Equalz U_ID = new Equalz("u_id");
+	public static final Equalz U_PW = new Equalz("u_pw");
+	public static final Equalz U_NICK = new Equalz("u_nick");
+	public static final Equalz U_BD = new Equalz("u_bd");
+	public static final Equalz U_PRICE = new Equalz("u_price");
+	public static final Equalz U_DISCLOSURE = new Equalz("u_Disclosure");
+	public static final Equalz U_IMG = new Equalz("u_img");
+	
+	
 	public String getU_nick() {
 		return u_nick;
 	}
