@@ -34,6 +34,68 @@ public class Entity<T extends Entity<T>> extends SaveList{
 		return DriverManager.getConnection("jdbc:mysql://localhost/game_site?serverTimezone=UTC", "root", "1234");
 	}
 	
+	public static List<JoinTable> join(Class<? extends Entity> c1, Class<? extends Entity> c2, String cName) {
+		List<JoinTable> list = new ArrayList<>();
+		List<Entity> lists1 = (List<Entity>) findAll(c1);
+		List<Entity> lists2 = (List<Entity>) findAll(c2);
+		List<Field> fs1 = getFields(c1);
+		List<Field> fs2 = getFields(c2);
+		
+		boolean c1NameIsEmpty = false;
+		int fieldIndex1 = 0;
+		int fieldIndex2 = 0;
+		
+		for(int i = 0; i < fs1.size(); i++) 
+			if(fs1.get(i).getName().equals(cName)) {
+				c1NameIsEmpty = true;
+				fieldIndex1 = i;
+			}
+		for(int i = 0; i < fs2.size(); i++) 
+			if(fs2.get(i).getName().equals(cName)) {
+				c1NameIsEmpty = true;
+				fieldIndex2 = i;
+			}
+		
+		if(!c1NameIsEmpty) return list;
+		
+		try {
+			for(Entity entity1 : lists1) {
+				for(Entity entity2 : lists2) {
+					JoinTable t = new JoinTable();
+					Field f1 = c1.getDeclaredField(cName);
+					f1.setAccessible(true);
+					Field f2 = c2.getDeclaredField(cName);
+					f2.setAccessible(true);
+					if(f1.get(entity1).toString().equals(f2.get(entity2).toString())) {
+						t.addAll(Arrays.asList(c1.getDeclaredFields()).stream()
+								.peek(e -> e.setAccessible(true))
+								.filter(e -> Modifier.isPrivate(e.getModifiers()))
+								.map(e -> getValue1(e, entity1))
+								.collect(Collectors.toList()));
+						t.addAll(Arrays.asList(c2.getDeclaredFields()).stream()
+								.peek(e -> e.setAccessible(true))
+								.filter(e -> Modifier.isPrivate(e.getModifiers()))
+								.map(e -> getValue1(e, entity2))
+								.collect(Collectors.toList()));
+						list.add(t);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+	
+	private static Object getValue1(Field e, Entity en) {
+		try {
+			return e.get(en);
+		} catch (Exception e2) {
+			System.out.println(e2.getMessage());
+		}
+		return null;
+	}
 	private static List<Field> getFields(Class<?> c){
 		return Arrays.asList(c.getDeclaredFields()).stream()
 				.filter(e -> Modifier.isPrivate(e.getModifiers()))
