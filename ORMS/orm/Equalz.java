@@ -9,6 +9,9 @@ public class Equalz {
 		this.fieldName = fieldName;
 	}
 	
+	public Nev contains(Object value) {
+		return new Nev(fieldName, "contains", value);
+	}
 	public Nev big(Object value) {
 		return new Nev(fieldName, ">", value);
 	}
@@ -19,13 +22,9 @@ public class Equalz {
 		return new Nev(fieldName, "<", value);
 	}
 	public Nev bigEq(Object value) {
-		Nev n = big(value);
-		n.eq = ">=";
-		return n;
+		return new Nev(fieldName, ">=", value);
 	}
 	public Nev smallEq(Object value) {
-		Nev n = small(value);
-		n.eq = "<=";
-		return n;
+		return new Nev(fieldName, "<=", value);
 	}
 }

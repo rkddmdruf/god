@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,8 +13,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -72,22 +75,23 @@ public class Entity<T extends Entity<T>> extends SaveList{
 	public static <E extends Entity> List<E> findAll(Class<E> c) {
 		List<E> list = (List<E>) getList(c);
 		if(!list.isEmpty()) return list;
+		System.out.println("map에 없음");
 		String cName = c.getSimpleName().toLowerCase();
-		Field[] fields = c.getDeclaredFields();
-
+		Field[] fields = Arrays.asList(c.getDeclaredFields()).stream().peek(e -> e.setAccessible(true)).toArray(Field[]::new);
 		try (Connection con = getCon();
 			PreparedStatement s = con.prepareStatement("select * from " + cName);
 			ResultSet re = s.executeQuery();){
 			while (re.next()) {
 				ResultSetMetaData rem = re.getMetaData();
 				E instance = c.getDeclaredConstructor().newInstance();
-
 				for (int i = 0; i < rem.getColumnCount(); i++) {
-					fields[i].setAccessible(true);
+					String columnName = rem.getColumnName(i + 1);
+					Object obj = re.getObject(columnName);
 					if(rem.getColumnTypeName(i + 1).equals("DATE"))
-						fields[i].set(instance, LocalDate.parse(re.getObject(fields[i].getName()).toString()));
-					else
-						fields[i].set(instance, re.getObject(fields[i].getName()));
+						obj = LocalDate.parse(re.getObject(columnName).toString());
+					else if(rem.getColumnTypeName(i + 1).equals("TIME"))
+						obj = LocalDateTime.parse(re.getObject(columnName).toString(), DateTimeFormatter.ISO_TIME);
+					fields[i].set(instance, obj);
 				}
 				list.add(instance);
 			}
@@ -97,13 +101,10 @@ public class Entity<T extends Entity<T>> extends SaveList{
 		saveList(c, list);
 		return list;
 	}
-
-	public static <E extends Entity> E findById(Class<E> c, int id) {
-		List<E> list = findAll(c);
-		if (list.size() > id && id >= 0) {
-			return list.get(id);
-		}
-		return null;
+	
+	public static <E extends Entity> E findByIds(Class<E> c, int id) {
+		if(map.get(c) == null) findAll(c);
+		return (E) map.get(c).get(id);
 	}
 	
 	private static <E extends Entity> Boolean equalsValue(Class<E> c, E e, Nev n) {
@@ -123,14 +124,24 @@ public class Entity<T extends Entity<T>> extends SaveList{
 					if(n.eq.equals("=")) return int1 == int2;
 				}
 				if(n.value instanceof String) {
+					if(n.eq.equals("contains"))
+						return f.get(e).toString().contains(n.value.toString());
 					if(!n.eq.equals("=")) throw new Exception("equals빼고는 못함");
-					return n.value.equals(f.get(e).toString());
+					return f.get(e).toString().equals(n.value);
 				}
 			}
 		} catch (Exception e2) {
-			System.out.println(e2.getMessage());
+			e2.printStackTrace();
 		}
 		return false;
+	}
+	
+	private List<Field> nonIdField() {
+		return getFields(getClass()).stream().filter(e -> !e.isAnnotationPresent(Id.class)).collect(Collectors.toList());
+	}
+	
+	private Field IdField() {
+		return getFields(getClass()).stream().filter(e -> e.isAnnotationPresent(Id.class)).collect(Collectors.toList()).get(0);
 	}
 	
 	public static <E extends Entity> List<E> where(Class<E> c, Nev...ns) {
@@ -140,7 +151,6 @@ public class Entity<T extends Entity<T>> extends SaveList{
 				list = list.stream()
 					.filter(nnn -> equalsValue(c, nnn, n))
 					.collect(Collectors.toList());
-				System.out.println(list);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -148,43 +158,37 @@ public class Entity<T extends Entity<T>> extends SaveList{
 		return list;
 	}
 	
-	
-	
-	public <E extends Entity> void create() {
+	public <E extends Entity> void insert() {
 		String cName = clazz.getSimpleName().toLowerCase();
 		List<Field> fs = getFields(clazz);
 		List<Object> values = getValues(clazz, this);
-		String querySet = String.join(", ", fs.stream().map(e -> e.getName() + " = ?").collect(Collectors.toList()));
-		String query = "insert into " + cName + " set " + querySet;
-		if(map.get(clazz) == null) map.put(clazz, new HashMap<>());
-		map.get(clazz).put(values.get(0), this);
+		String querySet = String.join(", ", fs.stream().map(e -> "?").collect(Collectors.toList()));
+		String fsNames = String.join(", ", fs.stream().map(e -> e.getName()).collect(Collectors.toList()));
+		String query = "insert into " + cName + "(" + fsNames + ")" +" values (" + querySet + ")";
+		if(map.get(clazz) == null) findAll(getClass());
 		Connections.update(query, values.toArray());
+		map.get(clazz).put(values.get(0), this);
 	}
-
-	public <E extends Entity<?>> void update(E e) {
-		List<Field> fs = getFields(clazz);
-		List<Object> afterValues = getValues(clazz, this);
-		List<Object> beforeValues = getValues(clazz, e);
-		try {
-			if(!afterValues.get(0).equals(beforeValues.get(0))) throw new Exception("ID가 다릅니다.");
-		} catch (Exception e2) {
-			System.out.println(e2.getMessage());
-			return;
-		}
-		beforeValues.add(beforeValues.get(0));
-		beforeValues.remove(0);
-		String first = fs.get(0).getName();
-		fs.remove(0);
-		String querySet = String.join(", ", fs.stream().map(x -> x.getName() + " = ?").collect(Collectors.toList()));
-		String query = "update " + tableName + " set " + querySet + " where " + first + " = ?";
-		
-		Connections.update(query, beforeValues.toArray());
+	
+	public Object getValue1(Field f) {
+		try { return f.get(this); }
+		catch (Exception e) { e.printStackTrace(); }
+		return null;
 	}
-
+	
+	public <E extends Entity<?>> void update() {
+		List<Object> values = Arrays.asList(nonIdField().stream().map(e -> getValue1(e)).collect(Collectors.toList()), getValue1(IdField()));
+		String querySet = String.join(", ", nonIdField().stream().map(x -> x.getName() + " = ?").collect(Collectors.toList()));
+		String query = "update " + tableName + " set " + querySet + " where " + IdField().getName() + " = ?";
+		Connections.update(query, values.toArray());
+		map.get(getClass()).replace(values.get(values.size() - 1), this);
+	}
+	
 	public void delete() {
 		try {
+			//이거 FORIGENKEY? 그 계층구조 때문에 삭제 안됌
 			Connections.update("delete from " + tableName + " where " + fs.get(0).getName() + " = ?", fs.get(0).get(this));
-			map.get(clazz).remove(fs.get(0));
+			map.get(clazz).remove(fs.get(0).get(this));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

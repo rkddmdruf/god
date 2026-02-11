@@ -3,7 +3,7 @@ package orm;
 import java.time.LocalDate;
 
 public class Gameinformation extends Entity<Gameinformation> {
-
+	@Id
 	private int g_no;
 	private String g_name;
 	private int g_price;

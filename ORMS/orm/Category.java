@@ -1,7 +1,7 @@
 package orm;
 
 public class Category extends Entity<Category>{
-	
+	@Id
 	private int ca_no;
 	private String ca_name;
 	
