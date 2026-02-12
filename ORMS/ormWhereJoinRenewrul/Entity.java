@@ -58,52 +58,6 @@ public class Entity<T extends Entity<T>> extends SaveList{
 		}
 		return null;
 	}
-	/*public static List<JoinTable> join(Class<? extends Entity> c1, Class<? extends Entity> c2, String cName) {
-		List<JoinTable> list = new ArrayList<>();
-		List<Entity> lists1 = (List<Entity>) findAll(c1);
-		List<Entity> lists2 = (List<Entity>) findAll(c2);
-		List<Field> fs1 = getFields(c1);
-		List<Field> fs2 = getFields(c2);
-		
-		boolean c1NameIsEmpty = false;
-		
-		
-		try {
-			c1.getDeclaredField(cName);
-			c2.getDeclaredField(cName);
-		} catch (Exception e1) {
-			System.out.println("필드 이름이 다릅니다.");
-			return list;
-		}
-		try {
-			for(Entity entity1 : lists1) {
-				for(Entity entity2 : lists2) {
-					JoinTable t = new JoinTable();
-					Field f1 = c1.getDeclaredField(cName);
-					f1.setAccessible(true);
-					Field f2 = c2.getDeclaredField(cName);
-					f2.setAccessible(true);
-					if(f1.get(entity1).toString().equals(f2.get(entity2).toString())) {
-						t.addAll(Arrays.asList(c1.getDeclaredFields()).stream()
-								.peek(e -> e.setAccessible(true))
-								.filter(e -> Modifier.isPrivate(e.getModifiers()))
-								.map(e -> getValue1(e, entity1))
-								.collect(Collectors.toList()));
-						t.addAll(Arrays.asList(c2.getDeclaredFields()).stream()
-								.peek(e -> e.setAccessible(true))
-								.filter(e -> Modifier.isPrivate(e.getModifiers()))
-								.map(e -> getValue1(e, entity2))
-								.collect(Collectors.toList()));
-						list.add(t);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}*/
 	
 	private static Object getValue1(Field e, Entity en) {
 		try {
@@ -203,7 +157,7 @@ public class Entity<T extends Entity<T>> extends SaveList{
 					if(n.eq.equals("=")) return int1 == int2;
 				}
 				if(n.value instanceof String) {
-					if(n.eq.equals("contains"))
+					if(n.eq.equals("like"))
 						return f.get(e).toString().contains(n.value.toString());
 					if(!n.eq.equals("=")) throw new Exception("equals빼고는 못함");
 					return f.get(e).toString().equals(n.value);
