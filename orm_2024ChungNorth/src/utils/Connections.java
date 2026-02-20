@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -39,7 +40,6 @@ public class Connections{
 				list.add(data);
 			}
 			re.close();
-			System.out.println("sdfsd");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -50,7 +50,6 @@ public class Connections{
 		try (Connection c = getConnection();
 			 PreparedStatement ps = c.prepareStatement(s)){
 			for(int i = 0; i < val.length; i++) {
-				System.out.println(val[i].getClass());
 				ps.setObject(i + 1, val[i]);
 			}
 			ps.executeUpdate();

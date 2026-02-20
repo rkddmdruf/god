@@ -1,10 +1,10 @@
 package utils;
 
-import realOrm.*;
-import realOrm.Db.*;
+import orm.*;
+import ormDb.*;
 
 public class UserU {
-	private static User user = Entity.findByIds(User.class, 4);
+	private static User user = Entity.findByIds(User.class, 1);
 	public static boolean admin;
 	
 	public static void setUser(User d) {

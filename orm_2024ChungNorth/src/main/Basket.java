@@ -1,6 +1,10 @@
 package main;
 
 import javax.swing.*;
+
+import orm.*;
+import ormDb.*;
+
 import static javax.swing.BorderFactory.*;
 
 import java.awt.BorderLayout;
@@ -53,8 +57,8 @@ public class Basket extends CFrame{
 		setPreferredSize(new Dimension(125, 40));
 	}};
 	int price = 0;
-	Data user = UserU.getUser();
-	List<Data> list = new ArrayList<>();
+	User user = UserU.getUser();
+	List<Tuple> list = new ArrayList<>();
 	public Basket() {
 		UIManager.put("Label.font", font.deriveFont(18f));
 		setMainPanel();
@@ -70,20 +74,21 @@ public class Basket extends CFrame{
 			}
 			int result = JOptionPane.showConfirmDialog(null, "게임들을 구매하시겠습니까?\n" + priceLabel.getText(), "구매", JOptionPane.YES_NO_OPTION);
 			if(result == JOptionPane.NO_OPTION) return;
-			if(user.getInt(6) >= price) {
-				//결재폼
+			if(user.getU_price() >= price) {
+				new PayMent();
 				dispose();
 				return;
 			}
 
 			int result2 = JOptionPane.showConfirmDialog(null, "포인트가 부족하여 구매할 수 없습니다.\n"
-					+ "포인트를 충전하시겠습니까? (충전 필요 포인트 : " + (getter.df.format(price - user.getInt(6))) + "포인트)"
+					+ "포인트를 충전하시겠습니까? (충전 필요 포인트 : " + (getter.df.format(price - user.getU_price())) + "포인트)"
 					, "충전 필요", JOptionPane.YES_NO_OPTION);
 			if(result2 == JOptionPane.NO_OPTION) return;
-			//new 충전폼
+			new Charge();
 			dispose();
 			return;
 		});
+		UIManager.put("Label.font", font.deriveFont(18f));
 		setFrame("장바구니", 850, 500);
 	}
 	
@@ -106,22 +111,22 @@ public class Basket extends CFrame{
 		panels.clear();
 		bool.clear();
 		price = 0;
-		list = Connections.select("SELECT p_no, gameinformation.g_no, g_name, g_price, g_lebu FROM game_site.shoppingbasket \r\n"
-				+ "join gameinformation on gameinformation.g_no = shoppingbasket.g_no\r\n"
-				+ "where u_no = ?;", user.get(0));
+		list = Entity2.select(Shoppingbasket.P_NO.getNev(), Gameinformation.G_NO.getNev(), Gameinformation.G_NAME.getNev()
+				, Gameinformation.G_PRICE.getNev(), Gameinformation.G_LEBU.getNev())
+		.from(Shoppingbasket.class) .join(Gameinformation.G_NO.getNev()) .where(Shoppingbasket.U_NO.eq(user.getU_no())) .push();
 		
 		for(int i = 0; i < list.size(); i++) {
 			final int index = i;
 			bool.add(false);
-			Data data = list.get(i);
-			price += data.getInt(3);
+			Tuple data = list.get(i);
+			price += data.getInt(Gameinformation.G_PRICE.getName());
 			
 			JPanel p = new JPanel(new BorderLayout());
 			p.setBackground(Color.white);
 			p.setBorder(createMatteBorder(2, 2, 2, 2, Color.black));
 			p.setPreferredSize(new Dimension(0, 150));
 			
-			JLabel img = new JLabel(getter.getImage("gameimage/" + data.getInt(1) + ".jpg", 150, 150)) {
+			JLabel img = new JLabel(getter.getImage("gameimage/" + data.getInt(Gameinformation.G_NO.getName()) + ".jpg", 150, 150)) {
 				@Override
 				protected void paintComponent(Graphics g) {
 					g.clearRect(0, 0, getWidth(), getHeight());
@@ -137,8 +142,8 @@ public class Basket extends CFrame{
 			inforPanel.setBackground(Color.white);
 			inforPanel.setBorder(createEmptyBorder(5,5,80, 5));
 			
-			inforPanel.add(new JLabel("게임명 : " + data.get(2)));
-			inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.getInt(3)) + "포인트"));
+			inforPanel.add(new JLabel("게임명 : " + data.get(Gameinformation.G_NAME.getName())));
+			inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.getInt(Gameinformation.G_PRICE.getName())) + "포인트"));
 			
 			p.add(inforPanel);
 			p.add(img, BorderLayout.WEST);
@@ -161,15 +166,18 @@ public class Basket extends CFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getX() >= 0 && e.getX() <= 40 && e.getY() >= 0 && e.getY() <= 40) {
+						JOptionPane jop = new JOptionPane();
 						getter.mg("장바구니에서 삭제가 완료되었습니다.", JOptionPane.INFORMATION_MESSAGE);
-						Connections.update("delete from shoppingbasket where p_no = ?", list.get(index).get(0));
+						Shoppingbasket s = new Shoppingbasket();
+						s.setP_no(list.get(index).getInt(Shoppingbasket.P_NO.getName()));
+						s.delete();
 						infor.setText("");
 						setMainPanel();
 						return;
 					}
 					panels.get(beforeSelectPanel).setBorder(createMatteBorder(2, 2, 2, 2, Color.black));
 					panels.get(beforeSelectPanel = index).setBorder(createMatteBorder(2, 2, 2, 2, Color.red));
-					infor.setText(list.get(index).get(4).toString());
+					infor.setText(list.get(index).get(Gameinformation.G_LEBU.getName()).toString());
 				}
 			});
 		}

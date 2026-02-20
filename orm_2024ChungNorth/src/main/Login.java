@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
-import realOrm.*;
-import realOrm.Db.*;
+
+import orm.*;
+import ormDb.*;
 
 import static javax.swing.BorderFactory.*;
 import utils.*;

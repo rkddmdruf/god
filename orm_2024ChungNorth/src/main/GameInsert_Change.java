@@ -20,6 +20,8 @@ import static javax.swing.BorderFactory.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import orm.*;
+import ormDb.*;
 import utils.*;
 
 public class GameInsert_Change extends CFrame{
@@ -32,7 +34,7 @@ public class GameInsert_Change extends CFrame{
 	JComboBox<Object> category = new JComboBox<Object>(){{
 		setBackground(Color.white);
 		addItem("");
-		for(Data data : Connections.select("select * from category")) addItem(data.get(1));
+		for(Category category : Entity.findAll(Category.class)) addItem(category.getCa_name());
 	}};
 	
 	JRadioButton allAge = new JRadioButton("전체") {{
@@ -53,18 +55,19 @@ public class GameInsert_Change extends CFrame{
 	}};
 	
 	JButton but = new JButtonC("");
-	Data data = new Data();
+	Gameinformation data = new Gameinformation();
 	int gno;
 	public GameInsert_Change(int gno) {
 		this.gno = gno;
 		if(gno != 0) {
 			category.removeItemAt(0);
-			data = Connections.select("select * from gameinformation where g_no = ?", gno).get(0);
-			name.setText(data.get(1).toString());
-			point.setText(data.get(2).toString());
-			category.setSelectedIndex(data.getInt(4) - 1);
-			infor.setText(data.get(6).toString());
-			if(data.getInt(5) == 0) 
+			data = Entity.findByIds(Gameinformation.class, gno);
+			
+			name.setText(data.getG_name());
+			point.setText(data.getG_price() + "");
+			category.setSelectedIndex(data.getCa_no() - 1);
+			infor.setText(data.getG_lebu());
+			if(data.getG_limit() == 0) 
 				allAge.setSelected(true);
 			else 
 				adultAge.setSelected(true);
@@ -133,14 +136,15 @@ public class GameInsert_Change extends CFrame{
 				getter.mg("포인트 가격은 0보다 커야하고 50만 보다는 작아야합니다.", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			List<Data> list = Connections.select("select g_name from gameinformation where g_no != ?", (gno == 0 ? -1 : gno));
-			list.forEach(s -> {
-				if(n.equals(s.get(0).toString())) {
+			
+			List<Gameinformation> list = Entity.where(Gameinformation.class, Gameinformation.G_NO.notEq((gno == 0 ? -1 : gno)));
+			for(Gameinformation g : list) {
+				if(n.equals(g.getG_name().toString())) {
 					getter.mg("중복된 게임명이 있습니다.", JOptionPane.ERROR_MESSAGE);
 					name.setText("");
 					return;
 				}
-			});
+			}
 			if(ageLimit == -1) {
 				getter.mg("나이제한을 선택하지 않았습니다.", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -148,8 +152,19 @@ public class GameInsert_Change extends CFrame{
 			
 			String s = (gno == 0 ? "등록이" : "수정이") + "완료되었습니다.";
 			getter.mg(s, JOptionPane.INFORMATION_MESSAGE);
-			if(gno == 0) Connections.update("insert into gameinformation values(0, ?, ?, ?, ?, ?, ?);", n, p, LocalDate.now(), c, ageLimit, i);
-			else Connections.update("update gameinformation set g_name = ?, g_price = ?, g_birth = ?, ca_no = ?, g_limit = ?, g_lebu = ? where g_no = ?", n, p, LocalDate.now(), c, ageLimit, i, gno);
+			
+			Gameinformation g = new Gameinformation();
+			g.setG_no(gno);
+			g.setG_name(n);
+			g.setG_price(Integer.parseInt(p));
+			g.setG_birth(LocalDate.now());
+			g.setCa_no(c);
+			g.setG_limit(ageLimit);
+			g.setG_lebu(i);
+			
+			
+			if(gno == 0) g.insert();
+			else g.update();
 			new AdminMain();
 			dispose();
 		});
@@ -206,6 +221,6 @@ public class GameInsert_Change extends CFrame{
 	}
 
 	public static void main(String[] args) {
-		new GameInsert_Change(0);
+		new GameInsert_Change(2);
 	}
 }

@@ -13,7 +13,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.rowset.Joinable;
 import javax.swing.*;
+
+import orm.*;
+import ormDb.*;
+
 import static javax.swing.BorderFactory.*;
 
 import utils.*;
@@ -32,14 +37,16 @@ public class MyHome extends CFrame{
 	}};
 	
 	List<JPanel> buyGames = new ArrayList<>();
-	Data data;
+	User data;
+	
+	User user = UserU.getUser();
 	int uno;
 	public MyHome(int uno){
 		this.uno = uno;
 		setNorthPanel();
 		UIManager.put("Label.font", font.deriveFont(20f));
 		setUserInforPanel();//여기서 data setting
-		if(data.getInt(7) == 0) {
+		if(data.getU_Disclosure() == 0) {
 			UIManager.put("Label.font", font.deriveFont(14f));
 			setSouthPanel();
 		}else {
@@ -76,31 +83,32 @@ public class MyHome extends CFrame{
 		JPanel gridPanel = new JPanel(new GridLayout(0, 1, 5, 5));
 		gridPanel.setBackground(Color.white);
 		
-		List<Data> list = Connections.select("SELECT gameinformation.g_no, g_name, g_price, ca_name FROM game_site.purchasegame \r\n"
-				+ "join gameinformation on gameinformation.g_no = purchasegame.g_no join category on category.ca_no = gameinformation.ca_no\r\n"
-				+ "where u_no = ?", data.get(0));
+		List<Tuple> list = Entity2.select(Gameinformation.G_NO.getNev(), Gameinformation.G_NAME.getNev(), Gameinformation.G_PRICE.getNev(), Category.CA_NAME.getNev()).from(Purchasegame.class)
+				.join(Gameinformation.G_NO.getNev()) .join(Category.class, Gameinformation.class, "ca_no")
+				.where(Purchasegame.U_NO.eq(data.getU_no()))
+				.push();
 		for(int i = 0; i < list.size(); i++) {
-			Data data = list.get(i);
+			Tuple data = list.get(i);
 			JPanel p = new JPanel(new BorderLayout(10, 10));
 			p.setBackground(Color.white);
 			p.setBorder(createLineBorder(Color.black));
 			p.setPreferredSize(new Dimension(0, 100));
 			
-			p.add(new JLabel(getter.getImage("gameimage/" + data.getInt(0) + ".jpg", 100, 100)), BorderLayout.WEST);
+			p.add(new JLabel(getter.getImage("gameimage/" + data.get("g_no") + ".jpg", 100, 100)), BorderLayout.WEST);
 			
 			JPanel inforPanel = new JPanel(new GridLayout(3, 1));
 			inforPanel.setBackground(Color.white);
 			inforPanel.setBorder(createEmptyBorder(0, 0, 40, 0));
 			
 			inforPanel.add(new JLabel("이름 : " + data.get(1)));
-			inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.getInt(2)) + "포인트") {{ setForeground(Color.red); }});
+			inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.get("g_price")) + "포인트") {{ setForeground(Color.red); }});
 			inforPanel.add(new JLabel("카테고리 : " + data.get(3)));
 			
 			p.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					dispose();
-					new GameInfor(data.getInt(0));
+					new GameInfor(data.getInt("g_no"));
 				}
 			});
 			
@@ -125,14 +133,13 @@ public class MyHome extends CFrame{
 		m.setEnabled(true);
 		m.setInitialDelay(100);
 		
-		//SELECT c_no, c_content FROM game_site.comments where u_no = 1;
 		JPanel panel = new JPanel(new BorderLayout(5,5));
 		panel.setBackground(Color.white);
 		
 		JPanel gridPanel = new JPanel(new GridLayout(0, 1, 5, 5));
 		gridPanel.setBackground(Color.white);
 		
-		List<Data> list = Connections.select("SELECT c_no, c_content, g_no FROM game_site.comments where u_no = ?;", data.get(0));
+		List<Data> list = Entity2.select(Comments.C_NO.getNev(), Comments.C_CONTENT.getNev(), Comments.G_NO.getNev()).from(Comments.class).where(Comments.U_NO.eq(data.getU_no())).toList();
 		for(int i = 0; i < list.size(); i++) {
 			bool.add(false);
 			Data data = list.get(i);
@@ -172,13 +179,16 @@ public class MyHome extends CFrame{
 			inforPanel.add(new JLabel("-> " + str) {{
 				setForeground(Color.red);
 			}});
-			inforPanel.add(new JLabel("작성자 : " + this.data.get(2)));
+			inforPanel.add(new JLabel("작성자 : " + this.data.getU_id()));
 			
 			p.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(isInPoint(e.getPoint())) {
-						Connections.update("delete from comments where c_no = ?", data.get(0));
+						Comments c = new Comments();
+						c.setC_no(data.getInt(0));
+						c.delete();
+						
 						setEPanel(southPanel);
 						return;
 					}
@@ -211,11 +221,11 @@ public class MyHome extends CFrame{
 	}
 
 	private boolean isInPoint(Point p) {
-		if(data.getInt(0) != UserU.getUser().getInt(0)) return false;
+		if(data.getU_no() != user.getU_no()) return false;
 		return p.x >= 0 && p.x <= 15 && p.y >= 0 && p.y <= 15;
 	}
 	private void setBool(int i, boolean b) {
-		if(data.getInt(0) != UserU.getUser().getInt(0)) return;
+		if(data.getU_no() != user.getU_no()) return;
 		bool.set(i, b);
 		revalidate();
 		repaint();
@@ -225,7 +235,7 @@ public class MyHome extends CFrame{
 		panel.setBackground(Color.white);
 		panel.setBorder(createLineBorder(Color.black));
 		
-		panel.add(new JLabel(getter.getImage("userimage/" + data.get(0) + ".jpg", 200, 200)), BorderLayout.WEST);
+		panel.add(new JLabel(getter.getImage("userimage/" + data.getU_no() + ".jpg", 200, 200)), BorderLayout.WEST);
 		
 		JPanel gridPanel = new JPanel(new GridLayout(3, 1));
 		gridPanel.setBackground(Color.white);
@@ -234,15 +244,15 @@ public class MyHome extends CFrame{
 		
 		JPanel pointPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		pointPanel.setBackground(Color.white);
-		pointPanel.add(new JLabel("포인트 : " + data.get(6)) {{
+		pointPanel.add(new JLabel("포인트 : " + data.getU_price()) {{
 			setPreferredSize(new Dimension(200, 40));
 		}});
-		if(data.getInt(0) == UserU.getUser().getInt(0)) {
+		if(data.getU_no() ==  user.getU_no()) {
 			pointPanel.add(pointBuy);
 		}
 		
-		gridPanel.add(new JLabel("이름 : " + data.get(1)));
-		gridPanel.add(new JLabel("생년월일 : " + data.get(5)));
+		gridPanel.add(new JLabel("이름 : " + data.getU_name()));
+		gridPanel.add(new JLabel("생년월일 : " + data.getU_bd()));
 		gridPanel.add(pointPanel);
 		
 		
@@ -257,9 +267,9 @@ public class MyHome extends CFrame{
 		
 		JLabel l = new JLabel("", JLabel.CENTER);
 		l.setFont(font);
-		if(uno != UserU.getUser().getInt(0)) {
-			data = Connections.select("select * from user where u_no = ?", uno).get(0);
-			l.setText(data.get(2).toString() + "홈");
+		if(uno !=  user.getU_no()) {
+			data = Entity.findByIds(User.class, uno);
+			l.setText(data.getU_id().toString() + "홈");
 		}else {
 			l.setText("마이홈");
 			data = UserU.getUser();
@@ -272,6 +282,6 @@ public class MyHome extends CFrame{
 	}
 
 	public static void main(String[] args) {
-		new MyHome(1);
+		new MyHome(4);
 	}
 }

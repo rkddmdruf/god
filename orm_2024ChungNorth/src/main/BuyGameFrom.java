@@ -11,23 +11,23 @@ import java.awt.event.MouseEvent;
 import static javax.swing.BorderFactory.*;
 import javax.swing.*;
 
-import utils.CFrame;
-import utils.Connections;
-import utils.Data;
-import utils.getter;
+import orm.*;
+import ormDb.*;
+import utils.*;
 
 public class BuyGameFrom extends CFrame{
 
 	public BuyGameFrom(int g_no) {
-		Data data = Connections.select("SELECT gameinformation.g_no, g_name, ca_name, g_price, avg(c_star) FROM game_site.gameinformation\r\n"
-				+ "join category on category.ca_no = gameinformation.ca_no join comments on comments.g_no = gameinformation.g_no\r\n"
-				+ "where gameinformation.g_no = ? group by comments.g_no", g_no).get(0);
+		Tuple data = Entity2.select(Gameinformation.class, Category.CA_NAME.getNev(), Nev.avg(Comments.C_STAR.getNev(), "a")).from(Gameinformation.class)
+				.join(Category.CA_NO.getNev(), Comments.G_NO.getNev())
+				.where(Gameinformation.G_NO.eq(g_no)) .group(Comments.G_NO.getNev())
+				.push().get(0);
 		JPanel p = new JPanel(new BorderLayout(10, 10));
 		p.setBackground(Color.white);
 		p.setPreferredSize(new Dimension(150, 150));
 		p.setBorder(createLineBorder(Color.black));
 		
-		p.add(new JLabel(getter.getImage("gameimage/" + data.getInt(0) + ".jpg", 150, 150)) {{
+		p.add(new JLabel(getter.getImage("gameimage/" + data.getInt(Gameinformation.G_NO.getName()) + ".jpg", 150, 150)) {{
 			setPreferredSize(new Dimension(150, 150));
 		}}, BorderLayout.WEST);
 		
@@ -35,10 +35,10 @@ public class BuyGameFrom extends CFrame{
 		JPanel inforPanel = new JPanel(new GridLayout(4, 1, 10, 10));
 		inforPanel.setBackground(Color.white);
 		
-		inforPanel.add(new JLabel("게임명 : " + data.get(1)));
-		inforPanel.add(new JLabel("카테고리 : " + data.get(2)));
-		inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.getInt(3)) + "포인트"));
-		inforPanel.add(new JLabel("평점 : " + data.get(4).toString().substring(0, 3) + "점"));
+		inforPanel.add(new JLabel("게임명 : " + data.get(Gameinformation.G_NAME.getName())));
+		inforPanel.add(new JLabel("카테고리 : " + data.get(Category.CA_NAME.getName())));
+		inforPanel.add(new JLabel("포인트 : " + getter.df.format(data.getInt(Gameinformation.G_PRICE.getName())) + "포인트"));
+		inforPanel.add(new JLabel("평점 : " + data.getString("a").substring(0, 3) + "점"));
 		
 		p.add(inforPanel);
 		add(p, BorderLayout.NORTH);
@@ -47,7 +47,7 @@ public class BuyGameFrom extends CFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				dispose();
-				new GameInfor(data.getInt(0));
+				new GameInfor(data.getInt(Gameinformation.G_NO.getName()));
 			}
 		});
 		setFrame("구매한 게임", 550, 450);

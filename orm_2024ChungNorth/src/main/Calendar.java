@@ -17,6 +17,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import orm.*;
+import ormDb.*;
 
 import static javax.swing.BorderFactory.*;
 
@@ -31,13 +33,14 @@ public class Calendar extends CFrame{
 		}
 	}};
 	
-	Data user = UserU.getUser();
-	List<Data> list = Connections.select("SELECT gameinformation.g_no, g_name, p_birth FROM game_site.purchasegame \r\n"
-			+ "join gameinformation on gameinformation.g_no = purchasegame.g_no\r\n"
-			+ "where u_no = ? order by p_birth desc;", user.get(0));
+	User user = UserU.getUser();
+	List<Tuple> list = Entity2.select(Gameinformation.class, Purchasegame.P_BIRTH.getNev()).from(Purchasegame.class)
+			.join(Gameinformation.G_NO.getNev())
+			.where(Purchasegame.U_NO.eq(user.getU_no())).order(Nev.orderGet(Purchasegame.P_BIRTH.getNev(), false))
+			.push();
 	
 	
-	int Moment = LocalDate.parse(list.get(0).get(2).toString()).getMonthValue();
+	int Moment = LocalDate.parse(list.get(0).getString(Purchasegame.P_BIRTH.getName())).getMonthValue();
 	
 	LocalDate setDate = null;
 	
@@ -65,7 +68,7 @@ public class Calendar extends CFrame{
 		setBackground(Color.white);
 	}};
 	public Calendar() {
-		year.setSelectedIndex(LocalDate.parse(list.get(0).get(2).toString()).getYear() - 1990);
+		year.setSelectedIndex(LocalDate.parse(list.get(0).get(Purchasegame.P_BIRTH.getName()).toString()).getYear() - 1990);
 		setDate = LocalDate.of(year.getSelectedIndex() + 1990, Moment, 1);
 		UIManager.put("Label.font", font.deriveFont(17f));
 		
@@ -152,7 +155,7 @@ public class Calendar extends CFrame{
 			if(date.getDayOfWeek().getValue() == 6) l.setForeground(Color.blue);
 			if(date.getDayOfWeek().getValue() == 7) l.setForeground(Color.red);
 			for(int s = 0; s < list.size(); s++) {
-				if(date.isEqual(LocalDate.parse(list.get(s).get(2).toString()))) {
+				if(date.isEqual(LocalDate.parse(list.get(s).get(Purchasegame.P_BIRTH.getName()).toString()))) {
 					l = new JLabel(i + "", JLabel.CENTER) {
 						@Override
 						protected void paintComponent(Graphics g) {
@@ -161,7 +164,7 @@ public class Calendar extends CFrame{
 							super.paintComponent(g);
 						}
 					};
-					l.setToolTipText(list.get(i).get(1).toString());
+					l.setToolTipText(list.get(i).get(Gameinformation.G_NAME.getName()).toString());
 					l.setForeground(Color.white);
 				}
 			}
@@ -171,13 +174,12 @@ public class Calendar extends CFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(label.getForeground() != Color.white) {
-						UIManager.put("OptionPane.messageFont", font.deriveFont(13f));
 						getter.mg("해당 날짜에는 구매한 게임이 없습니다.", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					for(int i = 0; i < list.size(); i++) {
-						if(LocalDate.parse(list.get(i).get(2).toString()).isEqual(date)) {
-							new BuyGameFrom(list.get(i).getInt(0));
+						if(LocalDate.parse(list.get(i).getString(Purchasegame.P_BIRTH.getName())).isEqual(date)) {
+							new BuyGameFrom(list.get(i).getInt(Gameinformation.G_NO.getName()));
 							dispose();
 							return;
 						}

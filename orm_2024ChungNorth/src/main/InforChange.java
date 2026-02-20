@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import static javax.swing.BorderFactory.*;
 import javax.swing.*;
 
-import realOrm.*;
-import realOrm.Db.*;
+import orm.*;
+import ormDb.*;
 import utils.*;
 
 public class InforChange extends CFrame{

@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+
+import orm.*;
+import ormDb.*;
+
 import static javax.swing.BorderFactory.*;
 
 import utils.*;
@@ -29,7 +33,7 @@ public class Charge extends CFrame{
 	String[] name = ",초,울트라,울트라슈퍼,레전드".split(",");
 	int[] point = {5, 10, 15, 20, 25};
 	JLabel pointLabel = new JLabel("충전 포인트 : +0");
-	Data user = UserU.getUser();
+	User user = UserU.getUser();
 	
 	int price = 0;
 	public Charge() {
@@ -60,7 +64,9 @@ public class Charge extends CFrame{
 				getter.mg("결제할 금액을 선택해주세요", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			Connections.update("update user set u_price = ? where u_no = ?", user.getInt(6) + price,user.get(0));
+			user.setU_price(user.getU_price() + price);
+			user.update();
+			
 			getter.mg("충전이 완료되었습니다.", JOptionPane.INFORMATION_MESSAGE);
 			new Main();
 			dispose();
@@ -97,7 +103,7 @@ public class Charge extends CFrame{
 		JPanel gridPanel = new JPanel(new GridLayout(3, 1, 5, 5));
 		gridPanel.setBackground(Color.white);
 		
-		gridPanel.add(new JLabel("충전할 아이디 : " + user.get(2)));
+		gridPanel.add(new JLabel("충전할 아이디 : " + user.getU_id()));
 		pointLabel.setFont(new JLabel().getFont());
 		gridPanel.add(pointLabel);
 		gridPanel.add(charge);

@@ -1,6 +1,10 @@
 package main;
 
 import javax.swing.*;
+
+import orm.*;
+import ormDb.*;
+
 import static javax.swing.BorderFactory.*;
 
 import java.awt.BorderLayout;
@@ -19,11 +23,11 @@ public class PayMent extends CFrame{
 		setBorder(createEmptyBorder(0,10,15,10));
 		setBackground(Color.white);
 	}};
-	Data user = UserU.getUser();
+	User user = UserU.getUser();
 	
 	List<Data> list = Connections.select("SELECT p_no, g_name, g_price FROM game_site.shoppingbasket \r\n"
 			+ "join gameinformation on gameinformation.g_no = shoppingbasket.g_no\r\n"
-			+ "where u_no = ?;", user.get(0));
+			+ "where u_no = ?;", user.getU_no());
 	int price = 0;
 	JButton buy = new JButtonC("결제하기");
 	JButton close = new JButtonC("취소");
@@ -41,8 +45,8 @@ public class PayMent extends CFrame{
 			new Basket();
 		});
 		buy.addActionListener(e->{
-			getter.mg("결제가 완료되었습니다.\n보유금액 -> " + (user.getInt(6) - price), JOptionPane.INFORMATION_MESSAGE);
-			Connections.update("update user set u_price = ? where u_no = ?", user.getInt(6) - price, user.get(0));
+			getter.mg("결제가 완료되었습니다.\n보유금액 -> " + (user.getU_price() - price), JOptionPane.INFORMATION_MESSAGE);
+			Connections.update("update user set u_price = ? where u_no = ?", user.getU_price() - price, user.getU_no());
 			new Main();
 			dispose();
 		});
@@ -97,9 +101,9 @@ public class PayMent extends CFrame{
 		p.setBorder(createMatteBorder(1,0,1,0, Color.black));
 		
 		p.add(new JLabel("구매자 :"));
-		p.add(new JLabel(user.get(1).toString(), JLabel.RIGHT));
+		p.add(new JLabel(user.getU_name().toString(), JLabel.RIGHT));
 		p.add(new JLabel("아이디 :"));
-		p.add(new JLabel(user.get(2).toString(), JLabel.RIGHT));
+		p.add(new JLabel(user.getU_id().toString(), JLabel.RIGHT));
 		p.add(new JLabel("구매일 :"));
 		p.add(new JLabel(LocalDate.now().toString(), JLabel.RIGHT));
 		

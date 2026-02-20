@@ -2,10 +2,10 @@ package main;
 
 import javax.swing.*;
 
-import realOrm.*;
+import orm.*;
+import ormDb.*;
 
 import static javax.swing.BorderFactory.*;
-import realOrm.Db.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -17,8 +17,8 @@ import java.util.List;
 
 import javax.swing.*;
 
-import realOrm.*;
-import realOrm.Db.*;
+import orm.*;
+import ormDb.*;
 
 import static javax.swing.BorderFactory.*;
 
@@ -88,22 +88,16 @@ public class Main extends CFrame{
 		nullPanel.setBorder(createLineBorder(Color.black));
 		nullPanel.setBackground(Color.white);
 		
-		/*List<Data> list = Connections.select("SELECT gameinformation.*, count(purchasegame.g_no) as c FROM game_site.purchasegame\r\n"
-				+ "join gameinformation on gameinformation.g_no = purchasegame.g_no\r\n"
-				+ " group by purchasegame.g_no order by c desc, purchasegame.g_no limit 5;");*/
-		
-		List<Tuple> list1 = Entity2.select(Gameinformation.class, Nev.count(Purchasegame.G_NO.getNev(), "c"))
+		Entity2 e = Entity2.select(Gameinformation.class, Nev.count(Purchasegame.G_NO.getNev(), "c"))
 				.from(Purchasegame.class) .join(Gameinformation.G_NO.getNev()) .group(Purchasegame.G_NO.getNev())
 				.order(Nev.orderGet("c", false), Nev.orderGet(Purchasegame.G_NO.getNev(), true))
-				.limit(5) .push();
+				.limit(5);
 		
-		List<Data> list = Entity2.select(Gameinformation.class, Nev.count(Purchasegame.G_NO.getNev(), "c"))
-				.from(Purchasegame.class) .join(Gameinformation.G_NO.getNev()) .group(Purchasegame.G_NO.getNev())
-				.order(Nev.orderGet("c", false), Nev.orderGet(Purchasegame.G_NO.getNev(), true))
-				.limit(5) .toList();
+		List<Tuple> list = e.push();
 		
 		for(int i = 0; i < list.size(); i++) {
-			Data data = list.get(i);
+			Tuple data = list.get(i);
+			//Data data = list.get(i);
 			
 			JPanel p = new JPanel(new BorderLayout(0, 0));
 			p.setBackground(Color.white);
@@ -112,14 +106,14 @@ public class Main extends CFrame{
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
-					g.drawImage(new ImageIcon("datafiles/gameimage/" + data.getInt(0) + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
+					g.drawImage(new ImageIcon("datafiles/gameimage/" + data.get("g_no") + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
 				}
 			});
-			JLabel name = new JLabel(" " + data.get(1).toString()) {
+			JLabel name = new JLabel(" " + data.get(Gameinformation.G_NAME.getName()).toString()) {
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
-					if(data.getInt(5) == 1)
+					if(data.getInt(Gameinformation.G_LIMIT.getName()) == 1)
 						g.drawImage(new ImageIcon("datafiles/19세 마크.png").getImage(), getWidth() - 40, (getHeight()-25) / 2, 25, 25, null);
 				}
 			};
@@ -147,8 +141,8 @@ public class Main extends CFrame{
 					revalidate();
 					repaint();
 				}
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
+			} catch (Exception e2) {
+				System.out.println(e2.getMessage());
 			}
 		});
 		thread.start();
@@ -202,23 +196,15 @@ public class Main extends CFrame{
 		JPanel panel = new JPanel(new BorderLayout(7,7));
 		panel.setBackground(Color.white);
 		
-		
-		/*List<Data> list = Connections.select("SELECT gameinformation.*, avg(c_star) as a FROM game_site.comments \r\n"
-				+ "join gameinformation on gameinformation.g_no = comments.g_no\r\n"
-				+ "group by gameinformation.g_no order by a desc, gameinformation.g_no limit 5;");*/
-		
-		List<Data> list = Entity2.select(Gameinformation.class, Nev.avg(Comments.C_STAR.getNev(), "a")).from(Comments.class)
-				.join(Gameinformation.G_NO.getNev())
-				.group(Gameinformation.G_NO.getNev())
-				.order(Nev.orderGet("a", false))
-				.limit(5)
-				.toList();
+		List<Tuple> list = Entity2.select(Gameinformation.class, Nev.avg(Comments.C_STAR.getNev(), "a")).from(Comments.class)
+				.join(Gameinformation.G_NO.getNev()) .group(Gameinformation.G_NO.getNev()) .order(Nev.orderGet("a", false))
+				.limit(5) .push();
 		
 		JPanel gridPanel = new JPanel(new GridLayout(0, 2, 3, 3));
 		gridPanel.setBackground(Color.white);
 		
 		for(int i = 0; i < list.size(); i++) {
-			Data data = list.get(i);
+			Tuple data = list.get(i);
 			JPanel p = new JPanel(new BorderLayout());
 			p.setBackground(Color.white);
 			p.setBorder(createLineBorder(Color.black));
@@ -227,8 +213,8 @@ public class Main extends CFrame{
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
-					g.drawImage(new ImageIcon("datafiles/gameImage/" + data.getInt(0) + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
-					if(data.getInt(5) != 1) return;
+					g.drawImage(new ImageIcon("datafiles/gameImage/" + data.getInt("g_no") + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
+					if(data.getInt(Gameinformation.G_LIMIT.getName()) != 1) return;
 					g.drawImage(new ImageIcon("datafiles/19세 마크.png").getImage(), 5, 5, 20, 20, null);
 				}
 			};
@@ -237,10 +223,10 @@ public class Main extends CFrame{
 			inforPanel.setBackground(Color.white);
 			
 			inforPanel.setBorder(createEmptyBorder(7,0,7,0));
-			inforPanel.add(new JLabel("포인트 : " + data.getInt(2)));
-			inforPanel.add(new JLabel("별점 : " + data.get(data.size() - 1).toString().substring(0, 3)));
-			//String can = Connections.select("SELECT ca_name FROM game_site.category where ca_no = ?;", data.get(4)).get(0).get(0).toString();
-			String can = Entity.where(Category.class, Category.CA_NO.eq(data.get(4))).get(0).getCa_name().toString();
+			inforPanel.add(new JLabel("포인트 : " + data.getInt(Gameinformation.G_PRICE.getName())));
+			inforPanel.add(new JLabel("별점 : " + data.get("a").toString().substring(0, 3)));
+			String can = Entity.findByIds(Category.class, data.get(Gameinformation.CA_NO.getName())).getCa_name();
+			
 			inforPanel.add(new JLabel("카테고리 : " + can));
 			
 			reviewGame.add(img);
@@ -264,12 +250,14 @@ public class Main extends CFrame{
 			setFont(font.deriveFont(22f));
 		}}, BorderLayout.NORTH);
 		
-		//List<Data> list = Connections.select("SELECT * FROM game_site.gameinformation order by g_birth desc, g_no limit 5;");
-		List<Data> list = Entity2.select(Gameinformation.class).from(Gameinformation.class).order(Nev.orderGet(Gameinformation.G_BIRTH.getNev(), false)).limit(5).toList();
+		//select * from gameinformation order by gameinformation.g_birth desc limit 5
+		List<Tuple> list = Entity2.select(Gameinformation.class).from(Gameinformation.class)
+				.order(Nev.orderGet(Gameinformation.G_BIRTH.getNev(), false)).limit(5).push();
+		
 		JPanel gridPanel = new JPanel(new GridLayout(0, 2, 3, 3));
 		gridPanel.setBackground(Color.white);
 		for(int i = 0; i < list.size(); i++) {
-			Data data = list.get(i);
+			Tuple data = list.get(i);
 			JPanel p = new JPanel(new BorderLayout());
 			p.setBackground(Color.white);
 			p.setBorder(createLineBorder(Color.black));
@@ -278,8 +266,8 @@ public class Main extends CFrame{
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
-					g.drawImage(new ImageIcon("datafiles/gameImage/" + data.getInt(0) + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
-					if(data.getInt(5) != 1) return;
+					g.drawImage(new ImageIcon("datafiles/gameImage/" + data.get("g_no") + ".jpg").getImage(), 0, 0, getWidth(), getHeight(), null);
+					if(data.getInt(Gameinformation.G_LIMIT.getName()) != 1) return;
 					g.drawImage(new ImageIcon("datafiles/19세 마크.png").getImage(), 5, 5, 20, 20, null);
 				}
 			};
@@ -289,8 +277,8 @@ public class Main extends CFrame{
 			inforPanel.setBackground(Color.white);
 			
 			inforPanel.setBorder(createEmptyBorder(7,0,-7,0));
-			inforPanel.add(new JLabel("포인트 : " + data.getInt(2)));
-			String can = Entity.where(Category.class, Category.CA_NO.eq(data.get(4))).get(0).getCa_name().toString();
+			inforPanel.add(new JLabel("포인트 : " + data.getInt(Gameinformation.G_PRICE.getName())));
+			String can = Entity.findByIds(Category.class, data.get(Gameinformation.CA_NO.getName())).getCa_name();
 			inforPanel.add(new JLabel("카테고리 : " + can));
 			
 			firstGame.add(img);

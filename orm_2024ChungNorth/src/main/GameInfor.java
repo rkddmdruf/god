@@ -2,8 +2,8 @@ package main;
 
 import javax.swing.*;
 
-import realOrm.*;
-import realOrm.Db.*;
+import orm.*;
+import ormDb.*;
 
 import static javax.swing.BorderFactory.*;
 
@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import utils.*;
 
@@ -101,17 +102,10 @@ public class GameInfor extends CFrame{
 		die.addActionListener(ac);
 		
 		buy.addActionListener(e->{
-			List<Data> isBuyGame = Connections.select("SELECT * FROM game_site.purchasegame where u_no = ? and g_no = ?;", user.getU_no(), game.get(0));
-			if(isBuyGame.isEmpty()) {
-				getter.mg("구매가 완료되었습니다.", JOptionPane.INFORMATION_MESSAGE);
-				user.setU_price(user.getU_price() - game.getInt(2));
-				Connections.update("update user set u_price = ? where u_no = ?;", user.getU_price(), user.getU_no());
-				Connections.update("insert into purchasegame values(0, ?, ?, ?)", user.getU_no(), game.get(0), LocalDate.now());
-				UserU.setUser(user);
-				
-			}else {
-				getter.mg("이미 구매한 게임입니다.", JOptionPane.ERROR_MESSAGE);
-			}
+			List<Data> isBuyGame = Entity2.select(Purchasegame.class) .from(Purchasegame.class)
+					.where(Purchasegame.U_NO.eq(user.getU_no()), Purchasegame.G_NO.eq(game.get(0)))
+					.toList();
+			
 			if(user.getU_price() < game.getInt(2) && isBuyGame.isEmpty()) {
 				int result = JOptionPane.showConfirmDialog(null, "포인트가 부족합니다. 충전하시겠습니다?.", "충전 필요", JOptionPane.YES_NO_OPTION);
 				if(result == JOptionPane.YES_OPTION) {
@@ -120,6 +114,24 @@ public class GameInfor extends CFrame{
 				}
 				return;
 			}
+			
+			if(isBuyGame.isEmpty()) {
+				getter.mg("구매가 완료되었습니다.", JOptionPane.INFORMATION_MESSAGE);
+				user.setU_price(user.getU_price() - game.getInt(2));
+				user.update();
+				
+				Purchasegame pu = new Purchasegame();
+				pu.setP_no(0);
+				pu.setU_no(user.getU_no());
+				pu.setG_no(game.getInt(0));
+				pu.setP_birth(LocalDate.now());
+				pu.insert();
+				
+				UserU.setUser(user);
+			}else {
+				getter.mg("이미 구매한 게임입니다.", JOptionPane.ERROR_MESSAGE);
+			}
+			
 			setReviewInsertPanel();
 			buy.setEnabled(false);
 			basket.setEnabled(false);
@@ -128,10 +140,19 @@ public class GameInfor extends CFrame{
 		});
 		
 		basket.addActionListener(e->{
-			List<Data> list = Connections.select("SELECT * FROM game_site.shoppingbasket where u_no = ? and g_no = ?;", user.getU_no(), game.get(0));
+			List<Data> list = Entity2.select(Shoppingbasket.class).from(Shoppingbasket.class)
+					.where(Shoppingbasket.U_NO.eq(user.getU_no()), Shoppingbasket.G_NO.eq(game.get(0)))
+					.toList();
+			
 			if(list.isEmpty()) {
 				getter.mg("장바구니에 추가되었습니다.", JOptionPane.INFORMATION_MESSAGE);
-				Connections.update("insert into shoppingbasket values(0, ?, ?)", game.get(0), user.getU_no());
+				Shoppingbasket shopping = new Shoppingbasket();
+				shopping.setP_no(0);
+				shopping.setG_no(game.getInt(0));
+				shopping.setU_no(user.getU_no());
+				
+				shopping.insert();
+				
 				return;
 			}else {
 				getter.mg("이미 장바구니에 있는 게임입니다.", JOptionPane.ERROR_MESSAGE);
@@ -141,11 +162,20 @@ public class GameInfor extends CFrame{
 	
 	private void setReviews() {
 		reviewGridPanel.removeAll();
-		String qurey = "SELECT user.u_no, u_id, c_content, c_no FROM game_site.comments\r\n"
-				+ " join user on user.u_no = comments.u_no\r\n"
-				+ " where g_no = ? and c_star " + but + " 3";
+		
+		Equalz e = Comments.C_STAR;
+		
+		Nev n = null;
+		if(but.equals("<")) n = e.small(3);
+		else if(but.equals(">=")) n = e.bigEq(3);
+		else n = e.bigEq(0);
+		
+		Entity2 e2 = Entity2.select(User.U_NO.getNev(), user.U_ID.getNev(), Comments.C_CONTENT.getNev(), "c_no").from(Comments.class)
+				.join(User.U_NO.getNev())
+				.where(Comments.G_NO.eq(game.get(0)), n);
+		
 		List<JPanel> 댓list = new ArrayList<>();
-		List<Data> list = Connections.select(qurey, game.get(0));
+		List<Data> list = e2.toList();
 		reviewGridPanel.setLayout(new GridLayout(list.size() <= 1 ? 2 : list.size(), 1, 3, 3));
 		for(int i = 0; i < list.size(); i++) {
 			Data data = list.get(i);
@@ -189,7 +219,9 @@ public class GameInfor extends CFrame{
 						int re = JOptionPane.showConfirmDialog(null, "댓글을 삭제하시겠습니까?", "댓글 삭제", JOptionPane.YES_NO_OPTION);
 						if(re == JOptionPane.YES_OPTION) {
 							getter.mg("삭제되었습니다.", JOptionPane.INFORMATION_MESSAGE);
-							Connections.update("delete from comments where c_no = ?", data.get(3));
+							Comments c = new Comments();
+							c.setC_no(data.getInt(3));
+							c.delete();
 							setReviews();
 						}
 						return;
@@ -318,7 +350,13 @@ public class GameInfor extends CFrame{
 				return;
 			}
 			getter.mg("댓글이 등록되었습니다.", JOptionPane.INFORMATION_MESSAGE);
-			Connections.update("insert into comments values(0, ?, ?, ?, ?);", user.getU_no(), game.get(0), star + 1, reviewTextArea.getText());
+			Comments c = new Comments();
+			c.setC_no(0);
+			c.setU_no(user.getU_no());
+			c.setG_no(game.getInt(0));
+			c.setC_star(star + 1);
+			c.setC_content(reviewTextArea.getText());
+			
 			star = -1;
 			for(int i = 0; i < starList.size(); i++)
 				starList.get(i).setIcon(getter.getImage("별공백.png", 25, 25));
