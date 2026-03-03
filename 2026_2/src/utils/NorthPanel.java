@@ -13,10 +13,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+
+import main.Search;
 
 public class NorthPanel extends JPanel{
 	public static String text = "";
@@ -33,20 +37,19 @@ public class NorthPanel extends JPanel{
 		setFont(f);
 	}};
 	public static int vera = JLabel.BOTTOM;
-	public NorthPanel() {
-		MouseAdapter ma = new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if(User.getUser() == null) {
-					
-					return;
-				}
-			}
-		};
+	JFrame frame;
+	public NorthPanel(JFrame f) {
+		frame = f;
 		serch.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				text = tf.getText();
+				if(Connections.select("SELECT * FROM lecture.certi where cname like ?;", "%" + text + "%").isEmpty()) {
+					getter.mg("해당하는 자격증이 존재하지 않습니다.", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new Search(-1, text);
+				f.dispose();
 			}
 		});
 		setLayout(new BorderLayout(15, 15));
