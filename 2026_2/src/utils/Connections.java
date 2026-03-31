@@ -33,7 +33,7 @@ public class Connections {
 			while (re.next()) {
 				Data data = new Data();
 				for(int i = 0; i < re.getMetaData().getColumnCount(); i++) {
-					data.add(re.getObject(++i));
+					data.add(re.getObject(i + 1));
 				}
 				list.add(data);
 			}

@@ -32,6 +32,7 @@ public class NorthPanel extends JPanel{
 	JLabel l2 = new JLabel("시험 일정", JLabel.CENTER) {{
 		setFont(f);
 	}};
+	public static int vera = JLabel.BOTTOM;
 	public NorthPanel() {
 		MouseAdapter ma = new MouseAdapter() {
 			@Override
@@ -76,7 +77,7 @@ public class NorthPanel extends JPanel{
 		mainPanel.add(new JLabel(getter.getImageIcon("datafiles/icon/logo.png", 40, 40)));
 		mainPanel.add(new JLabel("Skills Qualification Association") {{
 			setPreferredSize(new Dimension(190, 40));
-			setVerticalAlignment(JLabel.BOTTOM);
+			setVerticalAlignment(vera);
 			setFont(new Font("맑은 고딕", 0, 13));
 		}});
 		mainPanel.add(tfPanel);
@@ -85,9 +86,8 @@ public class NorthPanel extends JPanel{
 		add(mainPanel, BorderLayout.NORTH);
 		add(new JPanel(new GridLayout(0, 2, 0, 0)) {{
 			setBackground(Color.white);
-			
-			add(new JPanel() {{ add(l1); }});
-			add(new JPanel() {{ add(l2); }});
+			add(new JPanel() {{ add(l1); setBackground(Color.white); }});
+			add(new JPanel() {{ add(l2); setBackground(Color.white); }});
 		}});
 		
 	}

@@ -1,7 +1,7 @@
 package utils;
 
 public class User {
-	public static Data user;
+	public static Data user = Connections.select("select * from user").get(0);
 	public static boolean admin;
 	
 	public static void setUser(Data data) {
