@@ -26,8 +26,8 @@ public class NorthPanel extends JPanel{
 	public static String text = "";
 	Font f = new Font("맑은 고딕", 1, 10);
 	
-	JTextField tf = new JTextField();
-	JLabel serch = new JLabel(getter.getImageIcon("datafiles/icon/search.png", 30, 30));
+	public JTextField tf = new JTextField();
+	public JLabel serch = new JLabel(getter.getImageIcon("datafiles/icon/search.png", 30, 30));
 	
 	JLabel l1 = new JLabel("자격증 목록", JLabel.CENTER) {{
 		setFont(f);
@@ -40,18 +40,7 @@ public class NorthPanel extends JPanel{
 	JFrame frame;
 	public NorthPanel(JFrame f) {
 		frame = f;
-		serch.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				text = tf.getText();
-				if(Connections.select("SELECT * FROM lecture.certi where cname like ?;", "%" + text + "%").isEmpty()) {
-					getter.mg("해당하는 자격증이 존재하지 않습니다.", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				new Search(-1, text);
-				f.dispose();
-			}
-		});
+		serchAction();
 		setLayout(new BorderLayout(15, 15));
 		setBackground(Color.white);
 		
@@ -93,5 +82,20 @@ public class NorthPanel extends JPanel{
 			add(new JPanel() {{ add(l2); setBackground(Color.white); }});
 		}});
 		
+	}
+	
+	public void serchAction() {
+		serch.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				text = tf.getText();
+				if(Connections.select("SELECT * FROM lecture.certi where cname like ?;", "%" + text + "%").isEmpty()) {
+					getter.mg("해당하는 자격증이 존재하지 않습니다.", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new Search(-1, text);
+				frame.dispose();
+			}
+		});
 	}
 }

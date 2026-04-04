@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,11 +48,24 @@ public class Search extends CFrame{
 	List<JButton> butList = new ArrayList<>();
 	int selectCategory;
 	String name;
-	public Search(int selectCategory, String name) {
-		this.selectCategory = selectCategory;
-		this.name = name;
+	public Search(int selectCategorys, String names) {
+		this.selectCategory = selectCategorys;
+		this.name = names;
 		NorthPanel.vera = JLabel.CENTER;
-		borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
+		borderPanel.add(new NorthPanel(this) {
+			@Override
+			public void serchAction() {
+				serch.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						text = tf.getText();
+						name = text;
+						selectCategory = -1;
+						setButColor();
+					}
+				});
+			}
+		}, BorderLayout.NORTH);
 		setCategoryPanel();
 		mainPanel.add(sc);
 		borderPanel.add(mainPanel);
@@ -150,7 +165,7 @@ public class Search extends CFrame{
 			JPanel butPanel = new JPanel(new GridLayout(2, 1, 10, 10));
 			butPanel.setBorder(createEmptyBorder(65, 0, 65, 0));
 			butPanel.setBackground(Color.white);
-			butPanel.add(new RoundedButton("과목 선택하기") {{
+			butPanel.add(new RoundedButton("과목 선택하기") {{//Action넣기
 				setForeground(Color.white);
 				setBackground(Color.blue);
 			}});
@@ -170,6 +185,10 @@ public class Search extends CFrame{
 			p.add(img, BorderLayout.WEST);
 			p.add(inforPanel);
 			scPanel.add(p);
+		}
+		
+		for(int i = 0; i < 3 - list.size(); i++) {
+			scPanel.add(new JLabel(""));
 		}
 		revalidate();
 		repaint();

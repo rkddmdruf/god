@@ -39,7 +39,9 @@ public class Main extends CFrame{
 	public Main() { 
 		NorthPanel.vera = JLabel.BOTTOM;
 		ToolTipManager.sharedInstance().setInitialDelay(1000);
-		borderPanel.add(new NorthPanel(this), BorderLayout.NORTH);
+		borderPanel.add(new NorthPanel(this) {
+			
+		}, BorderLayout.NORTH);
 		setMainPanel();
 		addWindowListener(new WindowAdapter() {
 			@Override

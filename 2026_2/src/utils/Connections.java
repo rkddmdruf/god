@@ -11,7 +11,7 @@ import java.util.List;
 public class Connections {
 
 	private static Connection getCon() throws SQLException {
-		return DriverManager.getConnection("jdbc:mysql://localhost/lecture?serverTimezone=UTC", "root", "1234");
+		return DriverManager.getConnection("jdbc:mysql://localhost/lecture?serverTimezone=Asia/Seoul", "root", "1234");
 	}
 
 	private static PreparedStatement setPs(Connection c, String string, Object... val) throws SQLException {
