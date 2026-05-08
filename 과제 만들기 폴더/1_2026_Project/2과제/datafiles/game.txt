@@ -1,0 +1,36 @@
+gno	gname	cno	online	price
+1	Count Strike2	1	1	0
+2	CyberPunk 2077	2,3,4,7	0	48900
+3	Tekken8	10	1	79800
+4	Palworld	5,6	1	32000
+5	PUBG: BattleGrounds	1,6	1	0
+6	Rainbow Six Siege	1	1	0
+7	Hogwarts Legacy	3,4,7	0	69800
+8	OverWatch2	1	1	0
+9	Delta Force	1,6	1	0
+10	Dark Souls Ⅲ	2,7	1	29800
+11	Elden Ring	2,7	1	36800
+12	Grand Theft Auto Ⅴ	3	1	33000
+13	Where Winds Meet	2,3,7	1	0
+14	Monster Hunter Wilds	2	1	79800
+15	Stardew Valley	5,7,13	1	18000
+16	Forza Horizon 5	8	1	59800
+17	Red Dead Redemption 2	3,4	1	49800
+18	Yakuza 0	4,7	0	36000
+19	Project Zomboid	5,6	1	24000
+20	Diablo Ⅳ	2,7	1	48000
+21	Hollow Knight	2,13	0	16000
+22	Hollow Knight: Silksong	2,13	0	28000
+23	The Witcher 3: Wild Hunt	2,3,4,7	0	36800
+24	NieR: Automata	2,4,7	0	49800
+25	Half-Life: Alyx	1,12	0	69800
+26	Euro Truck Simulator 2	9	1	18900
+27	F1 25	8,12	1	68900
+28	Crimson Desert	2,3,7	0	79800
+29	Beat Saber	11,12	1	32000
+30	Escape from Tarkov	1,6	1	69500
+31	Albion Online	3,5,6,7	1	0
+32	Street Fighter 6	10	1	44000
+33	A Dance of fire And ice	11	0	8000
+34	Super Hot Vr	1,12	1	36000
+35	Pragmata	4	0	69800
