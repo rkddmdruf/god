@@ -30,7 +30,7 @@ public class SimpleJarBuilder2 {
 
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().putValue("Manifest-Version", "1.0");
-        manifest.getMainAttributes().putValue("Main-Class", "main.Main2");
+        manifest.getMainAttributes().putValue("Main-Class", "main.Main2_LoginFrame");
 
         try (
             JarInputStream jis = new JarInputStream(new FileInputStream(currentJar));

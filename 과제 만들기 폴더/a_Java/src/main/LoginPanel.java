@@ -208,15 +208,19 @@ public class LoginPanel extends JPanel{
 						revalidate();
 						repaint();
 					}else {
-						String 아야 = "";
-					    char lastChar = user.getString(1).charAt(user.getString(1).length() - 1);
-					    if (lastChar < 0xAC00 || lastChar > 0xD7A3) 아야 = "아"; // 한글인지 확인
-					    
-					    int jongseongIndex = (lastChar - 0xAC00) % 28;
-					    if(jongseongIndex == 0)아야 = "야";
-					    else 아야 = "아";
-						getter.infor(user.getString(1).substring(1, 3) + 아야 + " 환영한다!");
-						User.setUser(user);
+						boolean 한 = false, 영 = false;
+						String text = user.getString(1);
+
+						if (text.matches(".*[가-힣].*"))
+						    한 = true;
+						if (text.matches(".*[a-zA-Z].*")) 
+							영 = true;
+						if(영) {
+							getter.infor(user.getString(1) + "님 환영합니다!");
+						}else {
+							getter.infor(user.getString(1) + " 환영한다!");
+						}
+					    User.setUser(user);
 						if(main1 != null)
 							main1.setMainPanel();
 						else {

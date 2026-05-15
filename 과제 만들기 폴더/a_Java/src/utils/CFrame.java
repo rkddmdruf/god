@@ -8,13 +8,14 @@ import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 public class CFrame extends JFrame{
 
-	protected JPanel borderPanel = new JPanel(new BorderLayout(10, 10)) {{
-		setBackground(Color.white);
-	}};
+	
+	protected JPanel borderPanel = new JPanel(new BorderLayout(10, 10));
 	public void setFrameCg(String s, int w, int h, Runnable r) {
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -39,6 +40,7 @@ public class CFrame extends JFrame{
 		setSize(w + 16, h + 39);
 		setLocationRelativeTo(null);
 		add(borderPanel);
+		setIconImage(new ImageIcon("datafiles/logo.jpg").getImage());
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);

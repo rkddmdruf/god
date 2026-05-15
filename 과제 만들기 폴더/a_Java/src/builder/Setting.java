@@ -35,7 +35,8 @@ public class Setting {
                     "gname VARCHAR(45) NOT NULL, " +
                     "cno VARCHAR(45) NOT NULL," + 
                     "online INT NOT NULL," + 
-                    "price INT NOT NULL," + 
+                    "price INT NOT NULL," +
+                    "gInfor VARCHAR(400) NOT NULL," +
                     "PRIMARY KEY (gno))"
                 );
             stmt.executeUpdate(
@@ -66,6 +67,32 @@ public class Setting {
             		+ ")");
             
             stmt.executeUpdate(
+            		"CREATE TABLE cpuGc ("
+            		+ "gno INT NOT NULL,"
+            		+ "minCpu INT NOT NULL,"
+            		+ "minGc INT NOT NULL,"
+            		+ "minRam INT NOT NULL,"
+            		+ "nomalCpu INT NOT NULL,"
+            		+ "nomalGc INT NOT NULL,"
+            		+ "nomalRam INT NOT NULL,"
+            		+ "FOREIGN KEY (gno) REFERENCES game (gno)"
+            		+ ")");
+            
+            stmt.executeUpdate(
+            		"CREATE TABLE gc ("
+            		+ "gcno INT NOT NULL,"
+            		+ "gcname VARCHAR(50) NOT NULL,"
+            		+ "PRIMARY KEY (gcno)"
+            		+ ")");
+            stmt.executeUpdate(
+            		"CREATE TABLE cpu ("
+            		+ "cpuno INT NOT NULL,"
+            		+ "cpuname VARCHAR(50) NOT NULL,"
+            		+ "PRIMARY KEY (cpuno)"
+            		+ ")");
+            
+            
+            stmt.executeUpdate(
             	    "LOAD DATA LOCAL INFILE 'datafiles/category.txt' " +
             	    "INTO TABLE category " +
             	    "FIELDS TERMINATED BY '\\t' " +
@@ -74,12 +101,28 @@ public class Setting {
             	    "(cno, cname)"
             	);
             stmt.executeUpdate(
+            	    "LOAD DATA LOCAL INFILE 'datafiles/gc.txt' " +
+            	    "INTO TABLE gc " +
+            	    "FIELDS TERMINATED BY '\\t' " +
+            	    "LINES TERMINATED BY '\\r\\n' " +
+            	    "IGNORE 1 LINES " +
+            	    "(gcno, gcname)"
+            	);
+            stmt.executeUpdate(
+            	    "LOAD DATA LOCAL INFILE 'datafiles/cpu.txt' " +
+            	    "INTO TABLE cpu " +
+            	    "FIELDS TERMINATED BY '\\t' " +
+            	    "LINES TERMINATED BY '\\r\\n' " +
+            	    "IGNORE 1 LINES " +
+            	    "(cpuno, cpuname)"
+            	);
+            stmt.executeUpdate(
             	    "LOAD DATA LOCAL INFILE 'datafiles/game.txt' " +
             	    "INTO TABLE game " +
             	    "FIELDS TERMINATED BY '\\t' " +
             	    "LINES TERMINATED BY '\\r\\n' " +
             	    "IGNORE 1 LINES " +
-            	    "(gno, gname, cno, online, price)"
+            	    "(gno, gname, cno, online, price, gInfor)"
             	);
             stmt.executeUpdate(
             	    "LOAD DATA LOCAL INFILE 'datafiles/user.txt' " +
@@ -97,6 +140,15 @@ public class Setting {
             	    "IGNORE 1 LINES " +
             	    "(bgno, gno, uno, date)"
             	);
+            stmt.executeUpdate(
+            	    "LOAD DATA LOCAL INFILE 'datafiles/cpuGc.txt' " +
+            	    "INTO TABLE cpuGc " +
+            	    "FIELDS TERMINATED BY '\\t' " +
+            	    "LINES TERMINATED BY '\\r\\n' " +
+            	    "IGNORE 1 LINES " +
+            	    "(gno, minCpu, minGc, minRam, nomalCpu, nomalGc, nomalRam)"
+            	);
+            
             System.out.println("game 스키마 재생성 완료");
         } catch (Exception e) {
             e.printStackTrace();

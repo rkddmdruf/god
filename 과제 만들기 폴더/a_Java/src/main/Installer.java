@@ -46,9 +46,11 @@ public class Installer extends CFrame{
 		setBackground(Color.white);
 	}};
 	JLabel installInfor = new JLabel();
+	
+	boolean isfiled = false;
 	public Installer() {
 		borderPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-		
+		borderPanel.setBackground(Color.white);
 		panel.add(new JLabel("설치") {{
 			setFont(new Font("맑은 고딕", 1, 25));
 		}}, BorderLayout.NORTH);
@@ -66,6 +68,7 @@ public class Installer extends CFrame{
 		
 		button.addActionListener(e -> {
 			try {
+				
 				File file = new File(new File(Installer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "\\Nexus.jar");
 				if(file.isFile()) {
 					installInfor.setText("이미 설치 되어있습니다.");
@@ -129,7 +132,7 @@ public class Installer extends CFrame{
 					l.revalidate();
 					l.repaint();
 					int r = (int) (Math.random() * 30) + 50;
-					System.out.println(r);
+					installInfor.setText("설치중... 약" + ((100 - barGuage) * r) / 1000 + "초 남음");
 					Thread.sleep(r);
 				}
 				new SimpleJarBuilder2();

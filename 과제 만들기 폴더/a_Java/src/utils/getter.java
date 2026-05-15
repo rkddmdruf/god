@@ -1,6 +1,7 @@
 package utils;
 
 import java.awt.Color;
+import java.text.DecimalFormat;
 import java.util.Stack;
 
 import javax.swing.ImageIcon;
@@ -8,6 +9,7 @@ import javax.swing.JOptionPane;
 
 public class getter {
 
+	final public static DecimalFormat df = new DecimalFormat("###,###");
 	public static Stack<Runnable> frames = new Stack<>();
 	public static final Color color = new Color(33,33,33);
 	public static ImageIcon getImage(String s, int w, int h) {
