@@ -1,5 +1,5 @@
 uno	uname	id	pw	iconNumber	price	otp
-1	rkddmdruf	user01	user01!	1	100000	12345
+1	강응결	user01	user01!	1	100000	12345
 2	박수현	user02	user02!	2	80000	12345
 3	김조민	user03	user03!	3	50000	12345
 4	조수현	user04	user04!	4	124000	12345

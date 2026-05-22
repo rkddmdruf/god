@@ -1,18 +1,7 @@
 package main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,22 +13,7 @@ import java.util.Objects;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.OverlayLayout;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
 
 import builder.SimpleJarBuilder;
@@ -48,7 +22,6 @@ import utils.Connections;
 import utils.Data;
 import utils.User;
 import utils.getter;
-
 
 
 public class Main1 extends CFrame{
@@ -68,6 +41,9 @@ public class Main1 extends CFrame{
 		setPreferredSize(new Dimension(30, 25));
 	}};
 	JButton shoppingBasket = new JButton("장바구니") {{
+		addActionListener(e -> {
+			setShoppingPanel();
+		});
 		setBackground(Color.cyan);
 		setForeground(Color.black);
 	}};
@@ -77,13 +53,19 @@ public class Main1 extends CFrame{
 				if(e.getClickCount() == 2) {
 					getter.err("더블 클릭");
 				}
-				if(User.getUser() != null) {
-					Connections.update("delete from loginuser");
+				if(User.getUser() != null || User.admin) {
 					getter.infor("로그아웃 되었습니다.");
 					User.setUser(null);
-					login.setText("로그인");
-					login.setIcon(null);
-					setMainPanel();
+					User.admin = false;
+					
+					if(getter.main1 != null) {
+						login.setText("로그인");
+						setMainPanel();
+					} else {
+						new Main2_LoginFrame();
+						Connections.update("delete from loginuser");
+						dispose();
+					}
 					return;
 				}
 				if(fromNumber != 1)
@@ -100,14 +82,16 @@ public class Main1 extends CFrame{
 		setPreferredSize(new Dimension(50, 30));
 	}};
 	
-	JPanel mainPanel = new JPanel(new BorderLayout()) {{		setBackground(getter.color);
-
+	JPanel mainPanel = new JPanel(new BorderLayout()) {{
+		setBackground(getter.color);
 	}};
-	Stack<Integer> froms = new Stack<>();
-	List<JLabel> bestGame = new ArrayList<>();
-	Data gameData = new Data();
+	Stack<Runnable> froms = new Stack<>();
+	Data gameData = new Data(); // 게임 이미지 클릭할때 데이터가 게임으로 바뀜 -> runGamePanel.run에서 씀
+	Runnable runs = () -> {
+		setMainPanel();
+	};
 	Runnable runGamePanel = () -> {
-		froms.add(0);
+		froms.add(runs);
 		mainPanel.removeAll();
 		mainPanel.add(new gamePanel(this, gameData));
 		before.setEnabled(true);
@@ -120,7 +104,8 @@ public class Main1 extends CFrame{
 		loginInfor.add(login);
 		setIconImage(new ImageIcon("datafiles/logo.jpg").getImage());
 		setResizable(false);
-		setTitlePanel();		borderPanel.setBackground(getter.color);
+		setTitlePanel();		
+		borderPanel.setBackground(getter.color);
 
 		
 		setMainPanel();
@@ -132,8 +117,14 @@ public class Main1 extends CFrame{
 		});
 	}
 
+	void runnableApend() {
+		Runnable r = runs;
+		froms.push(() -> {
+			r.run();
+		});
+	}
 	private void setLoginPanel() {
-		froms.push(fromNumber);
+		runnableApend();
 		fromNumber = 1;// 1200, 680 -> 600, 350
 		before.setEnabled(true);
 		mainPanel.removeAll();
@@ -147,9 +138,8 @@ public class Main1 extends CFrame{
 	}
 	
 	private void setUserChangePanel() {
-		froms.push(fromNumber);
+		runnableApend();
 		before.setEnabled(true);
-		fromNumber = 2;// 
 		mainPanel.removeAll();
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 200, 0, 200));
 		
@@ -163,17 +153,47 @@ public class Main1 extends CFrame{
 		repaint();
 	}
 	
+	private void setShoppingPanel() {
+		before.setEnabled(true);
+		mainPanel.removeAll();
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 200, 0, 200));
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBackground(getter.color);
+		panel.add(new ShoppingPanel(this));
+		
+		mainPanel.add(panel);
+		revalidate();
+		repaint();
+	}
+	
+	void setAdminPanel() {
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 200, 0, 200));
+		
+		JPanel p = new AdminPanel();
+		mainPanel.add(p);
+		revalidate();
+		repaint();
+	}
+	
 	void setMainPanel() {
 		if(loginInfor.getComponentCount() > 1) {
 			loginInfor.remove(1);
+		}
+		if(User.admin) {
+			login.setText("관리자");
 		}
 		if(User.getUser() != null) {
 			login.setText(User.getUser().getString(1));
 			loginInfor.add(new JLabel(getter.getImage("datafiles/user/" + User.getUser().getInt(4) + ".png", 20, 20)) {{
 				addMouseListener(new MouseAdapter() {
 					public void mouseClicked(MouseEvent e) {
-						//if(!Connections.select("select * from loginuser").isEmpty()) 
+						if(getter.main2 == null) {
+							getter.err("앱을 설치 후, 유저정보를 수정하세요");
+							return;
+						}else {
 							setUserChangePanel();
+						}
 					};
 				});
 			}}, BorderLayout.EAST);
@@ -183,6 +203,12 @@ public class Main1 extends CFrame{
 		before.setEnabled(false);
 		mainPanel.removeAll();
 		mainPanel.setBorder(null);
+		
+		if(User.admin) {
+			setAdminPanel();
+			return;
+		}
+		
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
 		panel.setBackground(getter.color);
 		
@@ -291,10 +317,20 @@ public class Main1 extends CFrame{
 		//액션들
 		priceSerch.addActionListener(e -> {
 			serchPanel(gamePanel
-				, Connections.select("select * from game where price >= ? and price <= ?"
-				, sl1.getValue(), sl2.getValue())
+				, Connections.select("select * from game where price >= ? and price <= ?", sl1.getValue(), sl2.getValue())
 				, "가격", getter.df.format(sl1.getValue()) + "~" + getter.df.format(sl2.getValue())
 			);
+			before.setEnabled(true);
+		});
+		
+		serch.addActionListener(e -> {
+			serchPanel(gamePanel
+					, Connections.select("select * from game").stream()
+						.filter( c -> c.getString(1).contains(tf.getText()) )
+						.collect( Collectors.toList() )
+					, "검색어"
+					, tf.getText()
+					);
 		});
 		
 		for(int i = 0; i < categoryButtons.size(); i++) {
@@ -303,7 +339,8 @@ public class Main1 extends CFrame{
 				List<Data> arrays = new ArrayList<>();
 				if(index != 0) arrays = Connections.select("select * from game where find_in_set(?,cno)", index);
 				else arrays = Connections.select("select * from game");
-				serchPanel(gamePanel, arrays, "카테고리", (index == 0 ? "전체" : Connections.select("select * from category where cno = ?", index).get(0).getString(1)));
+				serchPanel(gamePanel, arrays, "카테고리", categoryButtons.get(index).getText());
+				before.setEnabled(true);
 			});
 		}
 	}
@@ -505,16 +542,11 @@ public class Main1 extends CFrame{
 		if(User.getUser() != null) {
 			String[] categoryz = Connections.select("SELECT cno FROM game.buygame \r\n"
 					+ "join game on game.gno = buygame.gno\r\n"
-					+ "where uno = ? order by date desc limit 1;", User.getUser().get(0)).get(0).getString(0).split(",");
-			List<Data> userBuyGame = new ArrayList<>();
-			for(String s : categoryz) {
-				System.out.println(s);
-				 userBuyGame.addAll(Connections.select("SELECT game.*, count(game.gno) as c FROM game.buygame\r\n"
+					+ "where uno = ? order by date desc, bgno desc limit 1;", User.getUser().get(0)).get(0).getString(0).split(",");
+			List<Data> userBuyGame = Connections.select("SELECT game.*, count(game.gno) as c FROM game.buygame\r\n"
 						+ "join game on game.gno = buygame.gno\r\n"
 						+ "where find_in_set(?, cno)\r\n"
-						+ "group by game.gno order by c desc, game.gno limit 5", s));
-			}
-			userBuyGame.sort((a, b) -> ((Integer) a.getInt(0)).compareTo((Integer) b.getInt(0)));
+						+ "group by game.gno order by c desc, game.gno limit 5", categoryz[0]);
 			if(userBuyGame.size() > 5) {
 				userBuyGame.subList(5, userBuyGame.size()).clear();
 			}
@@ -680,7 +712,7 @@ public class Main1 extends CFrame{
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		panel.setBackground(getter.color);
 		
-		//if(Connections.select("select * from loginuser").isEmpty()) {
+		if(getter.main2 == null)
 			panel.add(new JLabel("app install", JLabel.CENTER) {{
 				setPreferredSize(new Dimension(80, getFontMetrics(getFont()).getHeight() + 6));
 				setOpaque(true);
@@ -693,7 +725,6 @@ public class Main1 extends CFrame{
 					};
 				});
 			}});
-		//}
 		panel.add(loginInfor);
 		
 		TitlePanel.add(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)) {{
@@ -714,6 +745,9 @@ public class Main1 extends CFrame{
 	}
 	
 	public static void main(String[] args) {
-		new Main1();
+		if(getter.main2 == null)
+			getter.main1 = new Main1();
+		else 
+			new Main1();
 	}
 }

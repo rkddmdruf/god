@@ -34,12 +34,12 @@ public class LoginPanel extends JPanel{
 	
 	private JTextField id = new JTextField();
 	private JTextField pw = new JTextField();
-	private JTextField otp = new JTextField();
 	private Data user;
 	private JButton login = new JButton("로그인") {{
 		setBackground(Color.green.darker());
 		setFont(new Font("맑은 고딕", 0, 14));
 		setPreferredSize(new Dimension(125, 30));
+		
 	}};
 	
 	Color color = getter.color.darker();
@@ -55,6 +55,30 @@ public class LoginPanel extends JPanel{
 		login.addActionListener(e -> {
 			String i = getId();
 			String p = getPw();
+			//48 - 0, 57 - 9, 65 - a, 90 - z
+			if(i.isBlank() || p.isBlank()) {
+				getter.err("입력하지 않은 항목이 있습니다.");
+				return;
+			}
+			if(i.equals("admin") && p.equals("RTX5090")) {
+				User.admin = true;
+				if(main1 != null)
+					main1.setMainPanel();
+				else {
+					new Main1();
+					main2.dispose();
+				}
+				main1.setMainPanel();
+				return;
+			}
+			List<Data> list = Connections.select("select * from user where id = ? and pw = ?", i, p);
+			if(list.isEmpty()) {
+				id.setText("");
+				pw.setText("");
+				getter.err("아이디 또는 비밀번호가 틀렸습니다.");
+				return;
+			}
+			user = list.get(0);
 			String str = "";
 			for(int n = 0; n < 5; n++) {
 				int r = (int) (Math.random() * 2);
@@ -66,19 +90,6 @@ public class LoginPanel extends JPanel{
 				}
 				str += (char) n2;
 			}
-			//48 - 0, 57 - 9, 65 - a, 90 - z
-			if(i.isBlank() || p.isBlank()) {
-				getter.err("입력하지 않은 항목이 있습니다.");
-				return;
-			}
-			List<Data> list = Connections.select("select * from user where id = ? and pw = ?", i, p);
-			if(list.isEmpty()) {
-				id.setText("");
-				pw.setText("");
-				getter.err("아이디 또는 비밀번호가 틀렸습니다.");
-				return;
-			}
-			user = list.get(0);
 			Connections.update("update user set otp = ? where uno = ?;", str, list.get(0).get(0));
 			otpPanel();
 		});
@@ -128,7 +139,9 @@ public class LoginPanel extends JPanel{
 		removeAll();
 		setBorder(BorderFactory.createEmptyBorder(60, 50, 60, 50));
 		labelIndex = 0;
+		JTextField otp = new JTextField();
 		otp.setText("");
+		otp.requestFocusInWindow();
 		setLayout(new BorderLayout(10, 10));
 		
 		JPanel panel = new JPanel(new GridLayout(1, 5, 10, 10));
@@ -172,7 +185,7 @@ public class LoginPanel extends JPanel{
 			@Override
 			public void keyReleased(KeyEvent e) {
 				int c = e.getKeyCode();
-				
+				System.out.println(otp.getText());
 				if(e.getKeyCode() == 8) {
 					if(labelIndex > 0)
 						labelIndex--;

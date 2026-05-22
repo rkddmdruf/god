@@ -2,6 +2,9 @@ package builder;
 import javax.swing.JOptionPane;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+
+import utils.getter;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -13,10 +16,11 @@ public class SimpleJarBuilder2 {
     public SimpleJarBuilder2(){
         try {
             makeJar();
+            getter.infor("앱이 설치돼었습니다.");
         } catch (Exception e) {
             e.printStackTrace();
+            getter.err("앱 설치 도중 에러가 났습니다.");
         }
-        JOptionPane.showMessageDialog(null, "생성 완료");
     }
     
     static void makeJar() throws Exception {

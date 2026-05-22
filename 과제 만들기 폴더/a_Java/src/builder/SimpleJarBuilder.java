@@ -2,6 +2,9 @@ package builder;
 import javax.swing.JOptionPane;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+
+import utils.getter;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -21,10 +24,11 @@ public class SimpleJarBuilder {
     public SimpleJarBuilder(){
         try {
             makeJar();
+            getter.infor("인스톨러가 설치돼었습니다.");
         } catch (Exception e) {
             e.printStackTrace();
+            getter.err("인스톨러 설치 도중 에러가 발생됐습니다.");
         }
-        JOptionPane.showMessageDialog(null, "생성 완료");
     }
     
     static void makeJar() throws Exception {

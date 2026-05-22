@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.swing.BorderFactory;
@@ -24,6 +25,7 @@ import javax.swing.JPanel;
 
 import builder.SimpleJarBuilder2;
 import utils.CFrame;
+import utils.Connections;
 import utils.getter;
 
 public class Installer extends CFrame{
@@ -41,10 +43,6 @@ public class Installer extends CFrame{
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		setPreferredSize(new Dimension(80, 25));
 	}};
-	
-	JCheckBox checkBox = new JCheckBox("바로 실행") {{
-		setBackground(Color.white);
-	}};
 	JLabel installInfor = new JLabel();
 	
 	boolean isfiled = false;
@@ -61,44 +59,33 @@ public class Installer extends CFrame{
 		borderPanel.add(new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0)) {{
 			setBackground(Color.white);
 			add(button);
-			add(checkBox);
 		}}, BorderLayout.SOUTH);
 		
 		lodingBar();
 		
 		button.addActionListener(e -> {
-			try {
-				
-				File file = new File(new File(Installer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "\\Nexus.jar");
-				if(file.isFile()) {
-					installInfor.setText("이미 설치 되어있습니다.");
-					if(JOptionPane.showConfirmDialog(null, "앱을 실행 하시겠습니까?", "앱 실행", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						Desktop.getDesktop().open(file);
-						dispose();
+			if(button.getText().equals("설치"))
+				try {
+					File file = new File(new File(Installer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "\\Nexus.jar");
+					if(file.isFile()) {
+						if(JOptionPane.showConfirmDialog(null, "앱을 실행 하시겠습니까?", "앱 실행", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							Desktop.getDesktop().open(file);
+							dispose();
+						}
+						return;
 					}
-					return;
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
 			
 			if(thread == null) return;
 			if(button.getText().equals("마침")) {
-				if(checkBox.isSelected()) {
+				if(JOptionPane.showConfirmDialog(null, "앱을 실행 하시겠습니까?", "앱 실행", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					try {
-						Desktop.getDesktop().open(
-							new File(
-								new File(
-										Installer.class
-										.getProtectionDomain()
-										.getCodeSource()
-										.getLocation()
-										.toURI()
-								).getParent() + "\\Nexus.jar"
-							)
-						);
-					} catch (Exception e2) {
-						getter.infor("에러남" + e2.getMessage());
+						File file = new File(new File(Installer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "\\Nexus.jar");
+						Desktop.getDesktop().open(file);
+					} catch (Exception e1) {
+						getter.err("에러");
 					}
 				}
 				dispose();
@@ -137,6 +124,7 @@ public class Installer extends CFrame{
 				}
 				new SimpleJarBuilder2();
 				installInfor.setText("설치 완료!");
+				Connections.update("delete from loginuser");
 				button.setEnabled(true);
 				button.setText("마침");
 			} catch (Exception e) {

@@ -57,7 +57,7 @@ public class Setting {
             		+ ")");
             stmt.executeUpdate(
             		"CREATE TABLE buyGame ("
-            		+ "bgno INT NOT NULL,"
+            		+ "bgno INT NOT NULL AUTO_INCREMENT,"
             		+ "gno INT NOT NULL,"
             		+ "uno INT NOT NULL,"
             		+ "date DATE NOT NULL,"
@@ -84,12 +84,24 @@ public class Setting {
             		+ "gcname VARCHAR(50) NOT NULL,"
             		+ "PRIMARY KEY (gcno)"
             		+ ")");
+            
             stmt.executeUpdate(
             		"CREATE TABLE cpu ("
             		+ "cpuno INT NOT NULL,"
             		+ "cpuname VARCHAR(50) NOT NULL,"
             		+ "PRIMARY KEY (cpuno)"
             		+ ")");
+            
+            stmt.executeUpdate(
+            		"CREATE TABLE shopping ("
+            		+ "sno INT NOT NULL AUTO_INCREMENT,"
+            		+ "gno INT NOT NULL,"
+            		+ "uno INT NOT NULL,"
+            		+ "FOREIGN KEY (gno) REFERENCES game (gno),"
+            		+ "FOREIGN KEY (uno) REFERENCES user (uno),"
+            		+ "PRIMARY KEY (sno)"
+            		+ ")");
+
             
             
             stmt.executeUpdate(
@@ -147,6 +159,14 @@ public class Setting {
             	    "LINES TERMINATED BY '\\r\\n' " +
             	    "IGNORE 1 LINES " +
             	    "(gno, minCpu, minGc, minRam, nomalCpu, nomalGc, nomalRam)"
+            	);
+            stmt.executeUpdate(
+            	    "LOAD DATA LOCAL INFILE 'datafiles/shopping.txt' " +
+            	    "INTO TABLE shopping " +
+            	    "FIELDS TERMINATED BY '\\t' " +
+            	    "LINES TERMINATED BY '\\n' " +
+            	    "IGNORE 1 LINES " +
+            	    "(sno, gno, uno)"
             	);
             
             System.out.println("game 스키마 재생성 완료");

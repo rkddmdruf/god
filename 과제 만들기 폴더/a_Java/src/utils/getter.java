@@ -7,8 +7,13 @@ import java.util.Stack;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import main.Main1;
+import main.Main2_LoginFrame;
+
 public class getter {
 
+	public static Main1 main1 = null;
+	public static Main2_LoginFrame main2 = null;
 	final public static DecimalFormat df = new DecimalFormat("###,###");
 	public static Stack<Runnable> frames = new Stack<>();
 	public static final Color color = new Color(33,33,33);
@@ -17,7 +22,12 @@ public class getter {
 	}
 	
 	public static void infor(String s) {
-		JOptionPane.showMessageDialog(null, s, "정보", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane jop = new JOptionPane();
+		jop.setBackground(Color.white);
+		for(int i = 0; i < jop.getComponentCount(); i++) {
+			jop.getComponent(i).setBackground(Color.white);
+		}
+		jop.showMessageDialog(null, s, "정보", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public static void err(String s) {

@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -29,6 +31,7 @@ public class gamePanel extends JPanel{
 	public gamePanel(Main1 main1, Data data) {
 		this.main1 = main1;
 		this.data = data;
+		System.out.println(data);
 		setBackground(getter.color);
 		setLayout(new BorderLayout(10, 10));
 		setBorder(BorderFactory.createEmptyBorder(0, 200, 0, 200));
@@ -43,9 +46,8 @@ public class gamePanel extends JPanel{
 		gameInforPanel.add(new JLabel(data.getString(1)) {{
 			setForeground(Color.white);
 			setFont(new Font("맑은 고딕", 1, 24));
-			while(getFontMetrics(getFont()).stringWidth(getText()) > 290) {
+			while(getFontMetrics(getFont()).stringWidth(getText()) > 290) 
 				setFont(getFont().deriveFont((float) getFont().getSize() - 1));
-			}
 		}}, BorderLayout.NORTH);
 		List<String> strs = new ArrayList<>();
 		for(Data d : Connections.select("select * from category")) {
@@ -137,7 +139,42 @@ public class gamePanel extends JPanel{
 		JButton buyButton = new JButton("구매") {{
 			setForeground(Color.white);
 			setBackground(new Color(0, 150, 0));
-			
+			addActionListener(e -> {
+				Data user = User.getUser();
+				if(user == null) {
+					getter.err("로그인을 먼저 해주세요.");
+					return;
+				}
+				boolean buyGame = false;
+				if(!Connections.select("SELECT * FROM game.buygame where uno = ? and gno = ?", user.get(0), data.getInt(0)).isEmpty()) {
+					getter.infor("이미 구매한 게임입니다.");
+					return;
+				}
+				if(data.getInt(4) == 0) {
+					buyGame = true;
+				}else {
+					if(JOptionPane.showConfirmDialog(null
+							, "게임을 구매하시겠습니까?"
+							+ "\n보유 잔액 : " + getter.df.format(user.getInt(5)) + "원"
+							+ "\n가격 : " + getter.df.format(data.getInt(4)) + "원"
+							, data.getString(1) + " 구매", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						int price = user.getInt(5) - data.getInt(4);
+						if(price < 0) {
+							getter.err("보유 잔액이 부족합니다.");
+							return;
+						}
+						Connections.update("update user set price = ? where uno = ?;", price, User.getUser().getInt(0));
+						user.set(5, price);
+						User.setUser(user);
+						buyGame = true;
+					}
+				}
+				if(buyGame) {
+					getter.infor("구매 및 라이브러리에 추가 되었습니다.");
+					Connections.update("insert into buygame values(0, ?, ?, ?);", data.get(0), user.get(0), LocalDate.now());
+					main1.setMainPanel();
+				}
+			});
 		}};
 		
 		JButton shoppingBasket = new JButton("장바구니추가") {{
@@ -159,13 +196,5 @@ public class gamePanel extends JPanel{
 			setBackground(new Color(0, 150, 0));
 		}}, BorderLayout.SOUTH);
 		add(mainPanel);
-		
-		//액션
-		buyButton.addActionListener(e -> {
-			if(User.getUser() == null) {
-				getter.err("로그인 해주세요");
-				return;
-			}
-		});
 	}
 }

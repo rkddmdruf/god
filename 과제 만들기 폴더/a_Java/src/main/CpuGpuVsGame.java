@@ -129,6 +129,9 @@ public class CpuGpuVsGame extends CFrame{
 				cgInfor.add("RAM이 부족합니다");
 			}
 			s += String.join(", ", cgInfor);
+			if(cgInfor.isEmpty()) {
+				s += (i == 0 ? "최소사양" : "권장사양") + "에 충족합니다.";
+			}
 			label2[i].setText(new Html()
 					.add(s)
 					.getString());

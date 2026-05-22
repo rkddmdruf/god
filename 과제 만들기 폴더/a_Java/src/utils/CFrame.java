@@ -12,8 +12,9 @@ import javax.swing.UIManager;
 
 public class CFrame extends JFrame{
 
-	
-	protected JPanel borderPanel = new JPanel(new BorderLayout(10, 10));
+	protected JPanel borderPanel = new JPanel(new BorderLayout(10, 10)) {{
+		setBackground(getter.color);
+	}};
 	public void setFrameCg(String s, int w, int h, Runnable r) {
 		
 		addWindowListener(new WindowAdapter() {

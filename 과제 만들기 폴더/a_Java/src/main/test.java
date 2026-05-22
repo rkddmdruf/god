@@ -1,10 +1,16 @@
 package main;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class test {
 	public static void main(String[] args) {
-		File f = new File("C:\\Users\\user\\Desktop\\응결임\\1_2026_Project\\2과제\\myProject.jr");
-		System.out.println(f.isFile());
+		List<Integer> list = new ArrayList<>();
+		for(int i = 0; i < 10; i++) {
+			list.add(i);
+		}
+		System.out.println(list.stream().mapToInt(e -> e).sum());
+		
 	}
 }
