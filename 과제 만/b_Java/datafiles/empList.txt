@@ -23,3 +23,11 @@ eno	code	name	team	grade	date	state	id	pw
 22	EMP-022	이준호	3	2	2012-04-23	0	user022	user022!
 23	EMP-023	박은지	3	3	2013-06-11	0	user023	user023!
 24	EMP-024	정민석	3	3	2014-08-28	0	user024	user024!
+25	EMP-025	윤도현	0	4	2016-02-14	0	user025	user025!
+26	EMP-026	한지원	0	4	2016-05-20	0	user026	user026!
+27	EMP-027	신재희	1	4	2015-10-12	0	user027	user027!
+28	EMP-028	서현우	1	4	2016-01-07	0	user028	user028!
+29	EMP-029	오민서	2	4	2015-08-19	0	user029	user029!
+30	EMP-030	임준영	2	4	2016-03-22	0	user030	user030!
+31	EMP-031	송지민	3	4	2015-11-03	0	user031	user031!
+32	EMP-032	권태윤	3	4	2016-04-15	0	user032	user032!

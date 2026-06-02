@@ -2,6 +2,10 @@ package main;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
+
+import utils.Connections;
+import utils.Data;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
@@ -73,33 +77,46 @@ public class HRSystem {
     // ══════════════════════════════════════════════
     static List<Employee> loadEmployees() {
     	Object[][] raw = {
-    		    {1,"EMP-001","강응결",0,0,"2009-05-22",0,"user001","user001!"},
-    		    {2,"EMP-002","이정훈",0,1,"2010-03-15",0,"user002","user002!"},
-    		    {3,"EMP-003","최민석",0,2,"2011-07-21",0,"user003","user003!"},
-    		    {4,"EMP-004","정유진",0,2,"2012-11-05",0,"user004","user004!"},
-    		    {5,"EMP-005","박소연",0,3,"2014-02-18",0,"user005","user005!"},
-    		    {6,"EMP-006","김태현",0,3,"2015-06-30",0,"user006","user006!"},
+    		    {1, "EMP-001", "강응결", 0, 0, "2009-05-22", 0, "user001", "user001!"},
+    		    {2, "EMP-002", "이정훈", 0, 1, "2010-03-15", 0, "user002", "user002!"},
+    		    {3, "EMP-003", "최민석", 0, 2, "2011-07-21", 0, "user003", "user003!"},
+    		    {4, "EMP-004", "정유진", 0, 2, "2012-11-05", 0, "user004", "user004!"},
+    		    {5, "EMP-005", "박소연", 0, 3, "2014-02-18", 0, "user005", "user005!"},
+    		    {6, "EMP-006", "김태현", 0, 3, "2015-06-30", 0, "user006", "user006!"},
 
-    		    {7,"EMP-007","김수미",1,0,"2007-09-11",0,"user007","user007!"},
-    		    {8,"EMP-008","배성우",1,1,"2009-12-03",0,"user008","user008!"},
-    		    {9,"EMP-009","장민지",1,2,"2011-05-16",0,"user009","user009!"},
-    		    {10,"EMP-010","이수현",1,2,"2012-10-09",0,"user010","user010!"},
-    		    {11,"EMP-011","김하늘",1,3,"2013-08-25",0,"user011","user011!"},
-    		    {12,"EMP-012","최유진",1,3,"2014-11-11",0,"user012","user012!"},
+    		    {7, "EMP-007", "김수미", 1, 0, "2007-09-11", 0, "user007", "user007!"},
+    		    {8, "EMP-008", "배성우", 1, 1, "2009-12-03", 0, "user008", "user008!"},
+    		    {9, "EMP-009", "장민지", 1, 2, "2011-05-16", 0, "user009", "user009!"},
+    		    {10, "EMP-010", "이수현", 1, 2, "2012-10-09", 0, "user010", "user010!"},
+    		    {11, "EMP-011", "김하늘", 1, 3, "2013-08-25", 0, "user011", "user011!"},
+    		    {12, "EMP-012", "최유진", 1, 3, "2014-11-11", 0, "user012", "user012!"},
 
-    		    {13,"EMP-013","박지호",2,0,"2007-09-11",0,"user013","user013!"},
-    		    {14,"EMP-014","김영훈",2,1,"2009-11-20",0,"user014","user014!"},
-    		    {15,"EMP-015","최지은",2,2,"2011-03-14",0,"user015","user015!"},
-    		    {16,"EMP-016","박성민",2,2,"2012-06-18",0,"user016","user016!"},
-    		    {17,"EMP-017","이은지",2,3,"2013-09-27",0,"user017","user017!"},
-    		    {18,"EMP-018","정현우",2,3,"2014-12-05",0,"user018","user018!"},
+    		    {13, "EMP-013", "박지호", 2, 0, "2007-09-11", 0, "user013", "user013!"},
+    		    {14, "EMP-014", "김영훈", 2, 1, "2009-11-20", 0, "user014", "user014!"},
+    		    {15, "EMP-015", "최지은", 2, 2, "2011-03-14", 0, "user015", "user015!"},
+    		    {16, "EMP-016", "박성민", 2, 2, "2012-06-18", 0, "user016", "user016!"},
+    		    {17, "EMP-017", "이은지", 2, 3, "2013-09-27", 0, "user017", "user017!"},
+    		    {18, "EMP-018", "정현우", 2, 3, "2014-12-05", 0, "user018", "user018!"},
 
-    		    {19,"EMP-019","홍박사",3,0,"2008-08-25",0,"user019","user019!"},
-    		    {20,"EMP-020","한상우",3,1,"2010-01-08",0,"user020","user020!"},
-    		    {21,"EMP-021","김다영",3,2,"2011-09-19",0,"user021","user021!"},
-    		    {22,"EMP-022","이준호",3,2,"2012-04-23",0,"user022","user022!"},
-    		    {23,"EMP-023","박은지",3,3,"2013-06-11",0,"user023","user023!"},
-    		    {24,"EMP-024","정민석",3,3,"2014-08-28",0,"user024","user024!"},
+    		    {19, "EMP-019", "홍박사", 3, 0, "2008-08-25", 0, "user019", "user019!"},
+    		    {20, "EMP-020", "한상우", 3, 1, "2010-01-08", 0, "user020", "user020!"},
+    		    {21, "EMP-021", "김다영", 3, 2, "2011-09-19", 0, "user021", "user021!"},
+    		    {22, "EMP-022", "이준호", 3, 2, "2012-04-23", 0, "user022", "user022!"},
+    		    {23, "EMP-023", "박은지", 3, 3, "2013-06-11", 0, "user023", "user023!"},
+    		    {24, "EMP-024", "정민석", 3, 3, "2014-08-28", 0, "user024", "user024!"},
+
+    		    // 추가된 데이터 (Team별 Grade 4 사원 2명씩 총 8명)
+    		    {25, "EMP-025", "윤도현", 0, 4, "2016-02-14", 0, "user025", "user025!"},
+    		    {26, "EMP-026", "한지원", 0, 4, "2016-05-20", 0, "user026", "user026!"},
+
+    		    {27, "EMP-027", "신재희", 1, 4, "2015-10-12", 0, "user027", "user027!"},
+    		    {28, "EMP-028", "서현우", 1, 4, "2016-01-07", 0, "user028", "user028!"},
+
+    		    {29, "EMP-029", "오민서", 2, 4, "2015-08-19", 0, "user029", "user029!"},
+    		    {30, "EMP-030", "임준영", 2, 4, "2016-03-22", 0, "user030", "user030!"},
+
+    		    {31, "EMP-031", "송지민", 3, 4, "2015-11-03", 0, "user031", "user031!"},
+    		    {32, "EMP-032", "권태윤", 3, 4, "2016-04-15", 0, "user032", "user032!"}
     		};
         List<Employee> list = new ArrayList<>();
         for(Object[] r:raw) list.add(new Employee((int)r[0],(String)r[1],(String)r[2],(int)r[3],(int)r[4],(String)r[5],(int)r[6],(String)r[7],(String)r[8]));
@@ -269,6 +286,9 @@ public class HRSystem {
         addGBC(body,makeLbl("비밀번호"),gc,0,1,1,0);
         addGBC(body,txtPw,gc,1,1,1,1);
         addGBC(body,lblErr,gc,0,2,2,1);
+        
+        txtId.setText("admin");
+        txtPw.setText("1234");
 
         JPanel bp=new JPanel(new FlowLayout(FlowLayout.CENTER,8,0)); bp.setOpaque(false);
         JButton btnLogin=makePBtn("로그인"); JButton btnExit=makeSBtn("종료");
@@ -435,7 +455,7 @@ public class HRSystem {
         GridBagConstraints gc=new GridBagConstraints(); gc.insets=new Insets(5,5,5,5); gc.fill=GridBagConstraints.HORIZONTAL;
 
         JTextField txtCode=makeROTF(nextCode);
-        JTextField txtName=makeTF(""), txtDate=makeTF("2024-01-01"), txtId=makeTF(""), txtPw2=makeTF("");
+        JTextField txtName=makeTF(""), txtDate=makeROTF(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))), txtId=makeTF(""), txtPw2=makeTF("");
         JComboBox<String> cmbTeam=makeCmb(TEAM_NAMES), cmbGrade=makeCmb(GRADE_NAMES);
         ButtonGroup bg=new ButtonGroup();
         JRadioButton rOn=new JRadioButton("재직",true),rLeave=new JRadioButton("휴직"),rOff=new JRadioButton("퇴직");
@@ -605,11 +625,9 @@ public class HRSystem {
         employees.forEach(e->empOpts.add(e.code+" "+e.name));
         JComboBox<String> cmbEmp=makeCmb(empOpts.toArray(new String[0]));
         JTextField txtFrom=makeTF("2024-03-01"), txtTo=makeTF("2024-03-15");
-        String[] types={"전체","정상","지각","조퇴","결근"};
-        JComboBox<String> cmbType=makeCmb(types);
         JButton btnSearch=makePBtn("조회"); JLabel lblSummary=new JLabel(); lblSummary.setFont(F_SM);
         sp.add(makeLbl("직원:")); sp.add(cmbEmp); sp.add(makeLbl("기간:")); sp.add(txtFrom);
-        sp.add(makeLbl("~")); sp.add(txtTo); sp.add(cmbType); sp.add(btnSearch);
+        sp.add(makeLbl("~")); sp.add(txtTo); sp.add(btnSearch);
         sp.add(Box.createHorizontalStrut(10)); sp.add(lblSummary);
 
         String[] cols={"근태ID","사원코드","이름","날짜","출근","퇴근","유형"};
@@ -620,7 +638,7 @@ public class HRSystem {
         Runnable reload=()->{
             model.setRowCount(0);
             String from=txtFrom.getText().trim(), to=txtTo.getText().trim();
-            int empIdx=cmbEmp.getSelectedIndex()-1; String typeFilter=(String)cmbType.getSelectedItem();
+            int empIdx=cmbEmp.getSelectedIndex()-1;
             int tot=0,n=0,l=0,et=0,ab=0;
             for(Attendance a:attendances){
                 if(empIdx>=0&&!a.empCode.equals(employees.get(empIdx<employees.size()?empIdx:0).code)){
@@ -629,7 +647,7 @@ public class HRSystem {
                     if(!a.empCode.equals(selCode)) continue;
                 }
                 if(a.workDate.compareTo(from)<0||a.workDate.compareTo(to)>0) continue;
-                if(!typeFilter.equals("전체")&&!a.workType.equals(typeFilter)) continue;
+                if(a.workType.equals("정상")) continue;
                 Employee em=employees.stream().filter(x->x.code.equals(a.empCode)).findFirst().orElse(null);
                 String eName=em!=null?em.name:"?";
                 model.addRow(new Object[]{a.attId,a.empCode,eName,a.workDate,a.inTime,a.outTime,a.workType});
@@ -682,8 +700,8 @@ public class HRSystem {
                 double base=em.baseSalary(); txtBase.setText(fmt(base));
                 int ot=Integer.parseInt(txtOtHour.getText().trim());
                 if(ot<0) throw new NumberFormatException();
-                double otPay=Math.floor(base/209.0*1.5*ot);
-                double ded=Math.floor((base+otPay)* 0.2);
+                double otPay=Math.floor(20000*ot);
+                double ded=Math.floor((base+otPay)* 0.15);
                 double net=base+otPay-ded;
                 txtOtPay.setText(fmt(otPay)); txtDed.setText(fmt(ded)); txtNet.setText(fmt(net));
             }catch(NumberFormatException ex){JOptionPane.showMessageDialog(f,"초과근무 시간은 0 이상 숫자로 입력하세요.");}
@@ -692,7 +710,7 @@ public class HRSystem {
         if(empItems.length>0) calcAll.run();
 
         Object[][] rows={{"직원 선택 *",cmbEmp},{"급여 년월 ",txtYM},{"기본급",txtBase},
-                         {"초과근무 시간",txtOtHour},{"초과근무 수당",txtOtPay},{"세금 (20%)",txtDed},{"실수령액",txtNet}};
+                         {"초과근무 시간",txtOtHour},{"초과근무 수당",txtOtPay},{"세금 (15%)",txtDed},{"실수령액",txtNet}};
         for(int i=0;i<rows.length;i++){
             addGBC(body,makeLbl((String)rows[i][0]),gc,0,i,1,0);
             addGBC(body,(Component)rows[i][1],gc,1,i,1,1);
@@ -709,10 +727,14 @@ public class HRSystem {
             if(!txtYM.getText().matches("\\d{4}-\\d{2}")){JOptionPane.showMessageDialog(f,"년월 형식 확인 (YYYY-MM)");return;}
             String code=empItems[cmbEmp.getSelectedIndex()].split(" ")[0];
             String ym=txtYM.getText().trim();
-            boolean dup=salaries.stream().anyMatch(s->s.empCode.equals(code)&&s.yearMonth.equals(ym));
-            if(dup){
+            LocalDate date = LocalDate.now();
+            List<Data> list = Connections.select("select paylist.* from paylist join emps on emps.eno = paylist.eno where code = ? and paylist.date >= ? and paylist.date <= ?"
+            		, code, LocalDate.of(date.getYear(), date.getMonthValue(), 1), LocalDate.of(date.plusMonths(1).getYear(), date.plusMonths(1).getMonthValue(), 1).minusDays(1));
+            if(!list.isEmpty()){
                 if(JOptionPane.showConfirmDialog(f,"이미 저장된 급여가 있습니다. 덮어쓰시겠습니까?","확인",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION) return;
-                salaries.removeIf(s->s.empCode.equals(code)&&s.yearMonth.equals(ym));
+                Connections.update("update paylist set pay = ?, otPay = ?, taxPay = ? where pno = ?"
+                		, Integer.parseInt(String.join("", txtBase.getText().split(",")).split("원")[0]), Integer.parseInt(txtOtHour.getText()) * 25000
+                		, Integer.parseInt(String.join("", txtDed.getText().split(",")).split("원")[0]), list.get(0).getInt(0));
             }
             try{
                 Employee em=employees.stream().filter(x->x.code.equals(code)).findFirst().orElse(null);
