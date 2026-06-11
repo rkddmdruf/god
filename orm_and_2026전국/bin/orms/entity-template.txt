@@ -1,0 +1,74 @@
+package orms;
+
+import com.worldskills.ktrade.database.DBManager;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+public class ${class_name}Entity {
+
+    ${fields}
+
+    public static final Map<Integer, ${class_name}Entity> cache = new HashMap<>();
+    static { reload(); }
+
+    public static void reload() {
+        cache.clear();
+        try (var stmt = DBManager.execute("SELECT * FROM ${class_name}");
+             var rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                var e = new ${class_name}Entity();
+                ${rs_fields}
+                cache.put(e.${id}, e);
+            }
+        } catch (Exception exception) { exception.printStackTrace(); }
+    }
+
+    public static Optional<${class_name}Entity> findById(int id) {
+        return Optional.ofNullable(cache.get(id));
+    }
+
+    public static List<${class_name}Entity> findAll() {
+        return new ArrayList<>(cache.values());
+    }
+
+    public static List<${class_name}Entity> findBy(Predicate<${class_name}Entity> filter) {
+        return findAll().stream().filter(filter).collect(Collectors.toList());
+    }
+
+    public static Optional<${class_name}Entity> findFirst(Predicate<${class_name}Entity> filter) {
+        return findAll().stream().filter(filter).findFirst();
+    }
+
+    public ${class_name}Entity() {}
+
+    public ${class_name}Entity(${const_fields}) {
+        ${const_fields_init}
+    }
+
+    public void save() {
+        String sql = (${id} == null)
+                ? "INSERT INTO ${class_name} (${column_names}) VALUES (${values})"
+                : "UPDATE holding SET ${update} WHERE ${id} = ${id}";
+        Object[] values = (${id} == null)
+                ? new Object[]{${sql_insert}}
+                : new Object[]{${sql_update}};
+
+        try (var stmt = DBManager.execute(sql, values)) {
+            stmt.executeUpdate();
+            if (${id} == null) { var rs = stmt.getGeneratedKeys(); rs.next(); ${id} = rs.getInt(1); }
+            cache.put(${id}, this);
+        } catch (Exception exception) { exception.printStackTrace(); }
+    }
+
+    public void delete() {
+        try (var stmt = DBManager.execute("DELETE FROM ${class_name} WHERE ${id} =?", ${id})) {
+            stmt.executeUpdate();
+            cache.remove(${id});
+        } catch (Exception exception) { exception.printStackTrace(); }
+    }
+}
